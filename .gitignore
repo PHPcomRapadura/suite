@@ -1,0 +1,60 @@
+# Dependências
+/node_modules
+/vendor
+
+# Laravel — ambiente e segredos
+.env
+.env.backup
+.env.production
+.env.*.local
+/auth.json
+/storage/*.key
+
+# Laravel — cache e compilados (gerados automaticamente)
+/bootstrap/cache/*.php
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/storage/pail
+
+# Banco de dados local
+*.sqlite
+*.sqlite3
+/database/*.sqlite
+/database/*.sqlite3
+
+# Assets compilados (gerados pelo Vite)
+/public/build
+/public/hot
+/public/fonts-manifest.json
+/public/fonts-manifest.dev.json
+/public/storage
+
+# Logs
+*.log
+/storage/logs/*.log
+
+# Claude Code — configurações locais de máquina
+/.claude/settings.local.json
+
+# IDEs e editores
+/.idea
+/.vscode
+/.cursor/
+/.nova
+/.zed
+/.codex
+.phpactor.json
+_ide_helper.php
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# PHP / Laravel dev tools
+.phpunit.result.cache
+/.phpunit.cache
+
+# Homestead (Vagrant — não usamos, mas Laravel inclui por padrão)
+Homestead.json
+Homestead.yaml

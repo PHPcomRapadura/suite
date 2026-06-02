@@ -1,0 +1,208 @@
+# CLAUDE.md — PHP com Rapadura Suite
+
+Guia para desenvolvimento neste projeto com Claude Code.
+
+---
+
+## Contexto do Projeto
+
+Suite de aplicações da comunidade **PHP com Rapadura**, composta por três módulos:
+
+1. **Site institucional** *(implementado)* — Blade + Tailwind CSS v4, single-page com âncoras
+2. **Call for Papers (CFP)** *(a implementar)* — submissão de propostas de palestras
+3. **Gestão de Eventos** *(a implementar)* — painel administrativo para organizadores
+
+Stack: **Laravel 13 + PHP 8.4 | Blade (site) + Vue.js SPA (admin) | Tailwind CSS v4 | MySQL 8.4 | Redis**
+
+---
+
+## Arquitetura
+
+### Site institucional (Blade)
+
+O site é uma **single-page Blade** com seções âncora. Não usa Vue.js.
+
+```
+resources/views/welcome.blade.php   # página principal
+resources/css/app.css               # Tailwind v4 + design tokens + CSS customizado
+resources/js/app.js                 # Vanilla JS (scroll spy, menu, animações)
+public/images/                      # Imagens e SVGs estáticos
+```
+
+Rotas adicionais:
+```
+GET /sitemap.xml   → resources/views/sitemap.blade.php
+GET /robots.txt    → public/robots.txt (arquivo estático)
+```
+
+### Módulos futuros (Vue.js SPA)
+
+```
+resources/js/
+├── views/{section}/        # Páginas por seção
+├── components/             # Componentes reutilizáveis e modais
+├── router/index.js         # Vue Router
+└── config/menu.js          # Itens do menu lateral
+```
+
+> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('app')`.
+
+---
+
+## ⚠️ Tailwind v4 — CSS Variables
+
+**CRÍTICO:** No Tailwind v4, a sintaxe para CSS custom properties mudou.
+
+| Errado ❌ | Correto ✅ |
+|-----------|-----------|
+| `bg-[--color-bg]` | `bg-(--color-bg)` |
+| `text-[--color-text]` | `text-(--color-text)` |
+| `border-[--color-border]` | `border-(--color-border)` |
+| `hover:text-[--color-primary]` | `hover:text-(--color-primary)` |
+
+A sintaxe `[--color-X]` gera `background-color: --color-bg` (inválido no CSS).
+A sintaxe `(--color-X)` gera `background-color: var(--color-bg)` (correto).
+
+---
+
+## Design System
+
+### Fonte
+
+**Lexend** — carregada via Bunny Fonts no `vite.config.js` com pesos 400/500/600/700.
+
+### Tokens de cor (CSS variables — definidos em `app.css`)
+
+```css
+:root {
+    --color-primary: #025c98;
+    --color-primary-hover: #024d80;
+    --color-bg: #f5f6f8;
+    --color-surface: #ffffff;
+    --color-border: #e5e7eb;
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-success: #16a34a;
+    --color-warning: #f59e0b;
+    --color-danger: #dc2626;
+}
+```
+
+### Regras de UI
+
+- Mobile-first: telas funcionam a partir de 360px
+- Radius: 10–12px em cards, 8–10px em inputs/botões
+- Alvos clicáveis mínimo de 40px
+- Grid de cards: `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`
+- Scroll behavior: `scroll-behavior: smooth` no HTML
+- Animações de entrada: `.section-hidden` + `.section-visible` via `IntersectionObserver`
+
+---
+
+## Padrão de CRUD (módulos futuros)
+
+Todo CRUD segue o padrão do módulo de Usuários.
+
+### Arquivos por CRUD
+
+| Arquivo | Localização |
+|---------|-------------|
+| Controller | `app/Http/Controllers/{Module}Controller.php` |
+| StoreRequest | `app/Http/Requests/{Module}/Store{Model}Request.php` |
+| UpdateRequest | `app/Http/Requests/{Module}/Update{Model}Request.php` |
+| Service | `app/Services/{Model}Service.php` |
+| View | `resources/js/views/{section}/{Model}s.vue` |
+| Modal | `resources/js/components/{Model}Modal.vue` |
+
+### Interface
+
+- Listagem em grid de cards (nunca tabelas)
+- 3 colunas desktop / 2 tablet / 1 mobile
+- Paginação: 9 itens por página
+- Criar/Editar via modal, Excluir via ConfirmModal
+- Toggle para ativar/inativar no card
+
+### Checklist de implementação
+
+- [ ] Model com `$fillable` e `$casts`
+- [ ] Migration
+- [ ] Controller (index, store, show, update, destroy, toggleStatus)
+- [ ] StoreRequest e UpdateRequest com validações em português
+- [ ] Service com lógica de negócio
+- [ ] Rotas API + rota web para reload
+- [ ] View + Modal + ConfirmModal + Toggle
+- [ ] Item no menu (`menu.js`) e rota no Vue Router
+
+---
+
+## SEO (site institucional)
+
+O `welcome.blade.php` já inclui:
+
+- `<title>`, `<meta description>`, `<meta keywords>`, `<meta robots>`
+- Open Graph completo (7 tags) + Twitter Card `summary_large_image`
+- JSON-LD: `Organization` (com fundador, endereço, sameAs) + `WebSite`
+- `<link rel="canonical">` e `<link rel="sitemap">`
+- `<meta name="theme-color">` e `<link rel="apple-touch-icon">`
+- `<link rel="preload">` para logo e favicon
+- `<h1 class="sr-only">` para leitores de tela
+
+> **Blade vs JSON-LD:** Propriedades `@context`, `@type` do JSON-LD devem ser escritas como `@@context`, `@@type` para não conflitar com diretivas Blade.
+
+---
+
+## Acessibilidade (site institucional)
+
+- `lang="pt-BR"` no `<html>`
+- `<main id="main-content">` envolvendo o conteúdo principal
+- Skip link "Pular para o conteúdo principal" (`.sr-only` com focus visível)
+- `<div role="status" aria-live="polite">` para anúncios dinâmicos
+- `aria-label` em todos os links externos e botões sem texto visível
+- `aria-current="true"` nos links de navegação ativos (scroll spy)
+- `aria-expanded`, `aria-controls`, `aria-modal` no menu mobile
+- Focus trap no menu mobile (Tab/Shift+Tab cicla dentro do dialog)
+- `@media (prefers-reduced-motion: reduce)` — desativa todas as animações
+- `width` e `height` em todas as `<img>` para evitar CLS
+
+---
+
+## Ambiente Docker
+
+| Serviço | Porta | URL |
+|---------|-------|-----|
+| Nginx | 8000 | http://localhost:8000 |
+| MySQL | 3306 | — |
+| PHPMyAdmin | 8080 | http://localhost:8080 |
+| Redis | 6379 | — |
+
+```bash
+docker compose up -d --build     # subir
+docker compose down              # parar
+docker compose exec app bash     # acessar container
+docker compose exec app php artisan migrate
+docker compose exec app php artisan view:clear
+docker compose logs -f app       # ver logs
+```
+
+Build do frontend (no host, Node.js disponível):
+```bash
+npm run build    # produção
+npm run dev      # desenvolvimento com HMR
+```
+
+---
+
+## Status atual do site
+
+| Seção | Status |
+|-------|--------|
+| Loader ("Perainda!") | ✅ Implementado |
+| Hero | ✅ Implementado |
+| Sobre + Parallax | ✅ Implementado |
+| Eventos | ⚠️ Placeholder "Em breve" |
+| Código de Conduta | ✅ Implementado |
+| Contato | ✅ Implementado |
+| Footer | ✅ Implementado |
+| SEO | ✅ 9.5/10 |
+| Acessibilidade | ✅ 8.5/10 |
+| Mobile Friendly | ✅ 8.5/10 |
