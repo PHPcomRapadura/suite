@@ -60,7 +60,7 @@ async function submit() {
                 <div class="absolute inset-0 bg-black/40" @click="emit('close')" />
 
                 <!-- Modal -->
-                <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+                <div class="relative w-full max-w-md bg-(--color-surface) rounded-2xl shadow-xl p-6">
 
                     <h2 class="text-lg font-semibold text-(--color-text) mb-6">
                         {{ isEditing ? 'Editar usuário' : 'Novo usuário' }}
@@ -78,7 +78,7 @@ async function submit() {
                                 type="text"
                                 autocomplete="name"
                                 :disabled="loading"
-                                :class="['w-full px-3.5 py-2.5 rounded-lg border text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent disabled:opacity-60 transition',
+                                :class="['w-full px-3.5 py-2.5 rounded-lg border bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent disabled:opacity-60 transition',
                                          errors.name ? 'border-(--color-danger)' : 'border-(--color-border)']"
                             >
                             <p v-if="errors.name" class="mt-1 text-xs text-(--color-danger)">{{ errors.name[0] }}</p>
@@ -94,7 +94,7 @@ async function submit() {
                                 type="email"
                                 autocomplete="email"
                                 :disabled="loading"
-                                :class="['w-full px-3.5 py-2.5 rounded-lg border text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent disabled:opacity-60 transition',
+                                :class="['w-full px-3.5 py-2.5 rounded-lg border bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent disabled:opacity-60 transition',
                                          errors.email ? 'border-(--color-danger)' : 'border-(--color-border)']"
                             >
                             <p v-if="errors.email" class="mt-1 text-xs text-(--color-danger)">{{ errors.email[0] }}</p>
@@ -108,7 +108,7 @@ async function submit() {
                             <select
                                 v-model="form.role"
                                 :disabled="loading"
-                                :class="['w-full px-3.5 py-2.5 rounded-lg border bg-white text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent disabled:opacity-60 transition',
+                                :class="['w-full px-3.5 py-2.5 rounded-lg border bg-(--color-surface) text-(--color-text) text-sm focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent disabled:opacity-60 transition',
                                          errors.role ? 'border-(--color-danger)' : 'border-(--color-border)']"
                             >
                                 <option value="colaborador">Colaborador</option>
@@ -162,7 +162,7 @@ async function submit() {
                                 :type="showPassword ? 'text' : 'password'"
                                 autocomplete="new-password"
                                 :disabled="loading"
-                                class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) text-(--color-text) text-sm
+                                class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm
                                        focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent
                                        disabled:opacity-60 transition"
                             >
@@ -173,8 +173,8 @@ async function submit() {
                             <button
                                 type="button"
                                 :disabled="loading"
-                                class="px-4 py-2 text-sm font-medium text-(--color-text) bg-white border border-(--color-border)
-                                       rounded-lg hover:bg-gray-50 transition disabled:opacity-60"
+                                class="px-4 py-2 text-sm font-medium text-(--color-text) bg-(--color-surface) border border-(--color-border)
+                                       rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition disabled:opacity-60"
                                 @click="emit('close')"
                             >
                                 Cancelar

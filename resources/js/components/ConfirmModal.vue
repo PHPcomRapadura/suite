@@ -28,7 +28,7 @@ const emit = defineEmits(['confirm', 'cancel'])
                 />
 
                 <!-- Modal -->
-                <div class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl p-6">
+                <div class="relative w-full max-w-sm bg-(--color-surface) rounded-2xl shadow-xl p-6">
                     <h2 class="text-lg font-semibold text-(--color-text) mb-2">{{ title }}</h2>
                     <p class="text-sm text-(--color-text-muted) mb-6">{{ message }}</p>
 
@@ -36,8 +36,8 @@ const emit = defineEmits(['confirm', 'cancel'])
                         <button
                             type="button"
                             :disabled="loading"
-                            class="px-4 py-2 text-sm font-medium text-(--color-text) bg-white border border-(--color-border)
-                                   rounded-lg hover:bg-gray-50 transition disabled:opacity-60"
+                            class="px-4 py-2 text-sm font-medium text-(--color-text) bg-(--color-surface) border border-(--color-border)
+                                   rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition disabled:opacity-60"
                             @click="emit('cancel')"
                         >
                             Cancelar

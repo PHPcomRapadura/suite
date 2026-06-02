@@ -9,20 +9,25 @@ const routes = [
         meta: { guest: true },
     },
     {
-        path: '/admin/dashboard',
-        name: 'admin.dashboard',
-        component: () => import('@/views/admin/Dashboard.vue'),
-        meta: { auth: true },
-    },
-    {
-        path: '/admin/users',
-        name: 'admin.users',
-        component: () => import('@/views/admin/Users.vue'),
-        meta: { auth: true },
-    },
-    {
         path: '/admin',
-        redirect: { name: 'admin.dashboard' },
+        component: () => import('@/layouts/AdminLayout.vue'),
+        meta: { auth: true },
+        children: [
+            {
+                path: 'dashboard',
+                name: 'admin.dashboard',
+                component: () => import('@/views/admin/Dashboard.vue'),
+            },
+            {
+                path: 'users',
+                name: 'admin.users',
+                component: () => import('@/views/admin/Users.vue'),
+            },
+            {
+                path: '',
+                redirect: { name: 'admin.dashboard' },
+            },
+        ],
     },
 ]
 

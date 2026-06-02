@@ -81,10 +81,10 @@ function avatarColor(role) {
 
 function roleBadge(role) {
     return {
-        admin:       'bg-blue-100 text-blue-700',
-        colaborador: 'bg-amber-100 text-amber-700',
-        palestrante: 'bg-green-100 text-green-700',
-    }[role] ?? 'bg-gray-100 text-gray-600'
+        admin:       'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+        colaborador: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+        palestrante: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400',
+    }[role] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
 }
 
 function formatLastLogin(date) {
@@ -105,8 +105,7 @@ onMounted(() => fetchUsers())
 </script>
 
 <template>
-    <div class="min-h-screen bg-(--color-bg)">
-        <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-8">
 
             <!-- Cabeçalho -->
             <div class="flex items-center justify-between mb-6">
@@ -134,14 +133,14 @@ onMounted(() => fetchUsers())
                         type="search"
                         placeholder="Buscar por nome ou e-mail..."
                         @input="onSearchInput"
-                        class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-(--color-border) bg-white text-(--color-text) text-sm
+                        class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm
                                focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent transition"
                     >
                 </div>
                 <select
                     v-model="filters.role"
                     @change="fetchUsers(1)"
-                    class="px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-white text-(--color-text) text-sm
+                    class="px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm
                            focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent transition"
                 >
                     <option value="">Todas as funções</option>
@@ -152,7 +151,7 @@ onMounted(() => fetchUsers())
                 <select
                     v-model="filters.status"
                     @change="fetchUsers(1)"
-                    class="px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-white text-(--color-text) text-sm
+                    class="px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm
                            focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent transition"
                 >
                     <option value="">Todos os status</option>
@@ -174,7 +173,7 @@ onMounted(() => fetchUsers())
                 <div
                     v-for="user in users"
                     :key="user.id"
-                    class="bg-white rounded-xl border border-(--color-border) p-5 flex flex-col gap-4"
+                    class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-4"
                 >
                     <!-- Topo do card -->
                     <div class="flex items-start gap-3">
@@ -192,7 +191,7 @@ onMounted(() => fetchUsers())
                         <span :class="['text-xs font-medium px-2.5 py-1 rounded-full', roleBadge(user.role)]">
                             {{ roleLabels[user.role] }}
                         </span>
-                        <span :class="['text-xs font-medium px-2.5 py-1 rounded-full', user.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500']">
+                        <span :class="['text-xs font-medium px-2.5 py-1 rounded-full', user.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400']">
                             {{ user.is_active ? 'Ativo' : 'Inativo' }}
                         </span>
                     </div>
@@ -210,7 +209,7 @@ onMounted(() => fetchUsers())
                             @click="requestToggle(user)"
                             :aria-label="user.is_active ? 'Desativar usuário' : 'Ativar usuário'"
                             :class="['relative inline-flex h-6 w-11 items-center rounded-full transition',
-                                     user.is_active ? 'bg-(--color-primary)' : 'bg-gray-300']"
+                                     user.is_active ? 'bg-(--color-primary)' : 'bg-gray-300 dark:bg-gray-600']"
                         >
                             <span :class="['inline-block h-4 w-4 transform rounded-full bg-white shadow transition',
                                            user.is_active ? 'translate-x-6' : 'translate-x-1']"/>
@@ -247,14 +246,13 @@ onMounted(() => fetchUsers())
                         :class="['w-9 h-9 rounded-lg text-sm font-medium transition',
                                  page === meta.current_page
                                      ? 'bg-(--color-primary) text-white'
-                                     : 'text-(--color-text) hover:bg-gray-100']"
+                                     : 'text-(--color-text) hover:bg-gray-100 dark:hover:bg-gray-700/50']"
                     >
                         {{ page }}
                     </button>
                 </div>
             </div>
 
-        </div>
     </div>
 
     <!-- Modais -->

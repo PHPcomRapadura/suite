@@ -297,4 +297,6 @@ Banco de testes: **SQLite in-memory** (configurado em `phpunit.xml`).
 | CRUD de usuários (admin/colaborador) | ✅ Implementado |
 | Middleware `CheckRole` (role:admin) | ✅ Implementado |
 | Testes CRUD de usuários (31 casos) | ✅ Implementado |
-| Dashboard | 🔜 Próximo |
+| Dashboard com stats + layout sidebar | ✅ Implementado |
+| Dark mode (tokens + toggle + anti-flash) | ✅ Implementado |
+| Composables useAuth + useTheme | ✅ Implementado |

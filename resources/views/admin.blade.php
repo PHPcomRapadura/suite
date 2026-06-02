@@ -6,6 +6,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PHP com Rapadura — Admin</title>
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <script>
+        (function () {
+            var t = localStorage.getItem('admin-theme')
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark')
+            }
+        })()
+    </script>
     @fonts
     @vite(['resources/css/app.css', 'resources/js/admin.js'])
 </head>

@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -19,6 +21,31 @@
     --color-success: #16a34a;
     --color-warning: #f59e0b;
     --color-danger: #dc2626;
+
+    --color-sidebar-bg:          #0f172a;
+    --color-sidebar-border:      #1e293b;
+    --color-sidebar-text:        #94a3b8;
+    --color-sidebar-text-active: #f1f5f9;
+    --color-sidebar-hover:       rgba(255, 255, 255, 0.06);
+    --color-sidebar-active:      rgba(255, 255, 255, 0.10);
+    --color-sidebar-logo-bg:     #020617;
+}
+
+html.dark {
+    --color-primary:       #3b82f6;
+    --color-primary-hover: #2563eb;
+    --color-bg:            #0f172a;
+    --color-surface:       #1e293b;
+    --color-border:        #334155;
+    --color-text:          #f1f5f9;
+    --color-text-muted:    #94a3b8;
+    --color-success:       #22c55e;
+    --color-warning:       #fbbf24;
+    --color-danger:        #f87171;
+
+    --color-sidebar-bg:     #020617;
+    --color-sidebar-border: #0f172a;
+    --color-sidebar-logo-bg: #000000;
 }
 
 html {
