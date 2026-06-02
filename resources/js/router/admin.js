@@ -15,6 +15,12 @@ const routes = [
         meta: { auth: true },
     },
     {
+        path: '/admin/users',
+        name: 'admin.users',
+        component: () => import('@/views/admin/Users.vue'),
+        meta: { auth: true },
+    },
+    {
         path: '/admin',
         redirect: { name: 'admin.dashboard' },
     },

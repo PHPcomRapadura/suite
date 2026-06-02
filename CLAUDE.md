@@ -234,7 +234,7 @@ Pre-commit hooks gerenciados pelo **CaptainHook** com a seguinte stack:
 | `pre-commit` | **Larastan** | Análise estática nível 5 |
 | `pre-commit` | **Pest** | Testes de feature |
 | `pre-push` | **Pest** | Testes + cobertura ≥ 80% |
-| `commit-msg` | Beams | Mensagem 10–72 chars, capitalizada |
+| `commit-msg` | Beams | Subject 10–50 chars, body ≤ 72 chars/linha, capitalizado |
 
 ```bash
 # Rodar manualmente antes de commitar
@@ -294,5 +294,7 @@ Banco de testes: **SQLite in-memory** (configurado em `phpunit.xml`).
 | Seed do primeiro admin | ✅ Implementado |
 | Roles: admin, colaborador, palestrante | ✅ Implementado |
 | Testes de autenticação (20 casos) | ✅ Implementado |
-| Gestão de usuários | 🔜 Próximo |
+| CRUD de usuários (admin/colaborador) | ✅ Implementado |
+| Middleware `CheckRole` (role:admin) | ✅ Implementado |
+| Testes CRUD de usuários (31 casos) | ✅ Implementado |
 | Dashboard | 🔜 Próximo |
