@@ -4,22 +4,17 @@ Suite de aplicações de uso da comunidade PHP com Rapadura.
 
 ## Módulos
 
-### Site Institucional
-Site da comunidade com as seções: Hero, About, Events, Code of Conduct e Footer.
+### ✅ Site Institucional
+Single-page com as seções: Hero, Sobre, Eventos, Código de Conduta, Contato e Footer.
 
-### Call for Papers (CFP)
-Sistema de submissão de propostas de palestras. Acesse `/cfp` para ver os eventos abertos. O palestrante se cadastra ou faz login, escolhe um evento e preenche o formulário de submissão. As palestras ficam com status **Enviada** e podem ser aprovadas ou rejeitadas pela organização com feedback.
+### ✅ Admin — Autenticação
+Área restrita em `/admin` com login, logout, controle de roles e proteção de rotas.
 
-### Gestão de Eventos (admin)
-Acesso restrito a administradores com controle de permissões. Módulos:
+### Call for Papers (CFP) — em breve
+Sistema de submissão de propostas de palestras por palestrantes.
 
-- Controle de eventos
-- Controle de submissão de palestras por evento
-- Controle de despesas por evento
-- Controle de tarefas por evento (Kanban)
-- Fórum com tópicos por evento
-- Controle de participantes (upload CSV)
-- Sorteio digital por evento
+### Gestão de Eventos — em breve
+Painel administrativo com controle de eventos, tarefas, despesas, participantes e sorteio.
 
 ---
 
@@ -28,10 +23,24 @@ Acesso restrito a administradores com controle de permissões. Módulos:
 | Camada | Tecnologia |
 |--------|-----------|
 | Backend | Laravel 13 / PHP 8.4 |
-| Frontend | Vue.js + Tailwind CSS v4 + Vite |
+| Autenticação | Laravel Sanctum (sessão + cookie) |
+| Frontend site | Blade + Tailwind CSS v4 |
+| Frontend admin | Vue.js 3 SPA + Vue Router |
+| Build | Vite |
 | Banco de dados | MySQL 8.4 |
 | Cache / Filas / Sessão | Redis |
 | Admin BD | PHPMyAdmin |
+
+---
+
+## Qualidade de código
+
+| Ferramenta | Função |
+|-----------|--------|
+| **Pint** | Code style PSR-12 |
+| **Larastan** | Análise estática nível 5 |
+| **Pest** | Testes automatizados |
+| **CaptainHook** | Pre-commit hooks (lint + style + análise + testes) |
 
 ---
 
@@ -39,7 +48,6 @@ Acesso restrito a administradores com controle de permissões. Módulos:
 
 | Serviço | Porta | URL |
 |---------|-------|-----|
-| App (PHP-FPM) | — | via nginx |
 | Nginx | 8000 | http://localhost:8000 |
 | MySQL | 3306 | — |
 | PHPMyAdmin | 8080 | http://localhost:8080 |
@@ -51,23 +59,28 @@ Acesso restrito a administradores com controle de permissões. Módulos:
 docker compose up -d --build
 ```
 
+### Primeiro acesso
+
+```bash
+# Rodar migrations e seed (cria o admin inicial)
+docker compose exec app php artisan migrate --seed
+
+# Acessar o painel admin
+# http://localhost:8000/admin/login
+# E-mail e senha definidos em ADMIN_EMAIL e ADMIN_PASSWORD no .env
+```
+
 ### Comandos úteis
 
 ```bash
-# Acessar o container da aplicação
-docker compose exec app bash
-
-# Rodar migrations
-docker compose exec app php artisan migrate
-
-# Gerar chave da aplicação
-docker compose exec app php artisan key:generate
-
-# Limpar cache
-docker compose exec app php artisan cache:clear
-
-# Parar todos os containers
-docker compose down
+docker compose exec app bash                        # shell no container
+docker compose exec app php artisan migrate         # migrations
+docker compose exec app php artisan db:seed         # seeds
+docker compose exec app php artisan view:clear      # limpar cache de views
+docker compose exec app ./vendor/bin/pint           # corrigir code style
+docker compose exec app ./vendor/bin/phpstan analyse # análise estática
+docker compose exec app ./vendor/bin/pest --parallel # rodar testes
+docker compose down                                  # parar containers
 ```
 
 ---
@@ -78,7 +91,7 @@ docker compose down
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate
+php artisan migrate --seed
 npm install
 npm run dev
 ```
@@ -88,16 +101,21 @@ npm run dev
 ## Variáveis de ambiente relevantes
 
 ```dotenv
+# Banco de dados (Docker: host = nome do serviço)
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_DATABASE=phpcomrapadura
 DB_USERNAME=laravel
-DB_PASSWORD=secret
+DB_PASSWORD=
 
+# Redis (Docker: host = nome do serviço)
 REDIS_HOST=redis
 REDIS_PORT=6379
-
 SESSION_DRIVER=redis
 CACHE_STORE=redis
 QUEUE_CONNECTION=redis
+
+# Primeiro admin (gerado via seed)
+ADMIN_EMAIL=admin@phpcomrapadura.org
+ADMIN_PASSWORD=
 ```

@@ -4,6 +4,26 @@ Guia para desenvolvimento neste projeto com Claude Code.
 
 ---
 
+## ⚠️ Regra obrigatória antes de qualquer commit
+
+**Antes de commitar, atualize as documentações relacionadas aos arquivos alterados.**
+
+| Se alterou | Atualize |
+|-----------|----------|
+| Qualquer arquivo de `app/`, `routes/`, `database/` | `CLAUDE.md` (status), `.claude/about.md`, spec correspondente |
+| Nova feature ou módulo | Spec em `.claude/specs/`, `README.md`, `CLAUDE.md` (status) |
+| Padrão de código ou arquitetura | `.claude/patterns/` e/ou `.claude/skills/` |
+| Configuração de ambiente (`.env`, Docker, Vite) | `README.md`, `CLAUDE.md` |
+| Testes | `.claude/skills/tests.md` se mudou a convenção |
+
+Checklist rápido pré-commit:
+- [ ] Specs das features implementadas marcadas como `✅ Implementado`
+- [ ] Status no `CLAUDE.md` reflete o estado atual
+- [ ] `README.md` com instruções de setup atualizadas
+- [ ] `about.md` descreve o que foi entregue
+
+---
+
 ## Contexto do Projeto
 
 Suite de aplicações da comunidade **PHP com Rapadura**, composta por três módulos:
@@ -12,7 +32,7 @@ Suite de aplicações da comunidade **PHP com Rapadura**, composta por três mó
 2. **Call for Papers (CFP)** *(a implementar)* — submissão de propostas de palestras
 3. **Gestão de Eventos** *(a implementar)* — painel administrativo para organizadores
 
-Stack: **Laravel 13 + PHP 8.4 | Blade (site) + Vue.js SPA (admin) | Tailwind CSS v4 | MySQL 8.4 | Redis**
+Stack: **Laravel 13 + PHP 8.4 | Blade (site) + Vue.js 3 SPA (admin) | Tailwind CSS v4 | MySQL 8.4 | Redis | Laravel Sanctum**
 
 ---
 
@@ -35,17 +55,28 @@ GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
 ```
 
-### Módulos futuros (Vue.js SPA)
+### Admin — Vue.js SPA (em desenvolvimento)
 
 ```
 resources/js/
-├── views/{section}/        # Páginas por seção
-├── components/             # Componentes reutilizáveis e modais
-├── router/index.js         # Vue Router
-└── config/menu.js          # Itens do menu lateral
+├── admin.js                # Bootstrap da SPA admin
+├── App.vue                 # Componente raiz
+├── router/admin.js         # Vue Router do admin
+└── views/
+    ├── auth/Login.vue      # Página de login
+    └── admin/Dashboard.vue # Dashboard (placeholder)
 ```
 
-> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('app')`.
+Rotas admin em `routes/web.php`:
+```
+GET  /admin/login     → view('admin')  [pública]
+POST /admin/login     → AdminLoginController@login
+POST /admin/logout    → AdminLoginController@logout  [auth]
+GET  /admin/dashboard → view('admin')  [auth]
+GET  /admin/{any}     → view('admin')  [auth]
+```
+
+> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
 
 ---
 
@@ -192,7 +223,54 @@ npm run dev      # desenvolvimento com HMR
 
 ---
 
-## Status atual do site
+## Qualidade de código (CaptainHook)
+
+Pre-commit hooks gerenciados pelo **CaptainHook** com a seguinte stack:
+
+| Hook | Ferramenta | O que verifica |
+|------|-----------|----------------|
+| `pre-commit` | PHP Lint | Sintaxe PHP |
+| `pre-commit` | **Pint** | Code style PSR-12 (Laravel preset) |
+| `pre-commit` | **Larastan** | Análise estática nível 5 |
+| `pre-commit` | **Pest** | Testes de feature |
+| `pre-push` | **Pest** | Testes + cobertura ≥ 80% |
+| `commit-msg` | Beams | Mensagem 10–72 chars, capitalizada |
+
+```bash
+# Rodar manualmente antes de commitar
+docker compose exec app ./vendor/bin/pint              # corrige code style
+docker compose exec app ./vendor/bin/phpstan analyse   # análise estática
+docker compose exec app ./vendor/bin/pest --parallel   # testes
+```
+
+Configuração: `captainhook.json` e `phpstan.neon` na raiz do projeto.
+
+---
+
+## Testes
+
+```bash
+# Rodar todos os testes
+docker compose exec app ./vendor/bin/pest
+
+# Com paralelismo
+docker compose exec app ./vendor/bin/pest --parallel
+
+# Suite específica
+docker compose exec app ./vendor/bin/pest tests/Feature/Admin/
+
+# Com cobertura
+docker compose exec app ./vendor/bin/pest --coverage
+```
+
+Framework: **Pest v4** com `RefreshDatabase` habilitado globalmente para Feature tests.
+Banco de testes: **SQLite in-memory** (configurado em `phpunit.xml`).
+
+---
+
+## Status atual
+
+### Site institucional
 
 | Seção | Status |
 |-------|--------|
@@ -206,3 +284,15 @@ npm run dev      # desenvolvimento com HMR
 | SEO | ✅ 9.5/10 |
 | Acessibilidade | ✅ 8.5/10 |
 | Mobile Friendly | ✅ 8.5/10 |
+
+### Admin
+
+| Funcionalidade | Status |
+|---------------|--------|
+| Autenticação (login/logout) | ✅ Implementado |
+| Middleware `EnsureAdminRole` | ✅ Implementado |
+| Seed do primeiro admin | ✅ Implementado |
+| Roles: admin, colaborador, palestrante | ✅ Implementado |
+| Testes de autenticação (20 casos) | ✅ Implementado |
+| Gestão de usuários | 🔜 Próximo |
+| Dashboard | 🔜 Próximo |

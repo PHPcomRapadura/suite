@@ -1,0 +1,45 @@
+{
+    "commit-msg": {
+        "enabled": true,
+        "actions": [
+            {
+                "action": "\\CaptainHook\\App\\Hook\\Message\\Action\\Beams",
+                "options": {
+                    "subjectMinLength": 10,
+                    "subjectMaxLength": 72,
+                    "capitalizeSubject": true
+                }
+            }
+        ]
+    },
+    "pre-commit": {
+        "enabled": true,
+        "actions": [
+            {
+                "action": "\\CaptainHook\\App\\Hook\\PHP\\Action\\Linting",
+                "label": "PHP Syntax"
+            },
+            {
+                "action": "docker compose exec -T app php ./vendor/bin/pint --test",
+                "label": "Pint (code style)"
+            },
+            {
+                "action": "docker compose exec -T app php ./vendor/bin/phpstan analyse --memory-limit=512M",
+                "label": "Larastan (static analysis)"
+            },
+            {
+                "action": "docker compose exec -T app php ./vendor/bin/pest --parallel",
+                "label": "Pest (tests)"
+            }
+        ]
+    },
+    "pre-push": {
+        "enabled": true,
+        "actions": [
+            {
+                "action": "docker compose exec -T app php ./vendor/bin/pest --parallel --coverage --min=80",
+                "label": "Pest (coverage ≥ 80%)"
+            }
+        ]
+    }
+}

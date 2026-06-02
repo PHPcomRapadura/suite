@@ -12,11 +12,13 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
+    libsqlite3-dev \
     zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         pdo_mysql \
+        pdo_sqlite \
         mbstring \
         exif \
         pcntl \
