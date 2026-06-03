@@ -80,6 +80,7 @@ docker compose exec app php artisan view:clear      # limpar cache de views
 docker compose exec app ./vendor/bin/pint           # corrigir code style
 docker compose exec app ./vendor/bin/phpstan analyse # análise estática
 docker compose exec app ./vendor/bin/pest --parallel # rodar testes
+npx playwright test tests/e2e/                       # testes e2e (requer containers)
 docker compose down                                  # parar containers
 ```
 
@@ -102,11 +103,12 @@ npm run dev
 
 ```dotenv
 # Banco de dados (Docker: host = nome do serviço)
+# DB_PASSWORD padrão do docker-compose é "secret" quando deixado vazio no .env
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_DATABASE=phpcomrapadura
 DB_USERNAME=laravel
-DB_PASSWORD=
+DB_PASSWORD=secret
 
 # Redis (Docker: host = nome do serviço)
 REDIS_HOST=redis
@@ -116,6 +118,8 @@ CACHE_STORE=redis
 QUEUE_CONNECTION=redis
 
 # Primeiro admin (gerado via seed)
+# ATENÇÃO: valor vazio faz env() retornar '' em vez de usar o default da seed.
+# Sempre defina um valor antes de rodar php artisan db:seed.
 ADMIN_EMAIL=admin@phpcomrapadura.org
-ADMIN_PASSWORD=
+ADMIN_PASSWORD=mudar@123
 ```

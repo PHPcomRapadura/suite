@@ -30,7 +30,7 @@ async function handleLogin() {
         <div class="w-full max-w-[420px]">
 
             <!-- Card -->
-            <div class="bg-white rounded-2xl shadow-sm border border-(--color-border) p-8">
+            <div class="bg-(--color-surface) rounded-2xl shadow-sm border border-(--color-border) p-8">
 
                 <!-- Logo -->
                 <div class="flex justify-center mb-6">
@@ -64,7 +64,7 @@ async function handleLogin() {
                             autocomplete="email"
                             required
                             :disabled="loading"
-                            class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-white text-(--color-text) text-sm
+                            class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm
                                    focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent
                                    disabled:opacity-60 transition"
                             placeholder="seu@email.com"
@@ -84,7 +84,7 @@ async function handleLogin() {
                                 autocomplete="current-password"
                                 required
                                 :disabled="loading"
-                                class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-white text-(--color-text) text-sm
+                                class="w-full px-3.5 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) text-sm
                                        focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-transparent
                                        disabled:opacity-60 transition pr-10"
                                 placeholder="••••••••"
@@ -121,7 +121,7 @@ async function handleLogin() {
                     </div>
 
                     <!-- Erro -->
-                    <div v-if="error" role="alert" class="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">
+                    <div v-if="error" role="alert" class="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm px-4 py-3 rounded-lg">
                         {{ error }}
                     </div>
 

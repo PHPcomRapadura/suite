@@ -266,6 +266,21 @@ docker compose exec app ./vendor/bin/pest --coverage
 Framework: **Pest v4** com `RefreshDatabase` habilitado globalmente para Feature tests.
 Banco de testes: **SQLite in-memory** (configurado em `phpunit.xml`).
 
+### Testes E2E (Playwright)
+
+```bash
+# Rodar testes e2e
+npx playwright test tests/e2e/
+
+# Arquivo específico
+npx playwright test tests/e2e/home.spec.js
+
+# Instalar browsers (necessário na primeira vez)
+npx playwright install chromium
+```
+
+Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer containers no ar).
+
 ---
 
 ## Status atual
@@ -299,4 +314,6 @@ Banco de testes: **SQLite in-memory** (configurado em `phpunit.xml`).
 | Testes CRUD de usuários (31 casos) | ✅ Implementado |
 | Dashboard com stats + layout sidebar | ✅ Implementado |
 | Dark mode (tokens + toggle + anti-flash) | ✅ Implementado |
+| Dark mode na página de login | ✅ Implementado |
 | Composables useAuth + useTheme | ✅ Implementado |
+| Testes E2E da rota GET / (Playwright) | ✅ Implementado |

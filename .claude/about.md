@@ -27,6 +27,15 @@ Recursos transversais do site:
 - Middleware `EnsureAdminRole` protege todas as rotas `/admin/*`
 - Seed do primeiro admin via `ADMIN_EMAIL` / `ADMIN_PASSWORD` no `.env`
 - 20 testes de feature cobrindo todos os cenários de autenticação
+- Página de login com dark mode correto (`bg-(--color-surface)` em card e inputs)
+
+> **Atenção com `ADMIN_PASSWORD` no `.env`:** se a chave existir com valor vazio (`ADMIN_PASSWORD=`), o PHP retorna `''` e o default do `env()` não é usado. Sempre preencha o valor antes de rodar a seed em um novo ambiente.
+
+### ✅ Testes E2E (Playwright)
+
+Testes de ponta a ponta em `tests/e2e/`:
+- `home.spec.js` — cobre `GET /`: status 200, `<main>` visível, nav principal presente
+- Requer containers no ar (`docker compose up -d`) e `npx playwright install chromium`
 
 ### Call for Papers (CFP) — a implementar
 Sistema para que os palestrantes possam enviar suas propostas de palestras a um determinado evento. Esse módulo tem a seguinte característica: a rota /cfp ao ser acessada exibirá uma lista de eventos aceitando submissão de palestras. O usuário sem registro deve se cadastrar na plataforma; se já tiver cadastro basta realizar o login. Ao acessar o painel ele pode selecionar um evento disponível e preencher um formulário para submeter a palestra. Ao submeter, a palestra fica com status **Enviada** e no futuro pode ser **Aprovada** ou **Rejeitada** com feedback da organização.

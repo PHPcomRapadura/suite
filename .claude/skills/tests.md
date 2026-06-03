@@ -289,6 +289,57 @@ git commit --no-verify -m "mensagem"
 
 ---
 
+## Testes E2E com Playwright
+
+Testes de ponta a ponta ficam em `tests/e2e/` e rodam contra o servidor real (`http://localhost:8000`).
+
+### Requisitos
+
+```bash
+# Instalar o pacote (já no package.json como devDependency)
+npm install
+
+# Instalar o browser Chromium (necessário apenas na primeira vez)
+npx playwright install chromium
+```
+
+### Executar
+
+```bash
+# Todos os testes e2e
+npx playwright test tests/e2e/
+
+# Arquivo específico com output detalhado
+npx playwright test tests/e2e/home.spec.js --reporter=list
+
+# Com screenshots em caso de falha
+npx playwright test tests/e2e/ --reporter=list
+```
+
+> **Atenção:** os testes e2e requerem `docker compose up -d` antes de rodar.
+> Se o storage estiver sem os diretórios necessários, a app retorna 500.
+> Execute `docker compose exec app bash -c "mkdir -p storage/framework/{cache/data,sessions,views} && chmod -R 775 storage && chown -R www-data:www-data storage"` para corrigir.
+
+### Estrutura de um teste e2e
+
+```js
+import { test, expect } from '@playwright/test';
+
+test('GET / retorna página institucional', async ({ page }) => {
+  const response = await page.goto('http://localhost:8000/');
+
+  await expect(page).toHaveTitle(/PHP com Rapadura/i);
+  expect(response.status()).toBe(200);
+});
+```
+
+### Seletores e boas práticas
+
+- Preferir `getByRole` com `name` para evitar ambiguidade quando há múltiplos elementos do mesmo tipo
+- Ex: a página tem 3 `<nav>` — usar `page.getByRole('navigation', { name: 'Navegação principal' })` em vez de `page.locator('nav')`
+
+---
+
 ## Boas práticas
 
 - Nome do teste em **português**, descrevendo o comportamento: `'cria item com dados válidos'`

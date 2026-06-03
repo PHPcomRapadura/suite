@@ -159,10 +159,12 @@ User::create([
 - Adicionar ao `DatabaseSeeder`: `$this->call(AdminUserSeeder::class)`
 - Executar: `php artisan db:seed --class=AdminUserSeeder`
 
+> **Armadilha:** se `ADMIN_PASSWORD=` existir no `.env` com valor vazio, `env('ADMIN_PASSWORD', 'mudar@123')` retorna `''` (string vazia) — **não** usa o default. O admin fica com senha vazia e o login falha. Sempre defina um valor explícito antes de rodar a seed.
+
 Adicionar ao `.env.example`:
 ```dotenv
 ADMIN_EMAIL=admin@phpcomrapadura.org
-ADMIN_PASSWORD=
+ADMIN_PASSWORD=   # preencher antes de rodar php artisan db:seed
 ```
 
 ---
@@ -242,9 +244,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 ### 8.1 Layout
 
-- Fundo: `--color-bg` (`#f5f6f8`)
+- Fundo: `bg-(--color-surface)` — adapta-se ao dark mode automaticamente
 - Card centralizado vertical e horizontalmente: `max-width: 420px`
-- Fundo do card: `--color-surface` (branco), `border-radius: 12px`, sombra suave
+- Fundo do card: `bg-(--color-surface)`, `border-radius: 12px`, sombra suave
+
+> **Não usar `bg-white` hardcoded** no card nem nos inputs — usar sempre `bg-(--color-surface)` para que o dark mode funcione corretamente (`--color-surface` é `#ffffff` em light e `#1e293b` em dark).
 
 ### 8.2 Conteúdo do card
 
