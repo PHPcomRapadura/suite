@@ -643,12 +643,135 @@ grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
 
 ---
 
-## 11. Exemplo de Referência
+## 11. Exemplos de Referência
 
-O CRUD de Usuários (`configuracoes.usuarios`) é a implementação de referência:
-
-- Controller: `app/Http/Controllers/UsersController.php`
-- Requests: `app/Http/Requests/Users/`
+**CRUD simples (sem arquivo):**
+- Controller: `app/Http/Controllers/Admin/UserController.php`
+- Requests: `app/Http/Requests/Admin/Users/`
 - Service: `app/Services/UserService.php`
-- View: `resources/js/views/settings/Users.vue`
+- View: `resources/js/views/admin/Users.vue`
 - Modal: `resources/js/components/UserModal.vue`
+
+**CRUD com upload de arquivo + máquina de estados:**
+- Controller: `app/Http/Controllers/Admin/EventController.php`
+- Requests: `app/Http/Requests/Admin/Events/`
+- Service: `app/Services/EventService.php`
+- View: `resources/js/views/admin/Events.vue`
+- Modal: `resources/js/components/EventModal.vue`
+- Testes: `tests/Feature/Admin/Events/EventCrudTest.php`
+
+---
+
+## 12. Upload de arquivos para Cloudflare R2
+
+Padrão usado no CRUD de Eventos para imagens.
+
+### 12.1 Service
+
+```php
+public function uploadImage(UploadedFile $file, string $path): string
+{
+    Storage::disk('r2')->putFileAs('', $file, $path, 'public');
+    return Storage::disk('r2')->url($path);
+}
+
+public function deleteImage(?string $url): void
+{
+    if (! $url) return;
+    try {
+        $baseUrl = rtrim(Storage::disk('r2')->url(''), '/');
+    } catch (\RuntimeException) {
+        return;
+    }
+    if ($baseUrl && str_starts_with($url, $baseUrl)) {
+        Storage::disk('r2')->delete(ltrim(substr($url, strlen($baseUrl)), '/'));
+    }
+}
+```
+
+> **Por que `url('')` em vez de `config('filesystems.disks.r2.url')`?** A config pode estar vazia (ex: sem CDN configurado localmente). `url('')` retorna o base URL real do disco, funcionando tanto em produção quanto em `Storage::fake('r2')` nos testes.
+
+### 12.2 Controller — method spoofing para PUT com FormData
+
+O navegador não suporta `PUT` nativo em formulários/`FormData`. Solução: rota `POST` paralela + `_method: PUT` no body:
+
+```php
+// routes/web.php
+Route::put('/{event}', [EventController::class, 'update'])->name('update');
+Route::post('/{event}', [EventController::class, 'update'])->name('update.post');
+```
+
+```js
+// Vue — no submit do modal
+const fd = new FormData()
+fd.append('_method', 'PUT')
+// ... demais campos
+await axios.post(`/admin/api/events/${id}`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+})
+```
+
+### 12.3 Testes com Storage::fake
+
+```php
+it('salva imagem no R2', function () {
+    Storage::fake('r2');
+    $file = UploadedFile::fake()->image('capa.jpg', 1280, 720)->size(500);
+
+    $response = $this->actingAs(User::factory()->admin()->create())
+        ->post('/admin/api/events', [
+            'name'        => 'Evento',
+            'starts_at'   => '2026-06-15 09:00:00',
+            'is_online'   => false,
+            'cover_image' => $file,
+        ])
+        ->assertCreated();
+
+    Storage::disk('r2')->assertExists("events/{$response->json('id')}/cover.jpg");
+});
+```
+
+> **Atenção:** testes de validação de arquivo com `->post()` (não `->postJson()`) precisam de `->withHeaders(['Accept' => 'application/json'])` para receber 422 em vez de redirect 302 quando a validação falha.
+
+---
+
+## 13. Máquina de estados (status enum)
+
+Padrão introduzido no módulo de Eventos.
+
+```php
+// Service
+private const TRANSITIONS = [
+    'rascunho'  => ['publicado', 'cancelado'],
+    'publicado' => ['encerrado', 'cancelado'],
+    'encerrado' => [],
+    'cancelado' => [],
+];
+private const ADMIN_ONLY_TRANSITIONS = ['publicado', 'cancelado'];
+
+public function updateStatus(Event $event, string $newStatus, User $actor): Event
+{
+    $allowed = self::TRANSITIONS[$event->status];
+
+    if (! in_array($newStatus, $allowed)) {
+        throw new InvalidArgumentException("Transição inválida.");
+    }
+    if (in_array($newStatus, self::ADMIN_ONLY_TRANSITIONS) && ! $actor->isAdmin()) {
+        throw new AccessDeniedHttpException('Apenas administradores podem realizar esta ação.');
+    }
+
+    $event->update(['status' => $newStatus]);
+    return $event->fresh();
+}
+```
+
+```php
+// Controller — captura exceções e mapeia para HTTP
+try {
+    $updated = $this->eventService->updateStatus($event, $request->status, Auth::user());
+} catch (AccessDeniedHttpException $e) {
+    return response()->json(['message' => $e->getMessage()], 403);
+} catch (InvalidArgumentException $e) {
+    return response()->json(['message' => $e->getMessage()], 422);
+}
+```

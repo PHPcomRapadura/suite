@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\EnsureAdminRole;
 use Illuminate\Support\Facades\Auth;
@@ -35,9 +36,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggleStatus');
         });
 
+        // API — CRUD de eventos (admin + colaborador)
+        Route::prefix('api/events')->name('events.')->group(function () {
+            Route::get('/', [EventController::class, 'index'])->name('index');
+            Route::post('/', [EventController::class, 'store'])->name('store');
+            Route::get('/{event}', [EventController::class, 'show'])->name('show');
+            Route::put('/{event}', [EventController::class, 'update'])->name('update');
+            Route::post('/{event}', [EventController::class, 'update'])->name('update.post');
+            Route::patch('/{event}/status', [EventController::class, 'updateStatus'])->name('updateStatus');
+            Route::patch('/{event}/toggle-talks', [EventController::class, 'toggleTalks'])->name('toggleTalks')->middleware('role:admin');
+        });
+
         // SPA Vue — rotas de página
         Route::get('/dashboard', fn () => view('admin'))->name('dashboard');
         Route::get('/users', fn () => view('admin'))->name('users');
+        Route::get('/events', fn () => view('admin'))->name('events');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });

@@ -24,6 +24,11 @@ const routes = [
                 component: () => import('@/views/admin/Users.vue'),
             },
             {
+                path: 'events',
+                name: 'admin.events',
+                component: () => import('@/views/admin/Events.vue'),
+            },
+            {
                 path: '',
                 redirect: { name: 'admin.dashboard' },
             },

@@ -8,13 +8,19 @@ Suite de aplicações de uso da comunidade PHP com Rapadura.
 Single-page com as seções: Hero, Sobre, Eventos, Código de Conduta, Contato e Footer.
 
 ### ✅ Admin — Autenticação
-Área restrita em `/admin` com login, logout, controle de roles e proteção de rotas.
+Área restrita em `/admin` com login, logout, controle de roles (`admin`, `colaborador`) e proteção de rotas.
+
+### ✅ Admin — CRUD de Usuários
+Gerenciamento de usuários (admin e colaborador) com listagem em cards, modal criar/editar e toggle de status.
+
+### ✅ Admin — CRUD de Eventos
+Gerenciamento de eventos com status (`rascunho → publicado → encerrado | cancelado`), upload de imagem de capa e logo para o **Cloudflare R2**, e controle de CFP (`is_accepting_talks`).
 
 ### Call for Papers (CFP) — em breve
 Sistema de submissão de propostas de palestras por palestrantes.
 
-### Gestão de Eventos — em breve
-Painel administrativo com controle de eventos, tarefas, despesas, participantes e sorteio.
+### Gestão de Eventos (sub-módulos) — em breve
+Palestras, despesas, tarefas (Kanban), participantes (CSV), sorteio digital e fórum por evento.
 
 ---
 
@@ -122,4 +128,12 @@ QUEUE_CONNECTION=redis
 # Sempre defina um valor antes de rodar php artisan db:seed.
 ADMIN_EMAIL=admin@phpcomrapadura.org
 ADMIN_PASSWORD=mudar@123
+
+# Cloudflare R2 (upload de imagens de eventos)
+# Obter em: dash.cloudflare.com → R2 → Overview
+CLOUDFLARE_R2_ACCESS_KEY_ID=
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=
+CLOUDFLARE_R2_ACCOUNT_ID=       # ex: abc123def456...
+CLOUDFLARE_R2_BUCKET=phpcomrapadura
+CLOUDFLARE_R2_URL=               # ex: https://assets.phpcomrapadura.org (CDN público)
 ```

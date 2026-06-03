@@ -55,28 +55,70 @@ GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
 ```
 
-### Admin — Vue.js SPA (em desenvolvimento)
+### Admin — Vue.js SPA
 
 ```
 resources/js/
-├── admin.js                # Bootstrap da SPA admin
-├── App.vue                 # Componente raiz
-├── router/admin.js         # Vue Router do admin
+├── admin.js                        # Bootstrap da SPA admin
+├── App.vue                         # Componente raiz
+├── router/admin.js                 # Vue Router do admin
+├── composables/
+│   ├── useAuth.js                  # Autenticação (user, logout)
+│   └── useTheme.js                 # Dark mode (toggle, isDark)
+├── layouts/AdminLayout.vue         # Layout com sidebar + slot
+├── components/
+│   ├── AppSidebar.vue              # Sidebar com nav, toggle de tema e logout
+│   ├── ConfirmModal.vue            # Modal de confirmação genérico
+│   ├── EventModal.vue              # Modal criar/editar evento (com upload R2)
+│   └── UserModal.vue               # Modal criar/editar usuário
 └── views/
-    ├── auth/Login.vue      # Página de login
-    └── admin/Dashboard.vue # Dashboard (placeholder)
+    ├── auth/Login.vue              # Página de login (dark mode nativo)
+    └── admin/
+        ├── Dashboard.vue           # Dashboard com stats
+        ├── Events.vue              # CRUD de eventos
+        └── Users.vue               # CRUD de usuários
 ```
 
 Rotas admin em `routes/web.php`:
 ```
-GET  /admin/login     → view('admin')  [pública]
-POST /admin/login     → AdminLoginController@login
-POST /admin/logout    → AdminLoginController@logout  [auth]
+GET  /admin/login              → view('admin')  [pública]
+POST /admin/login              → AdminLoginController@login
+POST /admin/logout             → AdminLoginController@logout  [auth]
+GET  /admin/api/me             → Auth::user()  [auth]
+GET  /admin/api/dashboard/stats → DashboardController@stats  [auth]
+GET  /admin/api/users          → UserController@index  [auth, role:admin]
+POST /admin/api/users          → UserController@store  [auth, role:admin]
+...
+GET  /admin/api/events         → EventController@index  [auth]
+POST /admin/api/events         → EventController@store  [auth]
+GET  /admin/api/events/{id}    → EventController@show  [auth]
+PUT  /admin/api/events/{id}    → EventController@update  [auth]
+POST /admin/api/events/{id}    → EventController@update  [auth] ← method spoofing
+PATCH /admin/api/events/{id}/status      → EventController@updateStatus  [auth]
+PATCH /admin/api/events/{id}/toggle-talks → EventController@toggleTalks  [auth, role:admin]
 GET  /admin/dashboard → view('admin')  [auth]
+GET  /admin/users     → view('admin')  [auth]
+GET  /admin/events    → view('admin')  [auth]
 GET  /admin/{any}     → view('admin')  [auth]
 ```
 
 > **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
+
+### Upload de imagens — Cloudflare R2
+
+Imagens dos eventos (`cover_image`, `logo`) são armazenadas no **Cloudflare R2** via disco `r2` (driver S3-compatible). O banco persiste apenas a URL pública — nunca dados binários.
+
+Estrutura de paths no bucket:
+```
+events/{event_id}/cover.{ext}    ← imagem de capa (jpg/jpeg/png/webp, máx 5 MB)
+events/{event_id}/logo.{ext}     ← logo do evento (jpg/jpeg/png/webp/svg, máx 2 MB)
+```
+
+Para testes: usar `Storage::fake('r2')` — o `EventService::deleteImage()` usa `Storage::disk('r2')->url('')` dinamicamente para extrair o path da URL, funcionando tanto com o disco real quanto com o fake.
+
+Requests com `multipart/form-data` em PUT usam **method spoofing** (`_method: PUT` no body + `POST` no axios). No backend, há uma rota `Route::post` paralela para suportar isso.
+
+> Para testes de validação de arquivo que retornam 422, usar `->withHeaders(['Accept' => 'application/json'])->post(...)` para forçar resposta JSON em vez de redirect.
 
 ---
 
@@ -317,3 +359,8 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Dark mode na página de login | ✅ Implementado |
 | Composables useAuth + useTheme | ✅ Implementado |
 | Testes E2E da rota GET / (Playwright) | ✅ Implementado |
+| CRUD de eventos (admin + colaborador) | ✅ Implementado |
+| Upload de imagens para Cloudflare R2 | ✅ Implementado |
+| Transições de status de eventos | ✅ Implementado |
+| Toggle CFP (is_accepting_talks) | ✅ Implementado |
+| Testes CRUD de eventos (34 casos) | ✅ Implementado |
