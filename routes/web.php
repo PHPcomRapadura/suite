@@ -40,6 +40,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('api/events')->name('events.')->group(function () {
             Route::get('/', [EventController::class, 'index'])->name('index');
             Route::post('/', [EventController::class, 'store'])->name('store');
+            Route::get('/{event}/cfp', [EventController::class, 'cfp'])->name('cfp');
             Route::get('/{event}', [EventController::class, 'show'])->name('show');
             Route::put('/{event}', [EventController::class, 'update'])->name('update');
             Route::post('/{event}', [EventController::class, 'update'])->name('update.post');
@@ -51,6 +52,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => view('admin'))->name('dashboard');
         Route::get('/users', fn () => view('admin'))->name('users');
         Route::get('/events', fn () => view('admin'))->name('events');
+        Route::get('/events/{id}', fn () => view('admin'))->name('events.show');
+        Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });

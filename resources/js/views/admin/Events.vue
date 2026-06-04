@@ -302,6 +302,17 @@ onMounted(() => fetchEvents())
                                            event.is_accepting_talks ? 'translate-x-4.5' : 'translate-x-0.5']"/>
                         </button>
                     </div>
+
+                    <!-- Ver detalhes -->
+                    <div class="mt-auto pt-3 border-t border-(--color-border)">
+                        <RouterLink
+                            :to="{ name: 'admin.events.show', params: { id: event.id } }"
+                            class="text-xs px-2 py-1 rounded border border-(--color-border)
+                                   text-(--color-text) hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                        >
+                            Ver detalhes
+                        </RouterLink>
+                    </div>
                 </div>
             </div>
         </div>

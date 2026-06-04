@@ -91,15 +91,18 @@ POST /admin/api/users          → UserController@store  [auth, role:admin]
 ...
 GET  /admin/api/events         → EventController@index  [auth]
 POST /admin/api/events         → EventController@store  [auth]
-GET  /admin/api/events/{id}    → EventController@show  [auth]
+GET  /admin/api/events/{id}     → EventController@show  [auth]
+GET  /admin/api/events/{id}/cfp → EventController@cfp  [auth]  ← stub; substituído pelo CfpController no módulo CFP
 PUT  /admin/api/events/{id}    → EventController@update  [auth]
 POST /admin/api/events/{id}    → EventController@update  [auth] ← method spoofing
 PATCH /admin/api/events/{id}/status      → EventController@updateStatus  [auth]
 PATCH /admin/api/events/{id}/toggle-talks → EventController@toggleTalks  [auth, role:admin]
-GET  /admin/dashboard → view('admin')  [auth]
-GET  /admin/users     → view('admin')  [auth]
-GET  /admin/events    → view('admin')  [auth]
-GET  /admin/{any}     → view('admin')  [auth]
+GET  /admin/dashboard        → view('admin')  [auth]
+GET  /admin/users            → view('admin')  [auth]
+GET  /admin/events           → view('admin')  [auth]
+GET  /admin/events/{id}      → view('admin')  [auth]
+GET  /admin/events/{id}/cfp  → view('admin')  [auth]
+GET  /admin/{any}            → view('admin')  [auth]
 ```
 
 > **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
@@ -364,3 +367,5 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Transições de status de eventos | ✅ Implementado |
 | Toggle CFP (is_accepting_talks) | ✅ Implementado |
 | Testes CRUD de eventos (34 casos) | ✅ Implementado |
+| Página de detalhe do evento (hub) | ✅ Implementado |
+| Botão "Ver detalhes" nos cards de eventos | ✅ Implementado |
