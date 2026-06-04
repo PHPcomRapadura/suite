@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminLoginController;
+use App\Http\Controllers\Admin\CfpController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\EnsureAdminRole;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +42,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('api/events')->name('events.')->group(function () {
             Route::get('/', [EventController::class, 'index'])->name('index');
             Route::post('/', [EventController::class, 'store'])->name('store');
-            Route::get('/{event}/cfp', [EventController::class, 'cfp'])->name('cfp');
+            // CFP
+            Route::get('/{event}/cfp',  [CfpController::class, 'show'])->name('cfp.show');
+            Route::post('/{event}/cfp', [CfpController::class, 'store'])->name('cfp.store');
+            Route::put('/{event}/cfp',  [CfpController::class, 'update'])->name('cfp.update');
+            // Talks
+            Route::get('/{event}/talks',                 [TalkController::class, 'index'])->name('talks.index');
+            Route::get('/{event}/talks/{talk}',          [TalkController::class, 'show'])->name('talks.show');
+            Route::patch('/{event}/talks/{talk}/status', [TalkController::class, 'updateStatus'])->name('talks.updateStatus');
+            // Eventos
             Route::get('/{event}', [EventController::class, 'show'])->name('show');
             Route::put('/{event}', [EventController::class, 'update'])->name('update');
             Route::post('/{event}', [EventController::class, 'update'])->name('update.post');

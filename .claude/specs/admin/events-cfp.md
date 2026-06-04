@@ -1,6 +1,6 @@
 # Spec — Módulo CFP (Call for Papers)
 
-**Status:** 🔲 A implementar
+**Status:** ✅ Implementado
 **Módulo:** Admin → Eventos → CFP
 **Depende de:** `.claude/specs/admin/events-details.md`
 
@@ -101,6 +101,7 @@ Perfil do palestrante. Criado quando o usuário (role `palestrante`) completa se
 | `bio` | `text` | Nullable |
 | `company` | `string(255)` | Nullable |
 | `avatar_url` | `string(500)` | Nullable — URL pública no R2 |
+| `phone_number` | `string(20)` | Nullable — ex: `+55 85 99999-9999` |
 | `website` | `string(255)` | Nullable |
 | `twitter` | `string(100)` | Nullable — handle sem `@` |
 | `github` | `string(100)` | Nullable |
@@ -116,6 +117,7 @@ Schema::create('speakers', function (Blueprint $table) {
     $table->text('bio')->nullable();
     $table->string('company')->nullable();
     $table->string('avatar_url', 500)->nullable();
+    $table->string('phone_number', 20)->nullable();
     $table->string('website')->nullable();
     $table->string('twitter', 100)->nullable();
     $table->string('github', 100)->nullable();
@@ -128,7 +130,7 @@ Schema::create('speakers', function (Blueprint $table) {
 
 ```php
 protected $fillable = [
-    'user_id', 'bio', 'company', 'avatar_url',
+    'user_id', 'bio', 'company', 'avatar_url', 'phone_number',
     'website', 'twitter', 'github', 'linkedin',
 ];
 
@@ -827,8 +829,9 @@ public function definition(): array
         'user_id'    => User::factory()->palestrante(),
         'bio'        => fake('pt_BR')->paragraph(),
         'company'    => fake('pt_BR')->company(),
-        'avatar_url' => null,
-        'website'    => null,
+        'avatar_url'   => null,
+        'phone_number' => null,
+        'website'      => null,
         'twitter'    => fake()->userName(),
         'github'     => fake()->userName(),
         'linkedin'   => null,

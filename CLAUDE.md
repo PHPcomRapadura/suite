@@ -369,3 +369,6 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Testes CRUD de eventos (34 casos) | ✅ Implementado |
 | Página de detalhe do evento (hub) | ✅ Implementado |
 | Botão "Ver detalhes" nos cards de eventos | ✅ Implementado |
+| Módulo CFP — models, migrations, services, controllers | ✅ Implementado |
+| Módulo CFP — CfpModal.vue + TalkReviewModal.vue + EventCfp.vue | ✅ Implementado |
+| Testes CFP + Talks (19 casos) | ✅ Implementado |

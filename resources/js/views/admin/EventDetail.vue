@@ -70,10 +70,9 @@ async function fetchData() {
         event.value = eventRes.value.data
 
         if (cfpRes.status === 'fulfilled') {
-            cfp.value = cfpRes.value.data.cfp
-            if (cfpRes.value.data.talks) {
-                cfpTalks.value = cfpRes.value.data.talks
-            }
+            const cfpData = cfpRes.value.data.data
+            cfp.value = cfpData
+            cfpTalks.value = cfpData?.talks_count ?? cfpTalks.value
         }
     } finally {
         loading.value = false

@@ -87,21 +87,6 @@ class EventController extends Controller
         return response()->json(['status' => $updated->status]);
     }
 
-    public function cfp(Event $event): JsonResponse
-    {
-        return response()->json([
-            'cfp' => null,
-            'talks' => [
-                'total' => 0,
-                'submetida' => 0,
-                'em_analise' => 0,
-                'aprovada' => 0,
-                'rejeitada' => 0,
-                'cancelada' => 0,
-            ],
-        ]);
-    }
-
     public function toggleTalks(Event $event): JsonResponse
     {
         try {
