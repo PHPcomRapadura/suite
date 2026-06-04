@@ -55,6 +55,30 @@ GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
 ```
 
+### CFP Público — Vue.js SPA
+
+```
+resources/js/
+├── cfp.js                          # Bootstrap da SPA CFP pública
+├── CfpApp.vue                      # Componente raiz
+└── views/cfp/
+    ├── Home.vue                    # Lista de eventos com CFP aberto/aguardando
+    └── Login.vue                   # Login de palestrantes
+```
+
+Rotas CFP público (sem autenticação):
+```
+GET  /cfp                    → view('cfp')  [SPA pública]
+GET  /cfp/login              → view('cfp')  [SPA pública]
+GET  /cfp/{any}              → view('cfp')  [SPA pública]
+GET  /cfp/api/events         → CfpPublicController@events  [sem auth]
+GET  /cfp/api/me             → CfpAuthController@me  [sem auth — retorna null se não logado]
+POST /cfp/login              → CfpAuthController@login  [sem auth — aceita qualquer role ativo]
+POST /cfp/logout             → CfpAuthController@logout  [sem auth]
+```
+
+> **Diferença do login admin:** `POST /cfp/login` aceita `palestrante` (e outros roles). `POST /admin/login` rejeita `palestrante` via `hasAdminAccess()`.
+
 ### Admin — Vue.js SPA
 
 ```
@@ -372,3 +396,7 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Módulo CFP — models, migrations, services, controllers | ✅ Implementado |
 | Módulo CFP — CfpModal.vue + TalkReviewModal.vue + EventCfp.vue | ✅ Implementado |
 | Testes CFP + Talks (19 casos) | ✅ Implementado |
+| CFP público — página `/cfp` com listagem de eventos | ✅ Implementado |
+| CFP público — login de palestrantes (`POST /cfp/login`) | ✅ Implementado |
+| CFP público — API `GET /cfp/api/events` (sem auth) | ✅ Implementado |
+| Testes CFP público (14 casos) | ✅ Implementado |

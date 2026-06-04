@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Api\CfpPublicController;
+use App\Http\Controllers\Cfp\CfpAuthController;
 use App\Http\Middleware\EnsureAdminRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +68,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
+});
+
+// CFP Público
+Route::prefix('cfp')->name('cfp.')->group(function () {
+    Route::get('/api/events', [CfpPublicController::class, 'events'])->name('api.events');
+    Route::get('/api/me', [CfpAuthController::class, 'me'])->name('api.me');
+    Route::post('/login', [CfpAuthController::class, 'login'])->name('login');
+    Route::post('/register', [CfpAuthController::class, 'register'])->name('register');
+    Route::post('/logout', [CfpAuthController::class, 'logout'])->name('logout');
+
+    // SPA Vue
+    Route::get('/', fn () => view('cfp'))->name('home');
+    Route::get('/{any}', fn () => view('cfp'))->where('any', '.*');
 });
 
 Route::get('/sitemap.xml', function () {
