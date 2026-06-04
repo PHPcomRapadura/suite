@@ -200,11 +200,15 @@ const routes = [
 **Cabeçalho da página:**
 
 ```
-Logo PHP com Rapadura              [Entrar / Nome do usuário ▾]
+Logo PHP com Rapadura              [Entrar]           (guest)
+Logo PHP com Rapadura     [Perfil] [Sair]             (palestrante logado)
+Logo PHP com Rapadura     Nome do usuário · [Sair]    (admin/colaborador logado)
 ─────────────────────────────────────────────────────────────
 Call for Papers
 Submeta sua proposta de palestra para os próximos eventos.
 ```
+
+O link **"Perfil"** aparece apenas para usuários com role `palestrante` e navega para `/cfp/perfil`.
 
 **Estado de carregamento:** skeleton de 3 cards durante o fetch.
 
@@ -415,3 +419,5 @@ it('endpoint público não requer autenticação', function () {
 - [ ] Após login como `palestrante`, redireciona para o destino original
 - [ ] Dark mode funciona corretamente (usa tokens `--color-*` do design system)
 - [ ] Layout responsivo: 1 coluna mobile → 2 tablet → 3 desktop
+- [ ] Link "Perfil" visível no header apenas para `palestrante` autenticado
+- [ ] Link "Perfil" navega para `/cfp/perfil`

@@ -7,7 +7,10 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CfpPublicController;
+use App\Http\Controllers\Cfp\AccountController;
 use App\Http\Controllers\Cfp\CfpAuthController;
+use App\Http\Controllers\Cfp\SpeakerProfileController;
+use App\Http\Controllers\Cfp\TalkSubmissionController;
 use App\Http\Middleware\EnsureAdminRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -73,10 +76,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // CFP Público
 Route::prefix('cfp')->name('cfp.')->group(function () {
     Route::get('/api/events', [CfpPublicController::class, 'events'])->name('api.events');
+    Route::get('/api/events/{event}', [CfpPublicController::class, 'show'])->name('api.event');
     Route::get('/api/me', [CfpAuthController::class, 'me'])->name('api.me');
     Route::post('/login', [CfpAuthController::class, 'login'])->name('login');
     Route::post('/register', [CfpAuthController::class, 'register'])->name('register');
     Route::post('/logout', [CfpAuthController::class, 'logout'])->name('logout');
+
+    // Rotas protegidas — apenas palestrantes
+    Route::middleware('speaker')->group(function () {
+        Route::get('/api/speaker/profile',               [SpeakerProfileController::class, 'show'])->name('api.speaker.show');
+        Route::patch('/api/speaker/profile',             [SpeakerProfileController::class, 'update'])->name('api.speaker.update');
+        Route::post('/api/speaker/profile',              [SpeakerProfileController::class, 'update'])->name('api.speaker.update.post');
+        Route::patch('/api/account',                     [AccountController::class, 'update'])->name('api.account.update');
+        Route::get('/api/events/{event}/my-talks',       [TalkSubmissionController::class, 'myTalks'])->name('api.my-talks');
+        Route::get('/api/events/{event}/my-talks/count', [TalkSubmissionController::class, 'myTalksCount'])->name('api.my-talks.count');
+        Route::post('/api/events/{event}/talks',         [TalkSubmissionController::class, 'store'])->name('api.talks.store');
+        Route::put('/api/talks/{talk}',                  [TalkSubmissionController::class, 'update'])->name('api.talks.update');
+    });
 
     // SPA Vue
     Route::get('/', fn () => view('cfp'))->name('home');

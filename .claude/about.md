@@ -54,14 +54,25 @@ Testes de ponta a ponta em `tests/e2e/`:
 - `home.spec.js` — cobre `GET /`: status 200, `<main>` visível, nav principal presente
 - Requer containers no ar (`docker compose up -d`) e `npx playwright install chromium`
 
-### Call for Papers (CFP) — a implementar
-Sistema para que os palestrantes possam enviar suas propostas de palestras a um determinado evento. Esse módulo tem a seguinte característica: a rota /cfp ao ser acessada exibirá uma lista de eventos aceitando submissão de palestras. O usuário sem registro deve se cadastrar na plataforma; se já tiver cadastro basta realizar o login. Ao acessar o painel ele pode selecionar um evento disponível e preencher um formulário para submeter a palestra. Ao submeter, a palestra fica com status **Enviada** e no futuro pode ser **Aprovada** ou **Rejeitada** com feedback da organização.
+### ✅ Call for Papers (CFP) — implementado
+
+Vue.js SPA pública em `/cfp`, separada do admin, com autenticação própria via `POST /cfp/login`:
+
+- **Home** (`/cfp`) — grid de cards com eventos cujo CFP está `aberto` ou `aguardando`; badge de status; botão "Submeter palestra"; botão "Palestras enviadas (N)" para palestrantes logados; link "Perfil" no header exclusivo para palestrantes
+- **Login** (`/cfp/login`) — aceita qualquer role ativo (ao contrário do `/admin/login` que bloqueia `palestrante`); link para registro
+- **Registro** (`/cfp/register`) — cria conta com `role=palestrante`, faz login imediato
+- **Submissão** (`/cfp/submit/:eventId`) — guards: redireciona para login se não autenticado, para `/cfp/perfil` se bio vazia; exibe guia do palestrante (accordion), lista de propostas enviadas com botão Editar, formulário de nova proposta (título, resumo min 100 chars, duração 25/50 min, nível)
+- **Perfil** (`/cfp/perfil`) — duas seções: dados do palestrante (avatar com upload para R2, bio obrigatória, empresa, city, state/UF, telefone, site, Twitter, GitHub, LinkedIn) e dados da conta (nome, e-mail, senha)
+- **Middleware `EnsureSpeaker`** — 401 se não autenticado, 403 se não `palestrante`; registrado como alias `speaker`
+- **39 testes de feature** cobrindo todos os endpoints (CFP público + submissão + perfil)
+
+Campos da tabela `speakers`: `bio`, `company`, `city`, `state`, `avatar_url`, `phone_number`, `website`, `twitter`, `github`, `linkedin`. Avatar armazenado no R2 em `speakers/{user_id}/avatar.{ext}`.
 
 ### Eventos (Sistema gerenciado de eventos) — em andamento
 
 O módulo base de controle de eventos está implementado. Os sub-módulos a implementar são:
 - ✅ Controle de eventos (CRUD + status + imagens R2 + CFP toggle)
-- ⬜ Controle de submissão de palestras por evento (CFP)
+- ✅ Controle de submissão de palestras por evento (CFP)
 - ⬜ Controle de despesas por evento
 - ⬜ Controle de tarefas por evento (Kanban)
 - ⬜ Fórum com tópicos específicos relacionados a um evento

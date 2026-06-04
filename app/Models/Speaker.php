@@ -12,7 +12,7 @@ class Speaker extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'bio', 'company', 'avatar_url', 'phone_number',
+        'user_id', 'bio', 'company', 'city', 'state', 'avatar_url', 'phone_number',
         'website', 'twitter', 'github', 'linkedin',
     ];
 

@@ -18,6 +18,16 @@ const routes = [
         name: 'cfp.register',
         component: () => import('./views/cfp/Register.vue'),
     },
+    {
+        path: '/cfp/submit/:eventId',
+        name: 'cfp.submit',
+        component: () => import('./views/cfp/SubmitTalk.vue'),
+    },
+    {
+        path: '/cfp/perfil',
+        name: 'cfp.profile',
+        component: () => import('./views/cfp/Profile.vue'),
+    },
 ]
 
 const router = createRouter({

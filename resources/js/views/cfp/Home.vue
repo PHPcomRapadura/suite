@@ -8,11 +8,15 @@ const router = useRouter()
 const events = ref([])
 const loading = ref(true)
 const user = ref(null)
+const talkCounts = ref({})
 
 const logoSrc = `${import.meta.env.BASE_URL}images/PHPcomRapadura_color.svg`
 
 onMounted(async () => {
     await Promise.allSettled([fetchEvents(), fetchMe()])
+    if (user.value?.role === 'palestrante') {
+        fetchAllCounts()
+    }
 })
 
 async function fetchEvents() {
@@ -30,9 +34,24 @@ async function fetchMe() {
     try {
         const { data } = await axios.get('/cfp/api/me')
         user.value = data.user
-    } catch {
+        } catch {
         user.value = null
     }
+}
+
+async function fetchAllCounts() {
+    const counts = {}
+    await Promise.allSettled(
+        events.value.map(async (event) => {
+            try {
+                const { data } = await axios.get(`/cfp/api/events/${event.id}/my-talks/count`)
+                counts[event.id] = data.count
+            } catch {
+                counts[event.id] = 0
+            }
+        })
+    )
+    talkCounts.value = counts
 }
 
 async function logout() {
@@ -75,6 +94,13 @@ function formatDateShort(iso) {
                 <div class="flex items-center gap-3">
                     <template v-if="user">
                         <span class="text-sm text-(--color-text-muted) hidden sm:block">{{ user.name }}</span>
+                        <RouterLink
+                            v-if="user.role === 'palestrante'"
+                            :to="{ name: 'cfp.profile' }"
+                            class="text-sm px-3 py-1.5 rounded-lg border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) transition"
+                        >
+                            Perfil
+                        </RouterLink>
                         <button
                             @click="logout"
                             class="text-sm px-3 py-1.5 rounded-lg border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) transition"
@@ -242,18 +268,29 @@ function formatDateShort(iso) {
                                 Use uma conta de palestrante para submeter propostas
                             </div>
 
-                            <button
-                                v-else
-                                :disabled="event.cfp.status === 'aguardando'"
-                                @click="handleSubmit(event)"
-                                class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold transition
-                                       focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:ring-offset-2"
-                                :class="event.cfp.status === 'aguardando'
-                                    ? 'bg-gray-100 dark:bg-gray-800 text-(--color-text-muted) cursor-not-allowed'
-                                    : 'bg-(--color-primary) hover:bg-(--color-primary-hover) text-white'"
-                            >
-                                Submeter palestra
-                            </button>
+                            <div v-else class="space-y-2">
+                                <button
+                                    :disabled="event.cfp.status === 'aguardando'"
+                                    @click="handleSubmit(event)"
+                                    class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold transition
+                                           focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:ring-offset-2"
+                                    :class="event.cfp.status === 'aguardando'
+                                        ? 'bg-gray-100 dark:bg-gray-800 text-(--color-text-muted) cursor-not-allowed'
+                                        : 'bg-(--color-primary) hover:bg-(--color-primary-hover) text-white'"
+                                >
+                                    Submeter palestra
+                                </button>
+                                <RouterLink
+                                    v-if="user?.role === 'palestrante'"
+                                    :to="`/cfp/submit/${event.id}`"
+                                    class="w-full py-2 px-4 rounded-lg text-sm font-medium transition border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) flex items-center justify-center gap-1.5"
+                                >
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                    Palestras enviadas<template v-if="talkCounts[event.id]"> ({{ talkCounts[event.id] }})</template>
+                                </RouterLink>
+                            </div>
                         </div>
                     </div>
                 </article>

@@ -29,7 +29,7 @@ Checklist rápido pré-commit:
 Suite de aplicações da comunidade **PHP com Rapadura**, composta por três módulos:
 
 1. **Site institucional** *(implementado)* — Blade + Tailwind CSS v4, single-page com âncoras
-2. **Call for Papers (CFP)** *(a implementar)* — submissão de propostas de palestras
+2. **Call for Papers (CFP)** *(implementado)* — submissão de propostas de palestras
 3. **Gestão de Eventos** *(a implementar)* — painel administrativo para organizadores
 
 Stack: **Laravel 13 + PHP 8.4 | Blade (site) + Vue.js 3 SPA (admin) | Tailwind CSS v4 | MySQL 8.4 | Redis | Laravel Sanctum**
@@ -400,3 +400,10 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | CFP público — login de palestrantes (`POST /cfp/login`) | ✅ Implementado |
 | CFP público — API `GET /cfp/api/events` (sem auth) | ✅ Implementado |
 | Testes CFP público (14 casos) | ✅ Implementado |
+| CFP público — submissão de palestras (`/cfp/submit/:eventId`) | ✅ Implementado |
+| CFP público — perfil do palestrante (`/cfp/perfil`) | ✅ Implementado |
+| CFP público — middleware `EnsureSpeaker` + rotas protegidas | ✅ Implementado |
+| CFP público — botão "Palestras enviadas" na home | ✅ Implementado |
+| Testes submissão de palestras (25 casos) | ✅ Implementado |
+| CFP público — avatar, city e state no perfil do palestrante | ✅ Implementado |
+| CFP público — link "Perfil" no header da home para palestrantes | ✅ Implementado |

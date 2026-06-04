@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventCfp;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class CfpPublicController extends Controller
 {
@@ -58,5 +59,32 @@ class CfpPublicController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    public function show(Event $event): JsonResponse
+    {
+        /** @var EventCfp|null $cfp */
+        $cfp = $event->cfp;
+
+        if (! $cfp) {
+            return response()->json(['message' => 'CFP não configurado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json(['data' => [
+            'id'          => $event->id,
+            'name'        => $event->name,
+            'edition'     => $event->edition,
+            'starts_at'   => $event->starts_at,
+            'location'    => $event->location,
+            'is_online'   => $event->is_online,
+            'cover_image' => $event->cover_image,
+            'cfp'         => [
+                'opens_at'              => $cfp->opens_at,
+                'closes_at'             => $cfp->closes_at,
+                'speaker_guide'         => $cfp->speaker_guide,
+                'max_talks_per_speaker' => $cfp->max_talks_per_speaker,
+                'status'                => $cfp->status(),
+            ],
+        ]]);
     }
 }
