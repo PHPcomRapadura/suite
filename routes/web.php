@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\CfpController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\EventScheduleController;
+use App\Http\Controllers\Admin\EventSiteController;
+use App\Http\Controllers\Admin\EventSponsorController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CfpPublicController;
@@ -11,6 +14,7 @@ use App\Http\Controllers\Cfp\AccountController;
 use App\Http\Controllers\Cfp\CfpAuthController;
 use App\Http\Controllers\Cfp\SpeakerProfileController;
 use App\Http\Controllers\Cfp\TalkSubmissionController;
+use App\Http\Controllers\EventSitePublicController;
 use App\Http\Middleware\EnsureAdminRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +51,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('api/events')->name('events.')->group(function () {
             Route::get('/', [EventController::class, 'index'])->name('index');
             Route::post('/', [EventController::class, 'store'])->name('store');
+            // Site do evento
+            Route::get('/{event}/site',                    [EventSiteController::class, 'show'])->name('site.show');
+            Route::post('/{event}/site',                   [EventSiteController::class, 'store'])->name('site.store');
+            Route::put('/{event}/site',                    [EventSiteController::class, 'update'])->name('site.update');
+            Route::patch('/{event}/site/toggle-published', [EventSiteController::class, 'togglePublished'])->name('site.togglePublished');
+            // Patrocinadores
+            Route::get('/{event}/site/sponsors',               [EventSponsorController::class, 'index'])->name('site.sponsors.index');
+            Route::post('/{event}/site/sponsors',              [EventSponsorController::class, 'store'])->name('site.sponsors.store');
+            Route::put('/{event}/site/sponsors/{sponsor}',     [EventSponsorController::class, 'update'])->name('site.sponsors.update');
+            Route::delete('/{event}/site/sponsors/{sponsor}',  [EventSponsorController::class, 'destroy'])->name('site.sponsors.destroy');
+            Route::patch('/{event}/site/sponsors/reorder',     [EventSponsorController::class, 'reorder'])->name('site.sponsors.reorder');
+            // Grade de palestras
+            Route::get('/{event}/site/schedule',           [EventScheduleController::class, 'index'])->name('site.schedule.index');
+            Route::post('/{event}/site/schedule',          [EventScheduleController::class, 'store'])->name('site.schedule.store');
+            Route::put('/{event}/site/schedule/{item}',    [EventScheduleController::class, 'update'])->name('site.schedule.update');
+            Route::delete('/{event}/site/schedule/{item}', [EventScheduleController::class, 'destroy'])->name('site.schedule.destroy');
             // CFP
             Route::get('/{event}/cfp',  [CfpController::class, 'show'])->name('cfp.show');
             Route::post('/{event}/cfp', [CfpController::class, 'store'])->name('cfp.store');
@@ -69,6 +89,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events', fn () => view('admin'))->name('events');
         Route::get('/events/{id}', fn () => view('admin'))->name('events.show');
         Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
+        Route::get('/events/{id}/site', fn () => view('admin'))->name('events.site');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });
@@ -108,3 +129,6 @@ Route::get('/sitemap.xml', function () {
 Route::get('/robots.txt', function () {
     return response(view('robots'), 200)->header('Content-Type', 'text/plain');
 });
+
+// Página pública do evento — deve ser a última rota para não interceptar /admin, /cfp, etc.
+Route::get('/{slug}', [EventSitePublicController::class, 'show'])->name('event.site');

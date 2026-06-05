@@ -250,7 +250,116 @@ Toda página pública deve incluir no `<head>`:
 
 ---
 
-## 11. Acessibilidade — Checklist mínimo
+## 11. Timezone — Exibição de horários armazenados como horário local
+
+### 11.1 Contexto
+
+O app usa `APP_TIMEZONE=UTC`. `starts_at` (e datas similares) são gravados **como horário local do evento** — sem conversão. Exemplo: evento às 9h → banco tem `2026-06-10 09:00:00`.
+
+Quando o JavaScript serializa isso como ISO 8601 (`2026-06-10T09:00:00.000000Z`) e o browser usa `toLocaleTimeString()` sem `timeZone`, ele converte para o fuso local do usuário (ex.: UTC-3 → `06:00`). O resultado está errado.
+
+### 11.2 Padrão: sempre `timeZone: 'UTC'`
+
+Para exibir horários armazenados como locais, forçar UTC no JavaScript:
+
+```js
+// Hora
+new Date(isoStr).toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',   // ← obrigatório
+})
+
+// Data
+new Date(isoStr).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',   // ← obrigatório
+})
+```
+
+### 11.3 Pré-preenchimento de formulário (admin)
+
+Ao editar um item com `starts_at`, extrair data/hora usando `fr-CA` (formato `YYYY-MM-DD` para `<input type="date">`) com `timeZone: 'UTC'`:
+
+```js
+const dt = new Date(item.starts_at)
+const date = dt.toLocaleDateString('fr-CA', { timeZone: 'UTC' })           // "2026-06-10"
+const time = dt.toLocaleTimeString('pt-BR', {
+    hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC',    // "09:00"
+})
+```
+
+> Sem `timeZone: 'UTC'`, o formulário pré-preenche com o horário convertido para o fuso do browser — o usuário salva o horário errado sem perceber.
+
+---
+
+## 12. Loader "Perainda!" em Vue SPA com componentes assíncronos
+
+### 12.1 Problema
+
+Em SPAs com `defineAsyncComponent`, o loader precisa ser escondido somente após o componente ser **montado no DOM** — não após `createApp().mount()`. Se o loader for removido no entry-point (`event-site.js`), o usuário vê tela em branco durante o carregamento do bundle.
+
+### 12.2 Padrão: `Suspense @resolve`
+
+**Entry point** — não toca no loader:
+
+```js
+import { createApp } from 'vue'
+import EventSiteApp from './EventSiteApp.vue'
+
+const rawData = JSON.parse(document.getElementById('event-site-data').textContent)
+createApp(EventSiteApp, { data: rawData }).mount('#event-site-app')
+```
+
+**Componente raiz** — esconde o loader quando o async component resolve:
+
+```vue
+<script setup>
+import { defineAsyncComponent } from 'vue'
+
+const props = defineProps({ data: Object })
+const Layout = defineAsyncComponent(() => import(`./views/Layout${props.data.site?.layout ?? 1}.vue`))
+
+function onLayoutReady() {
+    const loader = document.getElementById('page-loader')
+    if (!loader) return
+    loader.classList.add('hidden')
+    setTimeout(() => loader.remove(), 400)  // aguarda transição CSS
+}
+</script>
+
+<template>
+    <Suspense @resolve="onLayoutReady">
+        <component :is="Layout" v-bind="props.data" />
+    </Suspense>
+</template>
+```
+
+**CSS do loader** — a classe `.hidden` deve ter transição, e o dark mode precisa de suporte explícito:
+
+```css
+.page-loader {
+    transition: opacity 0.4s ease;
+    background: #ffffff;
+}
+.page-loader.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.dark .page-loader {
+    background: #0f172a;
+}
+```
+
+### 12.3 Loader + IntersectionObserver
+
+O observer de animações de entrada (`onMounted` nos layouts) roda **antes** de `@resolve`. As seções fora da viewport ficam com `.section-hidden` até entrar; as que já estão visíveis recebem `.section-visible` imediatamente junto com a revelação do loader. O resultado é um reveal fluído sem flash.
+
+---
+
+## 13. Acessibilidade — Checklist mínimo
 
 Todo componente/página deve atender:
 

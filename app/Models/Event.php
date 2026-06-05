@@ -44,6 +44,21 @@ class Event extends Model
         return $this->hasMany(Talk::class);
     }
 
+    public function site(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(EventSiteConfig::class);
+    }
+
+    public function sponsors(): HasMany
+    {
+        return $this->hasMany(EventSponsor::class)->orderBy('sort_order');
+    }
+
+    public function schedule(): HasMany
+    {
+        return $this->hasMany(EventScheduleItem::class)->orderBy('starts_at')->orderBy('sort_order');
+    }
+
     public function isPublished(): bool
     {
         return $this->status === 'publicado';

@@ -6,6 +6,7 @@ Suite de aplicações de uso da comunidade PHP com Rapadura.
 
 ### ✅ Site Institucional
 Single-page com as seções: Hero, Sobre, Eventos, Código de Conduta, Contato e Footer.
+Inclui loader "Perainda!", scroll spy, animações de entrada via IntersectionObserver e SEO completo.
 
 ### ✅ Admin — Autenticação
 Área restrita em `/admin` com login, logout, controle de roles (`admin`, `colaborador`) e proteção de rotas.
@@ -16,11 +17,18 @@ Gerenciamento de usuários (admin e colaborador) com listagem em cards, modal cr
 ### ✅ Admin — CRUD de Eventos
 Gerenciamento de eventos com status (`rascunho → publicado → encerrado | cancelado`), upload de imagem de capa e logo para o **Cloudflare R2**, e controle de CFP (`is_accepting_talks`).
 
-### Call for Papers (CFP) — em breve
-Sistema de submissão de propostas de palestras por palestrantes.
+### ✅ Call for Papers (CFP)
+Sistema completo de submissão de propostas por palestrantes — Vue SPA pública em `/cfp` com autenticação própria, perfil do palestrante (avatar, bio, redes sociais), submissão/edição de palestras por evento, e revisão pelo admin.
 
-### Gestão de Eventos (sub-módulos) — em breve
-Palestras, despesas, tarefas (Kanban), participantes (CSV), sorteio digital e fórum por evento.
+### ✅ Site Público do Evento
+Cada evento publicado ganha uma página em `/{slug}` com três layouts (Clássico, Imersivo, Minimalista), patrocinadores por nível de cota, grade de programação multi-dia, FAQ, código de conduta e link de ingressos. Inclui loader "Perainda!" e animações de entrada entre seções.
+
+### Gestão de Eventos (sub-módulos pendentes)
+- ⬜ Controle de despesas por evento
+- ⬜ Controle de tarefas por evento (Kanban)
+- ⬜ Fórum com tópicos por evento
+- ⬜ Controle de participantes (upload CSV)
+- ⬜ Sorteio digital por evento
 
 ---
 
@@ -32,6 +40,8 @@ Palestras, despesas, tarefas (Kanban), participantes (CSV), sorteio digital e f�
 | Autenticação | Laravel Sanctum (sessão + cookie) |
 | Frontend site | Blade + Tailwind CSS v4 |
 | Frontend admin | Vue.js 3 SPA + Vue Router |
+| Frontend CFP | Vue.js 3 SPA |
+| Frontend evento | Vue.js 3 SPA (entry `event-site.js`) |
 | Build | Vite |
 | Banco de dados | MySQL 8.4 |
 | Cache / Filas / Sessão | Redis |
@@ -46,6 +56,7 @@ Palestras, despesas, tarefas (Kanban), participantes (CSV), sorteio digital e f�
 | **Pint** | Code style PSR-12 |
 | **Larastan** | Análise estática nível 5 |
 | **Pest** | Testes automatizados |
+| **Playwright** | Testes E2E |
 | **CaptainHook** | Pre-commit hooks (lint + style + análise + testes) |
 
 ---
@@ -109,7 +120,6 @@ npm run dev
 
 ```dotenv
 # Banco de dados (Docker: host = nome do serviço)
-# DB_PASSWORD padrão do docker-compose é "secret" quando deixado vazio no .env
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_DATABASE=phpcomrapadura
@@ -129,7 +139,7 @@ QUEUE_CONNECTION=redis
 ADMIN_EMAIL=admin@phpcomrapadura.org
 ADMIN_PASSWORD=mudar@123
 
-# Cloudflare R2 (upload de imagens de eventos)
+# Cloudflare R2 (upload de imagens de eventos, logos de patrocinadores, avatares)
 # Obter em: dash.cloudflare.com → R2 → Overview
 CLOUDFLARE_R2_ACCESS_KEY_ID=
 CLOUDFLARE_R2_SECRET_ACCESS_KEY=

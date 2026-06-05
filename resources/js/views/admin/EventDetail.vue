@@ -7,6 +7,7 @@ const route = useRoute()
 
 const event    = ref(null)
 const cfp      = ref(null)
+const site     = ref(null)
 const cfpTalks = ref({ total: 0, submetida: 0, em_analise: 0, aprovada: 0, rejeitada: 0, cancelada: 0 })
 const loading  = ref(true)
 const notFound = ref(false)
@@ -57,9 +58,10 @@ async function fetchData() {
     loading.value  = true
     notFound.value = false
     try {
-        const [eventRes, cfpRes] = await Promise.allSettled([
+        const [eventRes, cfpRes, siteRes] = await Promise.allSettled([
             axios.get(`/admin/api/events/${route.params.id}`),
             axios.get(`/admin/api/events/${route.params.id}/cfp`),
+            axios.get(`/admin/api/events/${route.params.id}/site`),
         ])
 
         if (eventRes.status === 'rejected') {
@@ -73,6 +75,10 @@ async function fetchData() {
             const cfpData = cfpRes.value.data.data
             cfp.value = cfpData
             cfpTalks.value = cfpData?.talks_count ?? cfpTalks.value
+        }
+
+        if (siteRes.status === 'fulfilled') {
+            site.value = siteRes.value.data.data
         }
     } finally {
         loading.value = false
@@ -212,6 +218,40 @@ onMounted(() => fetchData())
                         class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-(--color-primary) hover:text-(--color-primary-hover) transition"
                     >
                         {{ cfpStatus === 'not_configured' ? 'Configurar' : 'Gerenciar' }}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </RouterLink>
+                </div>
+
+                <!-- Card Site do Evento -->
+                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-(--color-text-muted) shrink-0" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        <span class="font-semibold text-(--color-text)">Site do Evento</span>
+                        <span
+                            v-if="site?.is_published"
+                            class="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 shrink-0"
+                        >Publicado</span>
+                        <span
+                            v-else
+                            class="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 shrink-0"
+                        >Não publicado</span>
+                    </div>
+
+                    <p class="text-sm text-(--color-text-muted)">
+                        {{ site ? 'Página pública do evento configurada.' : 'Página pública do evento não configurada.' }}
+                    </p>
+
+                    <RouterLink
+                        :to="{ name: 'admin.events.site', params: { id: event.id } }"
+                        class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-(--color-primary) hover:text-(--color-primary-hover) transition"
+                    >
+                        {{ site ? 'Configurar' : 'Configurar' }}
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <polyline points="9 18 15 12 9 6"/>
                         </svg>

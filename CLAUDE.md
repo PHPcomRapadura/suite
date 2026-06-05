@@ -53,6 +53,7 @@ Rotas adicionais:
 ```
 GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
+GET /{slug}        → EventSitePublicController@show (última rota — 404 se não publicado)
 ```
 
 ### CFP Público — Vue.js SPA
@@ -126,7 +127,21 @@ GET  /admin/users            → view('admin')  [auth]
 GET  /admin/events           → view('admin')  [auth]
 GET  /admin/events/{id}      → view('admin')  [auth]
 GET  /admin/events/{id}/cfp  → view('admin')  [auth]
+GET  /admin/events/{id}/site → view('admin')  [auth]
 GET  /admin/{any}            → view('admin')  [auth]
+GET  /admin/api/events/{id}/site                        → EventSiteController@show  [auth]
+POST /admin/api/events/{id}/site                        → EventSiteController@store  [auth]
+PUT  /admin/api/events/{id}/site                        → EventSiteController@update  [auth]
+PATCH /admin/api/events/{id}/site/toggle-published      → EventSiteController@togglePublished  [auth]
+GET  /admin/api/events/{id}/site/sponsors               → EventSponsorController@index  [auth]
+POST /admin/api/events/{id}/site/sponsors               → EventSponsorController@store  [auth]
+PUT  /admin/api/events/{id}/site/sponsors/{sponsor}     → EventSponsorController@update  [auth]
+DELETE /admin/api/events/{id}/site/sponsors/{sponsor}   → EventSponsorController@destroy  [auth]
+PATCH /admin/api/events/{id}/site/sponsors/reorder      → EventSponsorController@reorder  [auth]
+GET  /admin/api/events/{id}/site/schedule               → EventScheduleController@index  [auth]
+POST /admin/api/events/{id}/site/schedule               → EventScheduleController@store  [auth]
+PUT  /admin/api/events/{id}/site/schedule/{item}        → EventScheduleController@update  [auth]
+DELETE /admin/api/events/{id}/site/schedule/{item}      → EventScheduleController@destroy  [auth]
 ```
 
 > **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
@@ -407,3 +422,15 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Testes submissão de palestras (25 casos) | ✅ Implementado |
 | CFP público — avatar, city e state no perfil do palestrante | ✅ Implementado |
 | CFP público — link "Perfil" no header da home para palestrantes | ✅ Implementado |
+| Site do evento — configuração admin (`/admin/events/{id}/site`) | ✅ Implementado |
+| Site do evento — gerenciamento de patrocinadores com upload R2 | ✅ Implementado |
+| Site do evento — 3 layouts públicos (Clássico, Imersivo, Minimalista) | ✅ Implementado |
+| Site do evento — página pública `GET /{slug}` | ✅ Implementado |
+| Site do evento — card "Site do Evento" no hub de detalhes | ✅ Implementado |
+| Testes Site do evento (27 casos) | ✅ Implementado |
+| Grade de programação — model `EventScheduleItem` + migration | ✅ Implementado |
+| Grade de programação — `EventScheduleController` CRUD | ✅ Implementado |
+| Grade de programação — seção na `EventSite.vue` (admin) | ✅ Implementado |
+| Grade de programação — exibição com dias nos 3 layouts públicos | ✅ Implementado |
+| Grade de programação — separação multi-dia (tabs por data) | ✅ Implementado |
+| Testes Grade de programação (11 casos) | ✅ Implementado |

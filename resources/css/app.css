@@ -171,6 +171,10 @@ html {
     transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
+.dark .page-loader {
+    background: #0f172a;
+}
+
 .page-loader.hidden {
     opacity: 0;
     visibility: hidden;
