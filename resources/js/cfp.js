@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './CfpApp.vue'
 
 const routes = [
+    // Rotas públicas
     {
         path: '/cfp',
         name: 'cfp.home',
@@ -18,15 +19,33 @@ const routes = [
         name: 'cfp.register',
         component: () => import('./views/cfp/Register.vue'),
     },
+
+    // Área autenticada do palestrante — usa CfpLayout como wrapper
     {
-        path: '/cfp/submit/:eventId',
-        name: 'cfp.submit',
-        component: () => import('./views/cfp/SubmitTalk.vue'),
-    },
-    {
-        path: '/cfp/perfil',
-        name: 'cfp.profile',
-        component: () => import('./views/cfp/Profile.vue'),
+        path: '/cfp',
+        component: () => import('./layouts/CfpLayout.vue'),
+        children: [
+            {
+                path: 'dashboard',
+                name: 'cfp.dashboard',
+                component: () => import('./views/cfp/CfpDashboard.vue'),
+            },
+            {
+                path: 'eventos',
+                name: 'cfp.events',
+                component: () => import('./views/cfp/CfpMyEvents.vue'),
+            },
+            {
+                path: 'perfil',
+                name: 'cfp.profile',
+                component: () => import('./views/cfp/Profile.vue'),
+            },
+            {
+                path: 'submit/:eventId',
+                name: 'cfp.submit',
+                component: () => import('./views/cfp/SubmitTalk.vue'),
+            },
+        ],
     },
 ]
 

@@ -15,6 +15,36 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TalkSubmissionController extends Controller
 {
+    public function allMyTalks(): JsonResponse
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        /** @var Speaker|null $speaker */
+        $speaker = $user->speaker;
+
+        if (! $speaker) {
+            return response()->json([
+                'data'  => [],
+                'stats' => ['total' => 0, 'approved' => 0, 'pending' => 0, 'rejected' => 0],
+            ]);
+        }
+
+        $talks = Talk::where('speaker_id', $speaker->id)
+            ->with('event:id,name,slug,starts_at,cover_image')
+            ->orderByDesc('submitted_at')
+            ->get(['id', 'event_id', 'title', 'abstract', 'duration', 'level', 'status', 'submitted_at']);
+
+        $stats = [
+            'total'    => $talks->count(),
+            'approved' => $talks->where('status', 'aprovada')->count(),
+            'pending'  => $talks->whereIn('status', ['submetida', 'em_analise'])->count(),
+            'rejected' => $talks->where('status', 'recusada')->count(),
+        ];
+
+        return response()->json(['data' => $talks, 'stats' => $stats]);
+    }
+
     public function myTalks(Event $event): JsonResponse
     {
         /** @var User $user */

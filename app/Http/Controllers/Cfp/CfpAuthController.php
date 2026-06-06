@@ -34,8 +34,17 @@ class CfpAuthController extends Controller
 
         $request->session()->regenerate();
 
+        /** @var \App\Models\Speaker|null $speaker */
+        $speaker = $user->speaker;
+
         return response()->json([
-            'user' => ['id' => $user->id, 'name' => $user->name, 'role' => $user->role],
+            'user' => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'role'       => $user->role,
+                'avatar_url' => $speaker?->avatar_url,
+            ],
         ]);
     }
 
@@ -48,8 +57,17 @@ class CfpAuthController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        /** @var \App\Models\Speaker|null $speaker */
+        $speaker = $user->speaker;
+
         return response()->json([
-            'user' => ['id' => $user->id, 'name' => $user->name, 'role' => $user->role],
+            'user' => [
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'role'       => $user->role,
+                'avatar_url' => $speaker?->avatar_url,
+            ],
         ]);
     }
 

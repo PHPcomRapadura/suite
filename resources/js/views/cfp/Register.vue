@@ -26,7 +26,7 @@ async function handleRegister() {
             if (redirect && String(redirect).startsWith('/cfp')) {
                 window.location.href = String(redirect)
             } else {
-                router.push({ name: 'cfp.home' })
+                router.push({ name: 'cfp.dashboard' })
             }
         }
     } catch (e) {

@@ -2,21 +2,23 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useCfpAuth } from '@/composables/useCfpAuth'
 
 const router = useRouter()
+const { user, fetchUser } = useCfpAuth()
 
 const events = ref([])
 const loading = ref(true)
-const user = ref(null)
-const talkCounts = ref({})
 
 const logoSrc = `${import.meta.env.BASE_URL}images/PHPcomRapadura_color.svg`
 
 onMounted(async () => {
-    await Promise.allSettled([fetchEvents(), fetchMe()])
+    await fetchUser()
     if (user.value?.role === 'palestrante') {
-        fetchAllCounts()
+        router.replace({ name: 'cfp.dashboard' })
+        return
     }
+    await fetchEvents()
 })
 
 async function fetchEvents() {
@@ -30,41 +32,9 @@ async function fetchEvents() {
     }
 }
 
-async function fetchMe() {
-    try {
-        const { data } = await axios.get('/cfp/api/me')
-        user.value = data.user
-        } catch {
-        user.value = null
-    }
-}
-
-async function fetchAllCounts() {
-    const counts = {}
-    await Promise.allSettled(
-        events.value.map(async (event) => {
-            try {
-                const { data } = await axios.get(`/cfp/api/events/${event.id}/my-talks/count`)
-                counts[event.id] = data.count
-            } catch {
-                counts[event.id] = 0
-            }
-        })
-    )
-    talkCounts.value = counts
-}
-
-async function logout() {
-    await axios.post('/cfp/logout')
-    user.value = null
-}
-
 function handleSubmit(event) {
     if (!user.value) {
         router.push({ name: 'cfp.login', query: { redirect: `/cfp/submit/${event.id}` } })
-        return
-    }
-    if (user.value.role !== 'palestrante') {
         return
     }
     router.push(`/cfp/submit/${event.id}`)
@@ -92,24 +62,7 @@ function formatDateShort(iso) {
                 </a>
 
                 <div class="flex items-center gap-3">
-                    <template v-if="user">
-                        <span class="text-sm text-(--color-text-muted) hidden sm:block">{{ user.name }}</span>
-                        <RouterLink
-                            v-if="user.role === 'palestrante'"
-                            :to="{ name: 'cfp.profile' }"
-                            class="text-sm px-3 py-1.5 rounded-lg border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) transition"
-                        >
-                            Perfil
-                        </RouterLink>
-                        <button
-                            @click="logout"
-                            class="text-sm px-3 py-1.5 rounded-lg border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) transition"
-                        >
-                            Sair
-                        </button>
-                    </template>
                     <RouterLink
-                        v-else
                         :to="{ name: 'cfp.login' }"
                         class="text-sm px-3 py-1.5 rounded-lg bg-(--color-primary) text-white hover:bg-(--color-primary-hover) transition"
                     >
@@ -268,7 +221,7 @@ function formatDateShort(iso) {
                                 Use uma conta de palestrante para submeter propostas
                             </div>
 
-                            <div v-else class="space-y-2">
+                            <div v-else>
                                 <button
                                     :disabled="event.cfp.status === 'aguardando'"
                                     @click="handleSubmit(event)"
@@ -280,16 +233,6 @@ function formatDateShort(iso) {
                                 >
                                     Submeter palestra
                                 </button>
-                                <RouterLink
-                                    v-if="user?.role === 'palestrante'"
-                                    :to="`/cfp/submit/${event.id}`"
-                                    class="w-full py-2 px-4 rounded-lg text-sm font-medium transition border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) flex items-center justify-center gap-1.5"
-                                >
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                    </svg>
-                                    Palestras enviadas<template v-if="talkCounts[event.id]"> ({{ talkCounts[event.id] }})</template>
-                                </RouterLink>
                             </div>
                         </div>
                     </div>

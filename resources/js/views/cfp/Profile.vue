@@ -2,11 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import axios from 'axios'
+import { useCfpAuth } from '@/composables/useCfpAuth'
 
 const router = useRouter()
 const route  = useRoute()
 
-const user       = ref(null)
+const { user, fetchUser } = useCfpAuth()
 const loading    = ref(true)
 const savingProfile  = ref(false)
 const savingAccount  = ref(false)
@@ -45,8 +46,7 @@ const accountForm = ref({
 const redirectFrom = route.query.redirect ?? null
 
 onMounted(async () => {
-    const meRes = await axios.get('/cfp/api/me').catch(() => null)
-    user.value = meRes?.data?.user ?? null
+    await fetchUser()
 
     if (!user.value) {
         router.push({ name: 'cfp.login', query: { redirect: '/cfp/perfil' } })
@@ -125,7 +125,9 @@ async function saveProfile() {
         const { data } = await axios.post('/cfp/api/speaker/profile', fd, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
-        profileForm.value.avatar_url = data.data?.avatar_url ?? null
+        const newAvatar = data.data?.avatar_url ?? null
+        profileForm.value.avatar_url = newAvatar
+        if (user.value) user.value.avatar_url = newAvatar
         avatarFile.value    = null
         avatarPreview.value = null
 
@@ -163,19 +165,12 @@ async function saveAccount() {
 </script>
 
 <template>
-    <div class="min-h-screen bg-(--color-bg)">
+    <div class="px-6 py-8 max-w-3xl mx-auto">
 
-        <!-- Header -->
-        <header class="bg-(--color-surface) border-b border-(--color-border)">
-            <div class="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-                <RouterLink :to="{ name: 'cfp.home' }" class="text-(--color-text-muted) hover:text-(--color-text) transition flex items-center gap-1.5 text-sm">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Voltar para o CFP
-                </RouterLink>
-            </div>
-        </header>
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-(--color-text)">Meu Perfil</h1>
+            <p class="text-(--color-text-muted) text-sm mt-1">Suas informações visíveis para a comissão avaliadora.</p>
+        </div>
 
         <!-- Loading -->
         <div v-if="loading" class="flex justify-center py-24">
@@ -188,14 +183,12 @@ async function saveAccount() {
         <template v-else>
 
             <!-- Aviso: não é palestrante -->
-            <div v-if="user && user.role !== 'palestrante'" class="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+            <div v-if="user && user.role !== 'palestrante'" class="py-12 text-center">
                 <p class="text-(--color-text-muted)">Use uma conta de palestrante para acessar o perfil.</p>
                 <RouterLink :to="{ name: 'cfp.login' }" class="mt-4 inline-block text-sm text-(--color-primary) underline">Entrar com outra conta</RouterLink>
             </div>
 
-            <main v-else class="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-                <h1 class="text-xl font-bold text-(--color-text)">Meu perfil</h1>
+            <div v-else class="space-y-8">
 
                 <!-- Banner perfil incompleto -->
                 <div
@@ -534,7 +527,7 @@ async function saveAccount() {
                     </form>
                 </section>
 
-            </main>
+            </div>
         </template>
     </div>
 </template>

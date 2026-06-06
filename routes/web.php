@@ -109,6 +109,7 @@ Route::prefix('cfp')->name('cfp.')->group(function () {
         Route::patch('/api/speaker/profile',             [SpeakerProfileController::class, 'update'])->name('api.speaker.update');
         Route::post('/api/speaker/profile',              [SpeakerProfileController::class, 'update'])->name('api.speaker.update.post');
         Route::patch('/api/account',                     [AccountController::class, 'update'])->name('api.account.update');
+        Route::get('/api/my-talks',                      [TalkSubmissionController::class, 'allMyTalks'])->name('api.all-my-talks');
         Route::get('/api/events/{event}/my-talks',       [TalkSubmissionController::class, 'myTalks'])->name('api.my-talks');
         Route::get('/api/events/{event}/my-talks/count', [TalkSubmissionController::class, 'myTalksCount'])->name('api.my-talks.count');
         Route::post('/api/events/{event}/talks',         [TalkSubmissionController::class, 'store'])->name('api.talks.store');

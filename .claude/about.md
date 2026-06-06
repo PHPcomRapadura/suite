@@ -49,12 +49,21 @@ Testes em `tests/e2e/`:
 
 ### ✅ Call for Papers (CFP) — implementado
 
-Vue.js SPA pública em `/cfp`, separada do admin, com autenticação própria:
+Vue.js SPA em `/cfp`, separada do admin, com autenticação própria e área imersiva do palestrante:
 
-- **Home** (`/cfp`) — grid de cards com eventos cujo CFP está aberto/aguardando
+**Área pública (sem autenticação):**
+- **Home** (`/cfp`) — grid de cards com eventos cujo CFP está aberto/aguardando; redireciona palestrante logado direto para o dashboard
 - **Login/Registro** — aceita qualquer role ativo (ao contrário do `/admin/login`)
-- **Submissão** (`/cfp/submit/:eventId`) — listagem de propostas, formulário, edição
+
+**Área autenticada — `CfpLayout.vue` (sidebar fixa, mobile-friendly):**
+- **Dashboard** (`/cfp/dashboard`) — boas-vindas com avatar, 4 cards de stats (total, aprovadas, aguardando, recusadas), grid de eventos com CFP aberto e botão "Submeter palestra"
+- **Meus Eventos** (`/cfp/eventos`) — histórico de propostas agrupadas por evento, com título, abstract (truncado em 2 linhas), status, nível, duração e data de submissão
 - **Perfil** (`/cfp/perfil`) — avatar (R2), bio, empresa, city, state, redes sociais + dados da conta
+- **Submissão** (`/cfp/submit/:eventId`) — listagem de propostas do evento, formulário, edição
+
+**Infra:**
+- **`useCfpAuth.js`** — composable singleton com `user`, `fetchUser`, `logout`; refs vivem em módulo para evitar re-fetch entre componentes
+- **`GET /cfp/api/my-talks`** — retorna todas as propostas do palestrante com `abstract` + stats + evento vinculado
 - **Middleware `EnsureSpeaker`** — 401/403 por role
 - **39 testes de feature**
 

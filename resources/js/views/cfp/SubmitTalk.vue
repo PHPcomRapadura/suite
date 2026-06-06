@@ -2,16 +2,18 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import axios from 'axios'
+import { useCfpAuth } from '@/composables/useCfpAuth'
 
 const router = useRouter()
 const route  = useRoute()
 
 const eventId = route.params.eventId
 
+const { user, fetchUser } = useCfpAuth()
+
 const event      = ref(null)
 const myTalks    = ref([])
 const profile    = ref(null)
-const user       = ref(null)
 const loading    = ref(true)
 const submitting = ref(false)
 const errors     = ref({})
@@ -34,8 +36,7 @@ const limitReached = computed(() => {
 const canEdit = (talk) => ['submetida', 'em_analise'].includes(talk.status)
 
 onMounted(async () => {
-    const meRes = await axios.get('/cfp/api/me').catch(() => null)
-    user.value = meRes?.data?.user ?? null
+    await fetchUser()
 
     if (!user.value) {
         router.push({ name: 'cfp.login', query: { redirect: `/cfp/submit/${eventId}` } })
@@ -156,23 +157,7 @@ const durationLabel = { '25': '25 min', '50': '50 min' }
 </script>
 
 <template>
-    <div class="min-h-screen bg-(--color-bg)">
-
-        <!-- Header simples -->
-        <header class="bg-(--color-surface) border-b border-(--color-border)">
-            <div class="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
-                <RouterLink :to="{ name: 'cfp.home' }" class="text-(--color-text-muted) hover:text-(--color-text) transition flex items-center gap-1.5 text-sm">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Voltar para o CFP
-                </RouterLink>
-                <span class="text-(--color-border)">·</span>
-                <RouterLink :to="{ name: 'cfp.profile' }" class="text-(--color-text-muted) hover:text-(--color-text) transition text-sm">
-                    Meu perfil
-                </RouterLink>
-            </div>
-        </header>
+    <div class="px-6 py-8 max-w-3xl mx-auto">
 
         <!-- Loading -->
         <div v-if="loading" class="flex justify-center py-24">
@@ -185,12 +170,12 @@ const durationLabel = { '25': '25 min', '50': '50 min' }
         <template v-else>
 
             <!-- Aviso: não é palestrante -->
-            <div v-if="user && user.role !== 'palestrante'" class="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
+            <div v-if="user && user.role !== 'palestrante'" class="py-12 text-center">
                 <p class="text-(--color-text-muted)">Use uma conta de palestrante para submeter propostas.</p>
                 <RouterLink :to="{ name: 'cfp.login' }" class="mt-4 inline-block text-sm text-(--color-primary) underline">Entrar com outra conta</RouterLink>
             </div>
 
-            <main v-else class="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+            <div v-else class="space-y-8">
 
                 <!-- Cabeçalho do evento -->
                 <div v-if="event" class="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
@@ -450,7 +435,7 @@ const durationLabel = { '25': '25 min', '50': '50 min' }
                     </div>
 
                 </template>
-            </main>
+            </div>
         </template>
     </div>
 </template>

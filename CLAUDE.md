@@ -56,15 +56,24 @@ GET /robots.txt    → public/robots.txt (arquivo estático)
 GET /{slug}        → EventSitePublicController@show (última rota — 404 se não publicado)
 ```
 
-### CFP Público — Vue.js SPA
+### CFP — Vue.js SPA
 
 ```
 resources/js/
-├── cfp.js                          # Bootstrap da SPA CFP pública
+├── cfp.js                          # Bootstrap da SPA CFP (rotas públicas + área autenticada)
 ├── CfpApp.vue                      # Componente raiz
+├── composables/
+│   └── useCfpAuth.js               # Singleton reativo de auth (user, fetchUser, logout)
+├── layouts/
+│   └── CfpLayout.vue               # Layout com sidebar para área autenticada do palestrante
 └── views/cfp/
-    ├── Home.vue                    # Lista de eventos com CFP aberto/aguardando
-    └── Login.vue                   # Login de palestrantes
+    ├── Home.vue                    # Lista de eventos com CFP aberto/aguardando (redireciona palestrante logado)
+    ├── Login.vue                   # Login de palestrantes
+    ├── Register.vue                # Cadastro de palestrantes
+    ├── CfpDashboard.vue            # Dashboard do palestrante: boas-vindas, stats, CFP abertos
+    ├── CfpMyEvents.vue             # Histórico de propostas agrupadas por evento (com abstract)
+    ├── Profile.vue                 # Perfil do palestrante (avatar R2, bio, localização, redes sociais)
+    └── SubmitTalk.vue              # Submissão e edição de proposta para um evento
 ```
 
 Rotas CFP público (sem autenticação):
@@ -78,7 +87,14 @@ POST /cfp/login              → CfpAuthController@login  [sem auth — aceita q
 POST /cfp/logout             → CfpAuthController@logout  [sem auth]
 ```
 
+Rotas CFP autenticadas (middleware `speaker`):
+```
+GET  /cfp/api/my-talks       → TalkSubmissionController@allMyTalks  [speaker]
+```
+
 > **Diferença do login admin:** `POST /cfp/login` aceita `palestrante` (e outros roles). `POST /admin/login` rejeita `palestrante` via `hasAdminAccess()`.
+
+> **useCfpAuth — singleton:** `user` e `loaded` vivem em nível de módulo (fora do `export function`), portanto são compartilhados entre todos os componentes da SPA sem re-fetch. Após atualizar o avatar no perfil, deve-se escrever diretamente em `user.value.avatar_url` para a sidebar reagir sem reload.
 
 ### Admin — Vue.js SPA
 
@@ -422,6 +438,13 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Testes submissão de palestras (25 casos) | ✅ Implementado |
 | CFP público — avatar, city e state no perfil do palestrante | ✅ Implementado |
 | CFP público — link "Perfil" no header da home para palestrantes | ✅ Implementado |
+| CFP — área autenticada imersiva com sidebar (`CfpLayout.vue`) | ✅ Implementado |
+| CFP — composable singleton `useCfpAuth` (user, fetchUser, logout) | ✅ Implementado |
+| CFP — dashboard do palestrante: boas-vindas, stats, CFP abertos (`/cfp/dashboard`) | ✅ Implementado |
+| CFP — histórico de propostas por evento com abstract (`/cfp/eventos`) | ✅ Implementado |
+| CFP — API `GET /cfp/api/my-talks` retornando propostas + stats | ✅ Implementado |
+| Site do evento — seção "Sobre o evento" (exibe `events.description`) | ✅ Implementado |
+| Site do evento — seção CFP com banner e botão `/cfp` (quando `is_accepting_talks`) | ✅ Implementado |
 | Site do evento — configuração admin (`/admin/events/{id}/site`) | ✅ Implementado |
 | Site do evento — gerenciamento de patrocinadores com upload R2 | ✅ Implementado |
 | Site do evento — 3 layouts públicos (Clássico, Imersivo, Minimalista) | ✅ Implementado |
