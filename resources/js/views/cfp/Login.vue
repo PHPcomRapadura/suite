@@ -114,9 +114,14 @@ function redirectAfterLogin() {
 
                     <!-- Senha -->
                     <div>
-                        <label for="password" class="block text-sm font-medium text-(--color-text) mb-1.5">
-                            Senha
-                        </label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="password" class="block text-sm font-medium text-(--color-text)">
+                                Senha
+                            </label>
+                            <RouterLink :to="{ name: 'cfp.forgot-password' }" class="text-xs text-(--color-primary) hover:underline">
+                                Esqueceu a senha?
+                            </RouterLink>
+                        </div>
                         <div class="relative">
                             <input
                                 id="password"

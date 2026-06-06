@@ -68,8 +68,10 @@ resources/js/
 │   └── CfpLayout.vue               # Layout com sidebar para área autenticada do palestrante
 └── views/cfp/
     ├── Home.vue                    # Lista de eventos com CFP aberto/aguardando (redireciona palestrante logado)
-    ├── Login.vue                   # Login de palestrantes
+    ├── Login.vue                   # Login de palestrantes (link "Esqueceu a senha?")
     ├── Register.vue                # Cadastro de palestrantes
+    ├── ForgotPassword.vue          # Solicitar link de redefinição de senha
+    ├── ResetPassword.vue           # Redefinir senha via token (lê ?token=&email= da URL)
     ├── CfpDashboard.vue            # Dashboard do palestrante: boas-vindas, stats, CFP abertos
     ├── CfpMyEvents.vue             # Histórico de propostas agrupadas por evento (com abstract)
     ├── Profile.vue                 # Perfil do palestrante (avatar R2, bio, localização, redes sociais)
@@ -78,13 +80,15 @@ resources/js/
 
 Rotas CFP público (sem autenticação):
 ```
-GET  /cfp                    → view('cfp')  [SPA pública]
-GET  /cfp/login              → view('cfp')  [SPA pública]
-GET  /cfp/{any}              → view('cfp')  [SPA pública]
-GET  /cfp/api/events         → CfpPublicController@events  [sem auth]
-GET  /cfp/api/me             → CfpAuthController@me  [sem auth — retorna null se não logado]
-POST /cfp/login              → CfpAuthController@login  [sem auth — aceita qualquer role ativo]
-POST /cfp/logout             → CfpAuthController@logout  [sem auth]
+GET  /cfp                        → view('cfp')  [SPA pública]
+GET  /cfp/login                  → view('cfp')  [SPA pública]
+GET  /cfp/{any}                  → view('cfp')  [SPA pública]
+GET  /cfp/api/events             → CfpPublicController@events  [sem auth]
+GET  /cfp/api/me                 → CfpAuthController@me  [sem auth — retorna null se não logado]
+POST /cfp/login                  → CfpAuthController@login  [sem auth — aceita qualquer role ativo]
+POST /cfp/logout                 → CfpAuthController@logout  [sem auth]
+POST /cfp/forgot-password        → CfpPasswordResetController@sendLink  [sem auth]
+POST /cfp/reset-password         → CfpPasswordResetController@reset  [sem auth]
 ```
 
 Rotas CFP autenticadas (middleware `speaker`):
@@ -443,6 +447,9 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | CFP — dashboard do palestrante: boas-vindas, stats, CFP abertos (`/cfp/dashboard`) | ✅ Implementado |
 | CFP — histórico de propostas por evento com abstract (`/cfp/eventos`) | ✅ Implementado |
 | CFP — API `GET /cfp/api/my-talks` retornando propostas + stats | ✅ Implementado |
+| CFP — recuperação de senha (`ForgotPassword.vue` + `ResetPassword.vue`) | ✅ Implementado |
+| CFP — `CfpPasswordResetController` + `CfpResetPasswordMail` + template HTML | ✅ Implementado |
+| Configuração de e-mail via SMTP2Go (`mail.smtp2go.com:587`, TLS) | ✅ Implementado |
 | Site do evento — seção "Sobre o evento" (exibe `events.description`) | ✅ Implementado |
 | Site do evento — seção CFP com banner e botão `/cfp` (quando `is_accepting_talks`) | ✅ Implementado |
 | Site do evento — configuração admin (`/admin/events/{id}/site`) | ✅ Implementado |

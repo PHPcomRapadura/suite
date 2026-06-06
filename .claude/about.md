@@ -61,6 +61,13 @@ Vue.js SPA em `/cfp`, separada do admin, com autenticação própria e área ime
 - **Perfil** (`/cfp/perfil`) — avatar (R2), bio, empresa, city, state, redes sociais + dados da conta
 - **Submissão** (`/cfp/submit/:eventId`) — listagem de propostas do evento, formulário, edição
 
+**Recuperação de senha:**
+- **`ForgotPassword.vue`** (`/cfp/forgot-password`) — formulário de solicitação; sempre exibe confirmação (evita enumeração de e-mails)
+- **`ResetPassword.vue`** (`/cfp/reset-password?token=&email=`) — lê token/email da query string; detecta link inválido/ausente e redireciona para solicitar novo
+- **`CfpPasswordResetController`** — `POST /cfp/forgot-password` (gera token via `Password::broker()`, envia Mailable customizado) e `POST /cfp/reset-password` (valida token, atualiza senha)
+- **`CfpResetPasswordMail`** — Mailable com template HTML com branding PHP com Rapadura; link expira em 60 min
+- **SMTP2Go** — `mail.smtp2go.com:587` (TLS); credenciais em `MAIL_USERNAME` / `MAIL_PASSWORD` no `.env`
+
 **Infra:**
 - **`useCfpAuth.js`** — composable singleton com `user`, `fetchUser`, `logout`; refs vivem em módulo para evitar re-fetch entre componentes
 - **`GET /cfp/api/my-talks`** — retorna todas as propostas do palestrante com `abstract` + stats + evento vinculado

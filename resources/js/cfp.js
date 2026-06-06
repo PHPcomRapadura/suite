@@ -19,6 +19,16 @@ const routes = [
         name: 'cfp.register',
         component: () => import('./views/cfp/Register.vue'),
     },
+    {
+        path: '/cfp/forgot-password',
+        name: 'cfp.forgot-password',
+        component: () => import('./views/cfp/ForgotPassword.vue'),
+    },
+    {
+        path: '/cfp/reset-password',
+        name: 'cfp.reset-password',
+        component: () => import('./views/cfp/ResetPassword.vue'),
+    },
 
     // Área autenticada do palestrante — usa CfpLayout como wrapper
     {

@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CfpPublicController;
 use App\Http\Controllers\Cfp\AccountController;
 use App\Http\Controllers\Cfp\CfpAuthController;
+use App\Http\Controllers\Cfp\CfpPasswordResetController;
 use App\Http\Controllers\Cfp\SpeakerProfileController;
 use App\Http\Controllers\Cfp\TalkSubmissionController;
 use App\Http\Controllers\EventSitePublicController;
@@ -102,6 +103,8 @@ Route::prefix('cfp')->name('cfp.')->group(function () {
     Route::post('/login', [CfpAuthController::class, 'login'])->name('login');
     Route::post('/register', [CfpAuthController::class, 'register'])->name('register');
     Route::post('/logout', [CfpAuthController::class, 'logout'])->name('logout');
+    Route::post('/forgot-password', [CfpPasswordResetController::class, 'sendLink'])->name('password.email');
+    Route::post('/reset-password',  [CfpPasswordResetController::class, 'reset'])->name('password.reset');
 
     // Rotas protegidas — apenas palestrantes
     Route::middleware('speaker')->group(function () {
