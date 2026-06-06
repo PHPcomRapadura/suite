@@ -21,7 +21,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $events = \App\Models\Event::where('status', 'publicado')
+        ->orderBy('starts_at', 'desc')
+        ->get(['name', 'slug', 'edition', 'starts_at', 'ends_at',
+               'location', 'is_online', 'is_accepting_talks', 'cover_image']);
+
+    return view('welcome', compact('events'));
 });
 
 // Admin

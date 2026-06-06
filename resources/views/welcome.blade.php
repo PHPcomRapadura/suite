@@ -1,3 +1,7 @@
+@php
+    $contactEmail  = 'contato@phpcomrapadura.org';
+    $twitterHandle = '@phpcomrapadura';
+@endphp
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -29,7 +33,7 @@
 
     {{-- Twitter Card --}}
     <meta name="twitter:card"        content="summary_large_image">
-    <meta name="twitter:site"        content="@phpcomrapadura">
+    <meta name="twitter:site"        content="{{ $twitterHandle }}">
     <meta name="twitter:title"       content="PHP com Rapadura — Comunidade PHP do Ceará">
     <meta name="twitter:description" content="Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.">
     <meta name="twitter:image"       content="{{ asset('images/sobre-php-com-rapadura.jpg') }}">
@@ -73,7 +77,7 @@
             },
             "contactPoint": {
                 "@@type": "ContactPoint",
-                "email": "contato@phpcomrapadura.org",
+                "email": "{{ $contactEmail }}",
                 "contactType": "customer support",
                 "availableLanguage": "Portuguese"
             },
@@ -274,10 +278,112 @@
     </section>
 
     {{-- ===================== EVENTOS ===================== --}}
-    <section id="eventos" class="min-h-screen bg-(--color-bg) flex flex-col items-center justify-center px-6">
-        <div class="max-w-[760px] w-full text-center section-hidden">
-            <h2 class="text-[26px] md:text-[32px] font-bold text-(--color-text) mb-4">Eventos</h2>
-            <p class="text-(--color-text-muted) text-lg italic">Em breve</p>
+    <section id="eventos" class="bg-(--color-bg) py-24 md:py-32 px-6">
+        <div class="max-w-[1024px] mx-auto">
+
+            <h2 class="text-[26px] md:text-[32px] font-bold text-(--color-text) text-center mb-12 section-hidden">Eventos</h2>
+
+            @if($events->isEmpty())
+                {{-- Estado vazio --}}
+                <div class="flex flex-col items-center text-center py-16 section-hidden">
+                    <svg class="w-12 h-12 text-(--color-text-muted) opacity-30 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="text-lg font-semibold text-(--color-text)">Novos eventos em breve!</p>
+                    <p class="text-sm text-(--color-text-muted) mt-2 max-w-[360px]">Acompanhe nossas redes sociais para não perder nenhuma novidade.</p>
+                </div>
+            @else
+                {{-- Grid de eventos --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($events as $i => $event)
+                        @php
+                            $start = $event->starts_at;
+                            $end   = $event->ends_at;
+
+                            if (!$end || $start->isSameDay($end)) {
+                                $dateLabel = $start->translatedFormat('j \d\e M. \d\e Y');
+                            } elseif ($start->isSameMonth($end)) {
+                                $dateLabel = $start->day . ' e ' . $end->translatedFormat('j \d\e M. \d\e Y');
+                            } else {
+                                $dateLabel = $start->translatedFormat('j \d\e M.') . ' a ' . $end->translatedFormat('j \d\e M. \d\e Y');
+                            }
+                        @endphp
+
+                        <article
+                            class="section-hidden flex flex-col rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+                            style="transition-delay: {{ $i * 100 }}ms"
+                        >
+                            {{-- Imagem --}}
+                            <div class="relative aspect-[16/9] overflow-hidden bg-(--color-border)">
+                                @if($event->cover_image)
+                                    <img
+                                        src="{{ $event->cover_image }}"
+                                        alt="{{ $event->name }}"
+                                        class="w-full h-full object-cover"
+                                        width="640"
+                                        height="360"
+                                        loading="lazy"
+                                    >
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center" aria-hidden="true">
+                                        <svg class="w-9 h-9 text-(--color-text-muted) opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
+
+                                @if($event->is_accepting_talks)
+                                    <span
+                                        class="absolute top-2.5 left-2.5 bg-(--color-primary) text-white text-[11px] font-semibold px-2.5 py-1 rounded-md leading-none"
+                                        aria-label="Call for Papers aberto para submissões"
+                                    >CFP Aberto</span>
+                                @endif
+                            </div>
+
+                            {{-- Conteúdo --}}
+                            <div class="flex flex-col flex-1 p-5">
+                                <h3 class="text-base font-bold text-(--color-text) leading-snug mb-0.5">{{ $event->name }}</h3>
+
+                                @if($event->edition)
+                                    <p class="text-xs text-(--color-text-muted) mb-3">{{ $event->edition }}ª edição</p>
+                                @else
+                                    <div class="mb-3"></div>
+                                @endif
+
+                                <div class="space-y-1.5 mb-auto">
+                                    {{-- Data --}}
+                                    <div class="flex items-center gap-1.5 text-[13px] text-(--color-text-muted)">
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span>{{ $dateLabel }}</span>
+                                    </div>
+
+                                    {{-- Local --}}
+                                    <div class="flex items-center gap-1.5 text-[13px] text-(--color-text-muted)">
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        <span class="truncate">{{ $event->is_online ? 'Online' : $event->location }}</span>
+                                    </div>
+                                </div>
+
+                                {{-- CTA --}}
+                                <a
+                                    href="{{ url('/' . $event->slug) }}"
+                                    class="mt-4 w-full text-center py-2.5 px-4 rounded-lg border-[1.5px] border-(--color-primary) text-(--color-primary) text-sm font-semibold
+                                           hover:bg-(--color-primary) hover:text-white transition-colors duration-200"
+                                    aria-label="Ver evento: {{ $event->name }}"
+                                >
+                                    Ver evento →
+                                </a>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+
         </div>
     </section>
 
@@ -407,15 +513,15 @@
                     </svg>
                     <div class="contact-email-card__info">
                         <span class="contact-email-card__label">Email</span>
-                        <a href="mailto:contato@phpcomrapadura.org" class="contact-email-card__address">
-                            contato@phpcomrapadura.org
+                        <a href="mailto:{{ $contactEmail }}" class="contact-email-card__address">
+                            {{ $contactEmail }}
                         </a>
                     </div>
                     <button
                         id="copy-email-btn"
                         aria-label="Copiar endereço de email"
                         class="contact-email-card__copy"
-                        data-email="contato@phpcomrapadura.org"
+                        data-email="{{ $contactEmail }}"
                     >
                         <span id="copy-email-label">Copiar</span>
                     </button>
@@ -432,7 +538,7 @@
                         <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.32 14.26l-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.828.299z"/>
                     </svg>
                     <span class="contact-social-card__name">Telegram</span>
-                    <span class="contact-social-card__handle">@phpcomrapadura</span>
+                    <span class="contact-social-card__handle">{{ $twitterHandle }}</span>
                 </a>
 
                 <a href="https://www.instagram.com/phpcomrapadura" target="_blank" rel="noopener noreferrer"
@@ -442,7 +548,7 @@
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
                     </svg>
                     <span class="contact-social-card__name">Instagram</span>
-                    <span class="contact-social-card__handle">@phpcomrapadura</span>
+                    <span class="contact-social-card__handle">{{ $twitterHandle }}</span>
                 </a>
 
                 <a href="https://x.com/phpcomrapadura" target="_blank" rel="noopener noreferrer"
@@ -452,7 +558,7 @@
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.73-8.835L1.254 2.25H8.08l4.259 5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
                     <span class="contact-social-card__name">Twitter / X</span>
-                    <span class="contact-social-card__handle">@phpcomrapadura</span>
+                    <span class="contact-social-card__handle">{{ $twitterHandle }}</span>
                 </a>
 
                 <a href="https://www.facebook.com/RAPADURAdoPoder" target="_blank" rel="noopener noreferrer"

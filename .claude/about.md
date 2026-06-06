@@ -6,7 +6,7 @@ Suite de aplicações de uso da comunidade PHP com Rapadura
 Single-page Blade + Tailwind CSS v4 com as seções:
 - **Hero** — logo centralizada, subtitle, scroll indicator, animação de entrada
 - **Sobre** — texto da comunidade + parallax com foto da comunidade
-- **Eventos** — placeholder "Em breve" (seção completa a implementar)
+- **Eventos** — grid responsivo (1/2/3 cols) de cards com eventos `status = publicado`, ordenados por `starts_at DESC`; badge "CFP Aberto" condicional, data formatada pt-BR, local truncado, botão "Ver evento →" para `/{slug}`; estado vazio quando não há eventos publicados; animação escalonada por card
 - **Código de Conduta** — compromisso + regras comportamentais
 - **Contato** — email com botão copiar + 6 redes sociais
 - **Footer** — fundo azul com marca d'água ilustração nordestina, logo branca, nav e copyright

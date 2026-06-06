@@ -49,12 +49,15 @@ resources/js/app.js                 # Vanilla JS (scroll spy, menu, animações)
 public/images/                      # Imagens e SVGs estáticos
 ```
 
-Rotas adicionais:
+Rota principal e adicionais:
 ```
+GET /              → view('welcome', compact('events'))  — events = publicado, starts_at DESC
 GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
 GET /{slug}        → EventSitePublicController@show (última rota — 404 se não publicado)
 ```
+
+> **`@` em Blade (armadilha):** o compilador Blade interpreta `@php`, `@if`, etc. como diretivas. Strings como `@phpcomrapadura` ou `contato@phpcomrapadura.org` podem ser compiladas erroneamente. A solução correta é definir variáveis PHP no topo do template (`@php $contactEmail = '...' @endphp`) e usar `{{ $var }}` — dentro de expressões `{{ }}` o `@` nunca é processado como diretiva. Evitar `@@` como escape genérico: ele só funciona quando o segundo `@` inicia um diretivo reconhecido pelo Blade.
 
 ### CFP — Vue.js SPA
 
@@ -396,7 +399,7 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Loader ("Perainda!") | ✅ Implementado |
 | Hero | ✅ Implementado |
 | Sobre + Parallax | ✅ Implementado |
-| Eventos | ⚠️ Placeholder "Em breve" |
+| Eventos | ✅ Implementado — grid de cards com eventos publicados |
 | Código de Conduta | ✅ Implementado |
 | Contato | ✅ Implementado |
 | Footer | ✅ Implementado |
