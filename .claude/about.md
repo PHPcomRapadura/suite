@@ -81,6 +81,8 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - Dark mode suportado (loader, seções, código de conduta)
 - Ícones SVG inline substituindo emojis (📅 → calendário, 📍 → pin)
 - Fuso horário: `formatTime` usa `timeZone: 'UTC'` — horários armazenados como horário local (app timezone = UTC)
+- **Seção "Sobre o evento"**: exibe `events.description`; aparece apenas quando preenchido
+- **Seção CFP**: banner com botão `/cfp`; aparece apenas quando `is_accepting_talks = true`
 
 **Grade de programação multi-dia:**
 - Itens agrupados por data (`starts_at.toDateString()`) e ordenados por horário

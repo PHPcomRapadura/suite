@@ -120,6 +120,38 @@ onMounted(() => {
                 </a>
             </section>
 
+            <!-- Sobre -->
+            <section v-if="event.description" class="section-hidden">
+                <h2 class="text-xl font-bold text-(--color-text) mb-3">Sobre o evento</h2>
+                <p class="text-sm text-(--color-text-muted) leading-relaxed whitespace-pre-line">{{ event.description }}</p>
+            </section>
+
+            <!-- CFP -->
+            <section v-if="event.is_accepting_talks" class="section-hidden text-center space-y-3">
+                <div class="flex justify-center">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" :style="`background-color: color-mix(in srgb, var(--site-primary) 12%, transparent)`">
+                        <svg class="w-5 h-5" :style="`color: var(--site-primary)`" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 1 3 3v8a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="font-semibold text-(--color-text)">Call for Papers aberto</p>
+                <p class="text-sm text-(--color-text-muted)">Submeta uma proposta de palestra para o {{ event.name }}.</p>
+                <a
+                    href="/cfp"
+                    :style="`color: var(--site-primary)`"
+                    class="inline-flex items-center gap-1.5 text-sm font-semibold hover:underline"
+                >
+                    Enviar proposta
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                    </svg>
+                </a>
+            </section>
+
             <!-- Patrocinadores — linha horizontal simples -->
             <section v-if="allSponsors().length" class="section-hidden">
                 <h2 class="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wider text-center mb-6">Realização</h2>

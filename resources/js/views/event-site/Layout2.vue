@@ -133,6 +133,45 @@ onMounted(() => {
 
         <div class="max-w-5xl mx-auto px-4 py-16 space-y-20">
 
+            <!-- Sobre -->
+            <section v-if="event.description" class="section-hidden">
+                <h2 class="text-3xl font-bold mb-6" :style="`color: var(--site-primary)`">Sobre o evento</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line max-w-3xl">{{ event.description }}</p>
+            </section>
+
+            <!-- CFP -->
+            <section v-if="event.is_accepting_talks" class="section-hidden">
+                <div
+                    class="rounded-3xl p-10 text-center"
+                    :style="`background-color: color-mix(in srgb, var(--site-primary) 8%, transparent)`"
+                >
+                    <div class="flex justify-center mb-5">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center" :style="`background-color: var(--site-primary)`">
+                            <svg class="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 1 3 3v8a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-3" :style="`color: var(--site-primary)`">Call for Papers aberto</h2>
+                    <p class="text-gray-600 dark:text-gray-300 max-w-lg mx-auto mb-8">
+                        Quer palestrar no {{ event.name }}? Submeta sua proposta e compartilhe seu conhecimento com a comunidade.
+                    </p>
+                    <a
+                        href="/cfp"
+                        :style="`background-color: var(--site-primary)`"
+                        class="inline-flex items-center gap-2 px-10 py-4 rounded-2xl font-bold text-white text-lg hover:opacity-90 transition shadow-lg"
+                    >
+                        Enviar proposta
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </section>
+
             <!-- Patrocinadores -->
             <section v-if="orderedLevels().length" class="section-hidden">
                 <h2 class="text-3xl font-bold text-center mb-12" :style="`color: var(--site-primary)`">Patrocinadores</h2>

@@ -372,7 +372,7 @@ O `EventSitePublicController` monta os dados do evento e retorna a Blade view qu
 ```php
 return view('event-site', [
     'eventData' => json_encode([
-        'event'    => [...],   // nome, slug, datas, local, cover_image, is_online
+        'event'    => [...],   // nome, slug, datas, local, cover_image, is_online, description, is_accepting_talks
         'site'     => [...],   // config de aparência e conteúdo (layout, cores, fonte, faq, etc.)
         'sponsors' => [...],   // agrupados por nível: { rapadura_com_castanha: [...], ... }
         'schedule' => [...],   // agrupados por data (YYYY-MM-DD): { '2026-06-10': [{...}], ... }
@@ -413,7 +413,13 @@ O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compar
 │  overlay escuro + nome do evento + tagline  │
 │  [Comprar ingresso]   [Data · Local]        │
 ├─────────────────────────────────────────────┤
+│  Sobre o evento (description)               │
+├─────────────────────────────────────────────┤
+│  CFP — banner horizontal (se aberto)        │
+├─────────────────────────────────────────────┤
 │  Patrocinadores (por nível, logos centralizados) │
+├─────────────────────────────────────────────┤
+│  Programação — grade multi-dia              │
 ├─────────────────────────────────────────────┤
 │  FAQ — accordion                            │
 ├─────────────────────────────────────────────┤
@@ -423,6 +429,8 @@ O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compar
 
 - Cover image como banner superior com overlay gradiente
 - Fundo branco / `--color-surface` no corpo
+- Seção "Sobre o evento": título bold + texto muted, só exibida quando `description` preenchido
+- CFP: banner horizontal com borda na `primary_color`, ícone de microfone, botão "Enviar proposta" → `/cfp`; só exibido quando `is_accepting_talks = true`
 - Patrocinadores agrupados em linhas por nível, logos em escala de cinza com hover colorido
 - FAQ como accordion nativo (botão + collapse)
 
@@ -435,20 +443,27 @@ O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compar
 │  nome em tipografia grande + tagline        │
 │  [Comprar ingresso]                         │
 ├─────────────────────────────────────────────┤
-│  Faixa escura — data, local, secondary_color│
+│  Faixa escura — data, local                 │
 ├─────────────────────────────────────────────┤
-│  Patrocinadores — cards com logo + nome     │
-│  fundo alternado claro/escuro por nível     │
+│  Sobre o evento (description)               │
 ├─────────────────────────────────────────────┤
-│  FAQ — tabs por categoria (ou accordion)    │
+│  CFP — card centralizado (se aberto)        │
 ├─────────────────────────────────────────────┤
-│  Código de conduta — colapsável em card     │
+│  Patrocinadores — cards dimensionados por tier│
+├─────────────────────────────────────────────┤
+│  Programação — grade multi-dia              │
+├─────────────────────────────────────────────┤
+│  FAQ — accordion                            │
+├─────────────────────────────────────────────┤
+│  Código de conduta — card bg-gray           │
 └─────────────────────────────────────────────┘
 ```
 
 - Sem cover image no hero — usa `primary_color` como fundo
 - Tipografia em branco no hero, contraste alto
 - Botão CTA de ingressos em `secondary_color`
+- Seção "Sobre o evento": título na `primary_color`, texto `text-lg`, `max-w-3xl`
+- CFP: card centralizado com ícone grande em fundo `primary_color`, botão com sombra
 - Patrocinadores com logos em tamanho maior no nível superior
 
 ### Layout 3 — Minimalista
@@ -461,8 +476,14 @@ O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compar
 │  Corpo centralizado (max-w-2xl)             │
 │  Tagline · Data · Local · [Ingressos]       │
 ├─────────────────────────────────────────────┤
+│  Sobre o evento (description)               │
+├─────────────────────────────────────────────┤
+│  CFP — ícone + texto + link (se aberto)     │
+├─────────────────────────────────────────────┤
 │  Patrocinadores — linha horizontal simples  │
 │  logos monocromáticas, sem separação nível  │
+├─────────────────────────────────────────────┤
+│  Programação — grade multi-dia              │
 ├─────────────────────────────────────────────┤
 │  FAQ — lista colapsável compacta            │
 ├─────────────────────────────────────────────┤
@@ -472,6 +493,8 @@ O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compar
 
 - Sem cover image — destaque para o conteúdo
 - Coluna central estreita, muito espaço em branco
+- Seção "Sobre o evento": título `text-xl`, texto `text-sm` muted, alinhado à esquerda
+- CFP: ícone pequeno + título + descrição centrados + link na `primary_color` com seta
 - Patrocinadores todos em linha única (independente do nível), sem hierarquia visual
 - Fonte é o principal elemento de identidade visual
 
@@ -707,6 +730,7 @@ return {
 - retorna 404 para evento com site não publicado
 - retorna 200 para evento publicado com dados do evento, site e patrocinadores
 - dados incluem patrocinadores agrupados por nível na ordem correta
+- dados incluem description e is_accepting_talks do evento
 ```
 
 ### 10.2 Grade de programação
@@ -752,10 +776,13 @@ return {
 - [ ] Layout selecionado é renderizado corretamente
 - [ ] Cores configuradas são aplicadas como CSS custom properties
 - [ ] Fonte configurada é carregada e aplicada
+- [ ] Seção "Sobre o evento" aparece quando `description` está preenchido e é ocultada quando nulo
+- [ ] Seção CFP aparece quando `is_accepting_talks = true` e é ocultada quando false
+- [ ] Botão "Enviar proposta" da seção CFP aponta para `/cfp`
 - [ ] Patrocinadores exibidos na hierarquia correta (castanha > côco > tradicional)
 - [ ] Link de ingressos abre em nova aba
 - [ ] FAQ funciona como accordion
-- [ ] Página não quebra quando campos opcionais são nulos (tagline, FAQ, código de conduta)
+- [ ] Página não quebra quando campos opcionais são nulos (tagline, description, FAQ, código de conduta)
 - [ ] Loader "Perainda!" aparece antes do conteúdo
 - [ ] Dark mode respeita tokens `--color-*`
 - [ ] Layout responsivo: funciona em mobile, tablet e desktop
