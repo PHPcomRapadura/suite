@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
     event:    { type: Object, required: true },
@@ -8,7 +8,9 @@ const props = defineProps({
     schedule: { type: Object, default: () => ({}) },
 })
 
-const openFaq = ref(null)
+const openFaq     = ref(null)
+const navVisible  = ref(false)
+const showBackTop = ref(false)
 
 function formatDate(date) {
     if (!date) return null
@@ -29,6 +31,12 @@ const levelLabels = {
 }
 
 const levelOrder = ['rapadura_com_castanha', 'rapadura_com_coco', 'rapadura_tradicional']
+
+const TIER_SIZE = {
+    rapadura_com_castanha: 'w-44 h-28 p-5',
+    rapadura_com_coco:     'w-36 h-20 p-4',
+    rapadura_tradicional:  'w-28 h-16 p-3',
+}
 
 function orderedLevels() {
     return levelOrder.filter(l => props.sponsors[l]?.length)
@@ -63,11 +71,28 @@ function formatTime(isoStr) {
     return new Date(isoStr).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })
 }
 
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function onScroll() {
+    showBackTop.value = window.scrollY > 400
+}
+
 onMounted(() => {
+    const hero = document.getElementById('hero')
+    if (hero) {
+        const heroObserver = new IntersectionObserver(([entry]) => {
+            navVisible.value = !entry.isIntersecting
+        }, { threshold: 0.1 })
+        heroObserver.observe(hero)
+    }
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.querySelectorAll('.section-hidden').forEach(el => el.classList.remove('section-hidden'))
         return
     }
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -77,6 +102,12 @@ onMounted(() => {
         })
     }, { threshold: 0.08 })
     document.querySelectorAll('.section-hidden').forEach(el => observer.observe(el))
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', onScroll)
 })
 </script>
 
@@ -85,27 +116,62 @@ onMounted(() => {
         :style="`--site-primary: ${site.primary_color}; --site-secondary: ${site.secondary_color}; font-family: '${site.font.replace('_', ' ')}', sans-serif`"
         class="min-h-screen bg-(--color-bg)"
     >
+        <!-- Nav sticky — aparece quando o hero sai do viewport -->
+        <Transition
+            enter-active-class="transition duration-200"
+            enter-from-class="-translate-y-full opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition duration-200"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="-translate-y-full opacity-0"
+        >
+            <nav
+                v-if="navVisible"
+                class="fixed top-0 inset-x-0 z-50 py-3 px-4 shadow-lg"
+                :style="`background-color: var(--site-primary)`"
+                aria-label="Navegação do evento"
+            >
+                <div class="max-w-4xl mx-auto flex items-center gap-1 overflow-x-auto">
+                    <span class="font-bold text-white text-sm shrink-0 mr-3">{{ event.name }}</span>
+                    <a v-if="event.description"        href="#sobre"          class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">Sobre</a>
+                    <a v-if="event.is_accepting_talks" href="#cfp"            class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">CFP</a>
+                    <a v-if="orderedLevels().length"   href="#patrocinadores" class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">Patrocinadores</a>
+                    <a v-if="scheduleDays.length"      href="#programacao"    class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">Programação</a>
+                    <a v-if="site.faq?.length"         href="#faq"            class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">FAQ</a>
+                    <a
+                        v-if="site.ticket_url"
+                        :href="site.ticket_url"
+                        target="_blank" rel="noopener noreferrer"
+                        :style="`background-color: var(--site-secondary)`"
+                        class="ml-auto shrink-0 px-4 py-1.5 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition"
+                    >
+                        Ingressos
+                    </a>
+                </div>
+            </nav>
+        </Transition>
+
         <!-- Hero -->
-        <section class="relative w-full" style="min-height: 420px;">
+        <section id="hero" class="relative w-full" style="min-height: 480px;">
             <div v-if="event.cover_image" class="absolute inset-0">
                 <img :src="event.cover_image" :alt="event.name" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
+                <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80" />
             </div>
             <div v-else class="absolute inset-0" :style="`background-color: var(--site-primary)`" />
 
-            <div class="relative z-10 flex flex-col items-center justify-center text-center px-4 py-20" style="min-height: 420px;">
-                <img v-if="event.logo" :src="event.logo" :alt="event.name + ' logo'" class="w-20 h-20 object-contain mb-6 rounded-xl bg-white/10 p-2">
+            <div class="relative z-10 flex flex-col items-center justify-center text-center px-4 py-20" style="min-height: 480px;">
+                <img v-if="event.logo" :src="event.logo" :alt="event.name + ' — logo'" class="w-20 h-20 object-contain mb-6 rounded-xl bg-white/10 p-2">
                 <h1 class="text-4xl md:text-5xl font-bold text-white leading-tight mb-3">{{ event.name }}</h1>
                 <p v-if="site.hero_tagline" class="text-lg text-white/80 mb-6 max-w-xl">{{ site.hero_tagline }}</p>
                 <div class="flex flex-wrap gap-4 justify-center text-white/70 text-sm mb-8">
                     <span v-if="formatPeriod(event.starts_at, event.ends_at)" class="inline-flex items-center gap-1.5">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
                         {{ formatPeriod(event.starts_at, event.ends_at) }}
                     </span>
                     <span v-if="event.location || event.is_online" class="inline-flex items-center gap-1.5">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                         </svg>
                         {{ event.is_online ? 'Online' : event.location }}
@@ -117,43 +183,55 @@ onMounted(() => {
                     target="_blank"
                     rel="noopener noreferrer"
                     :style="`background-color: var(--site-secondary)`"
-                    class="inline-block px-8 py-3 rounded-xl font-semibold text-white hover:opacity-90 transition text-base"
+                    class="inline-block px-8 py-3 rounded-xl font-semibold text-white hover:opacity-90 transition text-base shadow-lg"
                 >
                     Comprar ingresso
                 </a>
             </div>
+
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-6 inset-x-0 flex justify-center animate-bounce" aria-hidden="true">
+                <svg class="w-6 h-6 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </div>
         </section>
 
-        <div class="max-w-4xl mx-auto px-4 py-12 space-y-16">
+        <main id="conteudo" class="max-w-4xl mx-auto px-4 py-12 space-y-16">
 
             <!-- Sobre -->
-            <section v-if="event.description" class="section-hidden">
+            <section v-if="event.description" id="sobre" class="section-hidden scroll-mt-16">
                 <h2 class="text-2xl font-bold text-(--color-text) mb-4">Sobre o evento</h2>
                 <p class="text-(--color-text-muted) leading-relaxed whitespace-pre-line">{{ event.description }}</p>
             </section>
 
             <!-- CFP -->
-            <section v-if="event.is_accepting_talks" class="section-hidden">
-                <div class="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border-2 px-8 py-7" :style="`border-color: color-mix(in srgb, var(--site-primary) 30%, transparent); background-color: color-mix(in srgb, var(--site-primary) 6%, transparent)`">
-                    <div class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center" :style="`background-color: color-mix(in srgb, var(--site-primary) 15%, transparent)`">
-                        <svg class="w-6 h-6" :style="`color: var(--site-primary)`" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 1a3 3 0 0 1 3 3v8a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
+            <section v-if="event.is_accepting_talks" id="cfp" class="section-hidden scroll-mt-16">
+                <div
+                    class="rounded-2xl px-8 py-10 text-center"
+                    :style="`background-color: color-mix(in srgb, var(--site-primary) 8%, transparent); border: 2px solid color-mix(in srgb, var(--site-primary) 25%, transparent)`"
+                >
+                    <div class="flex justify-center mb-5">
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center" :style="`background-color: var(--site-primary)`">
+                            <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 1a3 3 0 0 1 3 3v8a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                                <line x1="8" y1="23" x2="16" y2="23"/>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="flex-1 text-center sm:text-left">
-                        <p class="font-bold text-(--color-text) text-lg leading-snug">Call for Papers aberto</p>
-                        <p class="text-(--color-text-muted) text-sm mt-1">Compartilhe seu conhecimento. Submeta uma proposta de palestra para o {{ event.name }}.</p>
-                    </div>
+                    <h2 class="font-bold text-2xl mb-2" :style="`color: var(--site-primary)`">Call for Papers aberto</h2>
+                    <p class="text-(--color-text-muted) text-sm max-w-md mx-auto mb-7">
+                        Compartilhe seu conhecimento. Submeta uma proposta de palestra para o {{ event.name }}.
+                    </p>
                     <a
                         href="/cfp"
                         :style="`background-color: var(--site-primary)`"
-                        class="flex-shrink-0 inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-white text-sm hover:opacity-90 transition whitespace-nowrap"
+                        class="inline-flex items-center gap-2 px-7 py-3 rounded-xl font-semibold text-white hover:opacity-90 transition shadow-md"
                     >
                         Enviar proposta
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                         </svg>
                     </a>
@@ -161,34 +239,32 @@ onMounted(() => {
             </section>
 
             <!-- Patrocinadores -->
-            <section v-if="orderedLevels().length" class="section-hidden">
+            <section v-if="orderedLevels().length" id="patrocinadores" class="section-hidden scroll-mt-16">
                 <h2 class="text-2xl font-bold text-(--color-text) text-center mb-8">Patrocinadores</h2>
-                <div v-for="level in orderedLevels()" :key="level" class="mb-8">
-                    <p class="text-center text-sm font-semibold text-(--color-text-muted) uppercase tracking-wider mb-4">
+                <div v-for="level in orderedLevels()" :key="level" class="mb-10 last:mb-0">
+                    <p class="text-center text-xs font-semibold text-(--color-text-muted) uppercase tracking-widest mb-5">
                         {{ levelLabels[level] }}
                     </p>
-                    <div class="flex flex-wrap justify-center gap-6">
+                    <div class="flex flex-wrap justify-center" :class="level === 'rapadura_com_castanha' ? 'gap-8' : 'gap-5'">
                         <a
                             v-for="sponsor in sponsors[level]"
                             :key="sponsor.id"
                             :href="sponsor.website_url || undefined"
                             :target="sponsor.website_url ? '_blank' : undefined"
                             rel="noopener noreferrer"
-                            class="flex items-center justify-center p-4 rounded-xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-primary) transition grayscale hover:grayscale-0"
-                            style="min-width: 120px; min-height: 60px;"
+                            :class="['flex items-center justify-center rounded-xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-primary) hover:shadow-md transition grayscale hover:grayscale-0', TIER_SIZE[level]]"
                         >
-                            <img v-if="sponsor.logo_url" :src="sponsor.logo_url" :alt="sponsor.name" class="max-h-12 max-w-32 object-contain">
-                            <span v-else class="text-sm font-medium text-(--color-text)">{{ sponsor.name }}</span>
+                            <img v-if="sponsor.logo_url" :src="sponsor.logo_url" :alt="sponsor.name" class="max-h-full max-w-full object-contain">
+                            <span v-else class="text-sm font-medium text-center text-(--color-text) px-2">{{ sponsor.name }}</span>
                         </a>
                     </div>
                 </div>
             </section>
 
             <!-- Programação -->
-            <section v-if="scheduleDays.length" class="section-hidden">
+            <section v-if="scheduleDays.length" id="programacao" class="section-hidden scroll-mt-16">
                 <h2 class="text-2xl font-bold text-(--color-text) mb-6">Programação</h2>
 
-                <!-- Abas por dia -->
                 <div v-if="scheduleDays.length > 1" class="flex flex-wrap gap-2 mb-6">
                     <button
                         v-for="day in scheduleDays"
@@ -237,7 +313,7 @@ onMounted(() => {
             </section>
 
             <!-- FAQ -->
-            <section v-if="site.faq?.length" class="section-hidden">
+            <section v-if="site.faq?.length" id="faq" class="section-hidden scroll-mt-16">
                 <h2 class="text-2xl font-bold text-(--color-text) mb-6">Perguntas frequentes</h2>
                 <div class="space-y-3">
                     <div
@@ -249,16 +325,18 @@ onMounted(() => {
                             @click="openFaq = openFaq === i ? null : i"
                             class="w-full flex items-center justify-between px-5 py-4 text-left font-medium text-(--color-text) hover:bg-(--color-bg) transition"
                             :aria-expanded="openFaq === i"
+                            :aria-controls="`faq-answer-${i}`"
                         >
                             {{ item.question }}
                             <svg
                                 :class="['w-4 h-4 text-(--color-text-muted) shrink-0 transition-transform', openFaq === i ? 'rotate-180' : '']"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                aria-hidden="true"
                             >
                                 <polyline points="6 9 12 15 18 9"/>
                             </svg>
                         </button>
-                        <div v-show="openFaq === i" class="px-5 pb-4 text-sm text-(--color-text-muted) leading-relaxed">
+                        <div :id="`faq-answer-${i}`" v-show="openFaq === i" class="px-5 pb-4 text-sm text-(--color-text-muted) leading-relaxed">
                             {{ item.answer }}
                         </div>
                     </div>
@@ -266,16 +344,38 @@ onMounted(() => {
             </section>
 
             <!-- Código de conduta -->
-            <section v-if="site.code_of_conduct" class="section-hidden">
+            <section v-if="site.code_of_conduct" id="conduta" class="section-hidden scroll-mt-16">
                 <h2 class="text-2xl font-bold text-(--color-text) mb-4">Código de Conduta</h2>
                 <div class="prose prose-sm max-w-none text-(--color-text-muted) whitespace-pre-line">{{ site.code_of_conduct }}</div>
             </section>
 
-        </div>
+        </main>
 
         <!-- Footer -->
         <footer class="text-center text-sm text-(--color-text-muted) py-8 border-t border-(--color-border)">
             {{ event.name }} · PHP com Rapadura
         </footer>
+
+        <!-- Back to top -->
+        <Transition
+            enter-active-class="transition duration-200"
+            enter-from-class="opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition duration-150"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-75"
+        >
+            <button
+                v-show="showBackTop"
+                @click="scrollToTop"
+                :style="`background-color: var(--site-primary)`"
+                class="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full shadow-lg flex items-center justify-center text-white hover:opacity-90 transition"
+                aria-label="Voltar ao topo"
+            >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="18 15 12 9 6 15"/>
+                </svg>
+            </button>
+        </Transition>
     </div>
 </template>
