@@ -8,8 +8,9 @@ const props = defineProps({
     schedule: { type: Object, default: () => ({}) },
 })
 
-const openFaq     = ref(null)
-const showBackTop = ref(false)
+const openFaq       = ref(null)
+const showBackTop   = ref(false)
+const activeSection = ref(null)
 
 function formatDate(date) {
     if (!date) return null
@@ -73,6 +74,12 @@ function scrollToTop() {
 
 function onScroll() {
     showBackTop.value = window.scrollY > 400
+    const sections = document.querySelectorAll('main section[id]')
+    let current = null
+    for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 56) current = section.id
+    }
+    activeSection.value = current
 }
 
 onMounted(() => {
@@ -103,6 +110,13 @@ onUnmounted(() => {
         :style="`--site-primary: ${site.primary_color}; --site-secondary: ${site.secondary_color}; font-family: '${site.font.replace('_', ' ')}', sans-serif`"
         class="min-h-screen bg-(--color-bg)"
     >
+        <!-- Skip link -->
+        <a
+            href="#conteudo"
+            class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:text-white focus:text-sm focus:font-semibold focus:shadow-lg"
+            :style="`background-color: var(--site-primary)`"
+        >Pular para o conteúdo</a>
+
         <!-- Header compacto sticky -->
         <header :style="`background-color: var(--site-primary)`" class="sticky top-0 z-50 py-3 px-4 shadow-sm">
             <div class="max-w-2xl mx-auto flex items-center gap-3">
@@ -111,11 +125,11 @@ onUnmounted(() => {
 
                 <!-- Links de navegação — visíveis a partir de md -->
                 <nav class="hidden md:flex items-center gap-0.5 ml-2" aria-label="Seções do evento">
-                    <a v-if="event.description"        href="#sobre"          class="px-2.5 py-1 text-white/60 hover:text-white text-xs font-medium transition rounded">Sobre</a>
-                    <a v-if="event.is_accepting_talks" href="#cfp"            class="px-2.5 py-1 text-white/60 hover:text-white text-xs font-medium transition rounded">CFP</a>
-                    <a v-if="orderedLevels().length"   href="#patrocinadores" class="px-2.5 py-1 text-white/60 hover:text-white text-xs font-medium transition rounded">Patrocinadores</a>
-                    <a v-if="scheduleDays.length"      href="#programacao"    class="px-2.5 py-1 text-white/60 hover:text-white text-xs font-medium transition rounded">Programação</a>
-                    <a v-if="site.faq?.length"         href="#faq"            class="px-2.5 py-1 text-white/60 hover:text-white text-xs font-medium transition rounded">FAQ</a>
+                    <a v-if="event.description"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Sobre</a>
+                    <a v-if="event.is_accepting_talks" href="#cfp"            :aria-current="activeSection === 'cfp'            ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'cfp'            ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">CFP</a>
+                    <a v-if="orderedLevels().length"   href="#patrocinadores" :aria-current="activeSection === 'patrocinadores'  ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'patrocinadores'  ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Patrocinadores</a>
+                    <a v-if="scheduleDays.length"      href="#programacao"    :aria-current="activeSection === 'programacao'     ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'programacao'     ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Programação</a>
+                    <a v-if="site.faq?.length"         href="#faq"            :aria-current="activeSection === 'faq'             ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'faq'             ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">FAQ</a>
                 </nav>
 
                 <div class="ml-auto flex items-center gap-3 shrink-0">

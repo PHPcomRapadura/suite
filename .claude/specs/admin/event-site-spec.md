@@ -405,19 +405,43 @@ return view('event-site', [
 
 O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compartilham as mesmas seções de conteúdo, mas diferem na estrutura visual e uso das cores configuradas.
 
+### Recursos comuns de UX/Acessibilidade (todos os layouts)
+
+Implementados como melhoria pós-avaliação:
+
+| Recurso | Descrição |
+|---------|-----------|
+| **Skip-to-content link** | Primeiro elemento focável (`href="#conteudo"`); `sr-only` por padrão, visível ao Tab com `background: primary_color` |
+| **Nav sticky / header sticky** | Aparece ao scrollar (L1/L2: slide-down via `IntersectionObserver` no hero; L3: header sempre fixo); contém nome do evento, links condicionais por seção disponível, botão "Ingressos" em `secondary_color` |
+| **Scroll spy** | `onScroll` percorre `main section[id]` e aplica `bg-white/15` + `aria-current="true"` no link da última seção cujo `getBoundingClientRect().top` passou o offset do nav (80px L1/L2, 56px L3) |
+| **Back-to-top** | Botão circular fixo `bottom-6 right-6`, aparece após 400px de scroll, com `Transition` scale+opacity e `aria-label="Voltar ao topo"` |
+| **IDs de seção** | Todas as seções têm `id` (`sobre`, `cfp`, `patrocinadores`, `programacao`, `faq`, `conduta`) e `scroll-mt-16` / `scroll-mt-14` para compensar o nav sticky |
+| **Patrocinadores por tier** | Todos os layouts diferenciam o tamanho dos cards por nível (Castanha > Côco > Tradicional) |
+| **`onUnmounted` cleanup** | Listener de scroll removido em todos os layouts |
+| **`aria-hidden`** | SVGs decorativos marcados em todos os layouts |
+| **`aria-controls` + `id` no FAQ** | Accordion com ARIA correto em todos os layouts |
+
+---
+
 ### Layout 1 — Clássico
 
 ```
 ┌─────────────────────────────────────────────┐
-│  [cover_image — 16:9, fullwidth]            │
-│  overlay escuro + nome do evento + tagline  │
-│  [Comprar ingresso]   [Data · Local]        │
+│  Nav sticky (aparece após hero)             │
+│  Nome · Sobre · CFP · Patrocinadores · FAQ  │
+│                              [Ingressos]    │
+├─────────────────────────────────────────────┤
+│  [cover_image — fullwidth, min-h 480px]     │
+│  overlay gradiente + logo + nome + tagline  │
+│  Data · Local                               │
+│  [Comprar ingresso]                         │
+│  ↓ (scroll indicator)                       │
 ├─────────────────────────────────────────────┤
 │  Sobre o evento (description)               │
 ├─────────────────────────────────────────────┤
-│  CFP — banner horizontal (se aberto)        │
+│  CFP — card centralizado com ícone sólido   │
 ├─────────────────────────────────────────────┤
-│  Patrocinadores (por nível, logos centralizados) │
+│  Patrocinadores — por tier, tamanhos distintos │
 ├─────────────────────────────────────────────┤
 │  Programação — grade multi-dia              │
 ├─────────────────────────────────────────────┤
@@ -425,78 +449,84 @@ O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compar
 ├─────────────────────────────────────────────┤
 │  Código de conduta — texto corrido          │
 └─────────────────────────────────────────────┘
+                              [↑ back-to-top]
 ```
 
-- Cover image como banner superior com overlay gradiente
-- Fundo branco / `--color-surface` no corpo
-- Seção "Sobre o evento": título bold + texto muted, só exibida quando `description` preenchido
-- CFP: banner horizontal com borda na `primary_color`, ícone de microfone, botão "Enviar proposta" → `/cfp`; só exibido quando `is_accepting_talks = true`
-- Patrocinadores agrupados em linhas por nível, logos em escala de cinza com hover colorido
-- FAQ como accordion nativo (botão + collapse)
+- Cover image como banner superior com overlay gradiente `from-black/50 via-black/60 to-black/80`; fallback para `primary_color` sólido quando ausente
+- `<main id="conteudo">` envolvendo o corpo de conteúdo
+- CFP: card centralizado com ícone de microfone em fundo sólido `primary_color`, título em `primary_color`, botão com sombra
+- Patrocinadores: Castanha `w-44 h-28`, Côco `w-36 h-20`, Tradicional `w-28 h-16`; logos em grayscale com `hover:grayscale-0`
+- FAQ com `aria-controls` + `id` no painel de resposta
 
 ### Layout 2 — Imersivo
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Hero fullscreen                            │
-│  fundo: primary_color                       │
-│  nome em tipografia grande + tagline        │
-│  [Comprar ingresso]                         │
+│  Nav sticky (aparece após hero)             │
+│  Nome · Sobre · CFP · Patrocinadores · FAQ  │
+│                              [Ingressos]    │
 ├─────────────────────────────────────────────┤
-│  Faixa escura — data, local                 │
+│  Hero fullscreen (min-h-screen)             │
+│  fundo: primary_color                       │
+│  logo + nome 5xl/7xl + tagline              │
+│  [Comprar ingresso] (secondary_color)       │
+│  ↓ (scroll indicator)                       │
+├─────────────────────────────────────────────┤
+│  Faixa — color-mix(primary 85%, black)      │
+│  Data · Local                               │
 ├─────────────────────────────────────────────┤
 │  Sobre o evento (description)               │
 ├─────────────────────────────────────────────┤
-│  CFP — card centralizado (se aberto)        │
+│  CFP — card rounded-3xl centralizado        │
 ├─────────────────────────────────────────────┤
-│  Patrocinadores — cards dimensionados por tier│
+│  Patrocinadores — cards brancos por tier    │
 ├─────────────────────────────────────────────┤
 │  Programação — grade multi-dia              │
 ├─────────────────────────────────────────────┤
-│  FAQ — accordion                            │
+│  FAQ — accordion com borda primary          │
 ├─────────────────────────────────────────────┤
 │  Código de conduta — card bg-gray           │
 └─────────────────────────────────────────────┘
+                              [↑ back-to-top]
 ```
 
-- Sem cover image no hero — usa `primary_color` como fundo
-- Tipografia em branco no hero, contraste alto
-- Botão CTA de ingressos em `secondary_color`
-- Seção "Sobre o evento": título na `primary_color`, texto `text-lg`, `max-w-3xl`
-- CFP: card centralizado com ícone grande em fundo `primary_color`, botão com sombra
-- Patrocinadores com logos em tamanho maior no nível superior
+- Sem cover image — `primary_color` como fundo de tela inteira
+- `<main id="conteudo">` envolvendo o corpo de conteúdo
+- Back-to-top usa `secondary_color` para coerência com o CTA de ingressos
+- Patrocinadores: Castanha `w-52 h-32`, Côco `w-40 h-24`, Tradicional `w-32 h-20`; cards brancos com sombra no hover
 
 ### Layout 3 — Minimalista
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Header compacto: logo + nome + data        │
-│  faixa fina com primary_color               │
+│  Header sticky permanente (primary_color)   │
+│  Logo · Nome · Sobre · CFP · Patrocinadores │
+│  Programação · FAQ         [Ingressos]      │
 ├─────────────────────────────────────────────┤
-│  Corpo centralizado (max-w-2xl)             │
-│  Tagline · Data · Local · [Ingressos]       │
+│  <main> — max-w-2xl centralizado            │
+│  H1 · Tagline · Data · Local · [Ingressos]  │
 ├─────────────────────────────────────────────┤
 │  Sobre o evento (description)               │
 ├─────────────────────────────────────────────┤
-│  CFP — ícone + texto + link (se aberto)     │
+│  CFP — card horizontal com ícone e botão    │
 ├─────────────────────────────────────────────┤
-│  Patrocinadores — linha horizontal simples  │
-│  logos monocromáticas, sem separação nível  │
+│  Patrocinadores — por tier com labels       │
+│  Castanha > Côco > Tradicional              │
 ├─────────────────────────────────────────────┤
-│  Programação — grade multi-dia              │
+│  Programação — lista minimalista com dots   │
 ├─────────────────────────────────────────────┤
-│  FAQ — lista colapsável compacta            │
+│  FAQ — lista colapsável com dividers        │
 ├─────────────────────────────────────────────┤
 │  Código de conduta — texto inline           │
 └─────────────────────────────────────────────┘
+                              [↑ back-to-top]
 ```
 
-- Sem cover image — destaque para o conteúdo
-- Coluna central estreita, muito espaço em branco
-- Seção "Sobre o evento": título `text-xl`, texto `text-sm` muted, alinhado à esquerda
-- CFP: ícone pequeno + título + descrição centrados + link na `primary_color` com seta
-- Patrocinadores todos em linha única (independente do nível), sem hierarquia visual
-- Fonte é o principal elemento de identidade visual
+- Header `sticky top-0 z-50` sempre visível; links de nav `hidden md:flex`
+- Sem cover image — tipografia e conteúdo como identidade principal
+- CFP: card horizontal `flex-col sm:flex-row` com ícone em `primary_color`, texto e botão "Enviar proposta"
+- Patrocinadores: Castanha `w-36 h-20`, Côco `w-28 h-16`, Tradicional `w-24 h-14`; todos com `grayscale hover:grayscale-0`
+- FAQ: hover no botão aplica `color: primary_color` via inline style
 
 ---
 

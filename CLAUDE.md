@@ -467,3 +467,8 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Grade de programação — exibição com dias nos 3 layouts públicos | ✅ Implementado |
 | Grade de programação — separação multi-dia (tabs por data) | ✅ Implementado |
 | Testes Grade de programação (11 casos) | ✅ Implementado |
+| Site do evento — nav sticky + scroll spy + `aria-current` (3 layouts) | ✅ Implementado |
+| Site do evento — skip-to-content link acessível via Tab (3 layouts) | ✅ Implementado |
+| Site do evento — back-to-top button com transição (3 layouts) | ✅ Implementado |
+| Site do evento — patrocinadores por tier com tamanhos diferenciados (3 layouts) | ✅ Implementado |
+| Site do evento — ARIA: `aria-hidden` em SVGs, accordion FAQ com `aria-controls` + `id` | ✅ Implementado |

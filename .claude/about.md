@@ -99,6 +99,14 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - Fuso horário: `formatTime` usa `timeZone: 'UTC'` — horários armazenados como horário local (app timezone = UTC)
 - **Seção "Sobre o evento"**: exibe `events.description`; aparece apenas quando preenchido
 - **Seção CFP**: banner com botão `/cfp`; aparece apenas quando `is_accepting_talks = true`
+- **Nav sticky**: L1/L2 — nav oculta por padrão, aparece via `IntersectionObserver` no `#hero` quando ele sai da viewport; L3 — header sempre sticky no topo
+- **Scroll spy**: `onScroll` + `getBoundingClientRect().top <= offset` atualiza `activeSection`; link ativo recebe destaque visual e `aria-current="true"`
+- **Skip-to-content link**: `sr-only` por padrão, visível ao receber foco via Tab; aponta para `#conteudo` (`<main id="conteudo">`)
+- **Back-to-top button**: fixo no canto inferior direito, aparece após 400px de scroll, com `<Transition>` suave
+- **IDs de seção + `scroll-mt`**: todas as seções têm `id` (`sobre`, `cfp`, `patrocinadores`, `programacao`, `faq`, `conduta`) e `scroll-mt-16` para compensar nav fixa
+- **Patrocinadores por tier**: todos os layouts diferenciam tamanho de card por nível — `rapadura_com_castanha` (master) > `rapadura_com_coco` (ouro) > `rapadura_tradicional` (prata)
+- **`onUnmounted` cleanup**: scroll listener removido ao desmontar o componente
+- **`aria-hidden="true"`** em todos os SVGs decorativos; `aria-controls` + `id` no padrão ARIA accordion do FAQ
 
 **Grade de programação multi-dia:**
 - Itens agrupados por data (`starts_at.toDateString()`) e ordenados por horário

@@ -8,9 +8,10 @@ const props = defineProps({
     schedule: { type: Object, default: () => ({}) },
 })
 
-const openFaq     = ref(null)
-const navVisible  = ref(false)
-const showBackTop = ref(false)
+const openFaq      = ref(null)
+const navVisible   = ref(false)
+const showBackTop  = ref(false)
+const activeSection = ref(null)
 
 function formatDate(date) {
     if (!date) return null
@@ -77,6 +78,12 @@ function scrollToTop() {
 
 function onScroll() {
     showBackTop.value = window.scrollY > 400
+    const sections = document.querySelectorAll('main section[id]')
+    let current = null
+    for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 80) current = section.id
+    }
+    activeSection.value = current
 }
 
 onMounted(() => {
@@ -116,6 +123,13 @@ onUnmounted(() => {
         :style="`--site-primary: ${site.primary_color}; --site-secondary: ${site.secondary_color}; font-family: '${site.font.replace('_', ' ')}', sans-serif`"
         class="min-h-screen bg-(--color-bg)"
     >
+        <!-- Skip link -->
+        <a
+            href="#conteudo"
+            class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:text-white focus:text-sm focus:font-semibold focus:shadow-lg"
+            :style="`background-color: var(--site-primary)`"
+        >Pular para o conteúdo</a>
+
         <!-- Nav sticky — aparece quando o hero sai do viewport -->
         <Transition
             enter-active-class="transition duration-200"
@@ -133,11 +147,11 @@ onUnmounted(() => {
             >
                 <div class="max-w-4xl mx-auto flex items-center gap-1 overflow-x-auto">
                     <span class="font-bold text-white text-sm shrink-0 mr-3">{{ event.name }}</span>
-                    <a v-if="event.description"        href="#sobre"          class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">Sobre</a>
-                    <a v-if="event.is_accepting_talks" href="#cfp"            class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">CFP</a>
-                    <a v-if="orderedLevels().length"   href="#patrocinadores" class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">Patrocinadores</a>
-                    <a v-if="scheduleDays.length"      href="#programacao"    class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">Programação</a>
-                    <a v-if="site.faq?.length"         href="#faq"            class="px-3 py-1 text-white/70 hover:text-white text-sm shrink-0 transition rounded">FAQ</a>
+                    <a v-if="event.description"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Sobre</a>
+                    <a v-if="event.is_accepting_talks" href="#cfp"            :aria-current="activeSection === 'cfp'            ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'cfp'            ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">CFP</a>
+                    <a v-if="orderedLevels().length"   href="#patrocinadores" :aria-current="activeSection === 'patrocinadores'  ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'patrocinadores'  ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Patrocinadores</a>
+                    <a v-if="scheduleDays.length"      href="#programacao"    :aria-current="activeSection === 'programacao'     ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'programacao'     ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Programação</a>
+                    <a v-if="site.faq?.length"         href="#faq"            :aria-current="activeSection === 'faq'             ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'faq'             ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">FAQ</a>
                     <a
                         v-if="site.ticket_url"
                         :href="site.ticket_url"
