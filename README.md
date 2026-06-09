@@ -29,9 +29,11 @@ Registro e acompanhamento de gastos com 9 categorias, comprovante de pagamento (
 ### ✅ Kanban de Tarefas por Evento
 Quadro Kanban com 5 colunas (A Fazer, Em Andamento, Em Revisão, Impedimento, Concluída), drag-and-drop via HTML5, soft delete com lixeira e restore, controle de acesso por role (somente admin cria/edita/exclui) e comentários por tarefa com contador no card.
 
+### ✅ Controle de Participantes por Evento
+Importação via CSV exportado do Sympla (upsert idempotente por ordem de inscrição), visualização em cards ou lista com filtros (busca, tipo de ingresso, estado de pagamento, check-in), painel de stats (total, aprovados, barra de progresso de check-in) e exclusão individual ou total pelo admin.
+
 ### Gestão de Eventos (sub-módulos pendentes)
 - ⬜ Fórum com tópicos por evento
-- ⬜ Controle de participantes (upload CSV)
 - ⬜ Sorteio digital por evento
 
 ---

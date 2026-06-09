@@ -490,3 +490,10 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Testes Tarefas (28 casos) | ✅ Implementado |
 | Testes Comentários de Tarefas (13 casos) | ✅ Implementado |
 | Kanban de tarefas — coluna "Impedimento" (5ª coluna para bloqueios burocráticos) | ✅ Implementado |
+| Participantes — model `EventParticipant` + migration + índice único `(event_id, registration_order)` | ✅ Implementado |
+| Participantes — `EventParticipantController` CRUD (admin) | ✅ Implementado |
+| Participantes — `EventParticipantService` com import CSV (encoding, upsert, mb_strtoupper, parseAmount) | ✅ Implementado |
+| Participantes — `UploadParticipantsRequest` + `ParticipantUploadModal.vue` | ✅ Implementado |
+| Participantes — `EventParticipants.vue` com toggle cards/lista (localStorage) e filtros reativos | ✅ Implementado |
+| Participantes — card no hub do evento com stats e link ativo | ✅ Implementado |
+| Testes Participantes (27 casos) | ✅ Implementado |

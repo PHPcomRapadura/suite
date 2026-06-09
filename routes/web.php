@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventExpenseController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\EventSiteController;
 use App\Http\Controllers\Admin\EventSponsorController;
+use App\Http\Controllers\Admin\EventParticipantController;
 use App\Http\Controllers\Admin\EventTaskCommentController;
 use App\Http\Controllers\Admin\EventTaskController;
 use App\Http\Controllers\Admin\TalkController;
@@ -104,6 +105,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::put('/{task}/comments/{comment}',             [EventTaskCommentController::class, 'update'])->name('comments.update');
                 Route::delete('/{task}/comments/{comment}',          [EventTaskCommentController::class, 'destroy'])->name('comments.destroy');
             });
+            // Participantes
+            Route::prefix('/{event}/participants')->name('participants.')->group(function () {
+                Route::get('/',              [EventParticipantController::class, 'index'])->name('index');
+                Route::post('/upload',       [EventParticipantController::class, 'upload'])->name('upload')->middleware('role:admin');
+                Route::delete('/',           [EventParticipantController::class, 'clear'])->name('clear')->middleware('role:admin');
+                Route::delete('/{participant}', [EventParticipantController::class, 'destroy'])->name('destroy')->middleware('role:admin');
+            });
             // Talks
             Route::get('/{event}/talks',                 [TalkController::class, 'index'])->name('talks.index');
             Route::get('/{event}/talks/{talk}',          [TalkController::class, 'show'])->name('talks.show');
@@ -125,6 +133,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/{id}/site', fn () => view('admin'))->name('events.site');
         Route::get('/events/{id}/expenses', fn () => view('admin'))->name('events.expenses');
         Route::get('/events/{id}/tasks', fn () => view('admin'))->name('events.tasks');
+        Route::get('/events/{id}/participants', fn () => view('admin'))->name('events.participants');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });

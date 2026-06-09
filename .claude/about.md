@@ -146,8 +146,35 @@ Quadro Kanban vinculado a um evento (`/admin/events/{id}/tasks`):
 - **Card no hub** do evento com barra de progresso (concluídas/total) e alerta de atrasadas
 - **41 testes de feature** (28 de tarefas + 13 de comentários)
 
+### ✅ Controle de Participantes — implementado
+
+Importação e visualização de participantes de um evento (`/admin/events/{id}/participants`):
+
+**Importação:**
+- Upload de CSV exportado do Sympla via `ParticipantUploadModal.vue`
+- Detecção automática de encoding (UTF-8 / Latin-1 / Windows-1252)
+- Upsert idempotente por `(event_id, registration_order)` — re-uploads atualizam sem duplicar
+- `first_name` e `last_name` gravados em maiúsculas via `mb_strtoupper($value, 'UTF-8')`
+- `email` gravado em minúsculas; `amount` parseado de `"R$ 1.500,00"` → `1500.00`
+- Erros por linha registrados e retornados sem interromper o import
+- Somente `admin` pode fazer upload, excluir individual ou limpar todos
+
+**Interface:**
+- Toggle cards/lista persistido em `localStorage` (`participants_view_mode`)
+- Modo cards: grid 3/2/1 colunas; Modo lista: tabela com scroll horizontal mobile
+- Painel de stats: total, aprovados, barra de progresso de check-in
+- Filtros reativos: busca (nome/email), tipo de ingresso, estado de pagamento, check-in
+- Paginação: 50 por página
+
+**Infraestrutura:**
+- `EventParticipant` model com índice único `(event_id, registration_order)`
+- `EventParticipantService` com `import()`, `list()`, `summary()`, `delete()`, `clear()`
+- `EventParticipantController` — 4 actions (index, upload, destroy, clear)
+- `UploadParticipantsRequest` com validação `mimes:csv,txt`
+- Card "Participantes" no hub do evento com stats e link ativo
+- 27 testes de feature
+
 ### Eventos — sub-módulos pendentes
 
 - ⬜ Fórum com tópicos por evento
-- ⬜ Controle de participantes (upload CSV)
 - ⬜ Sorteio digital por evento
