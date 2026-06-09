@@ -23,9 +23,13 @@ Sistema completo de submissão de propostas por palestrantes — Vue SPA públic
 ### ✅ Site Público do Evento
 Cada evento publicado ganha uma página em `/{slug}` com três layouts (Clássico, Imersivo, Minimalista), patrocinadores por nível de cota, grade de programação multi-dia, FAQ, código de conduta e link de ingressos. Inclui loader "Perainda!" e animações de entrada entre seções.
 
+### ✅ Despesas por Evento
+Registro e acompanhamento de gastos com 9 categorias, comprovante de pagamento (PDF/imagem via R2), painel de totais com barra de progresso pago/pendente, toggle cards/lista e filtros reativos por categoria, status e data.
+
+### ✅ Kanban de Tarefas por Evento
+Quadro Kanban com 5 colunas (A Fazer, Em Andamento, Em Revisão, Impedimento, Concluída), drag-and-drop via HTML5, soft delete com lixeira e restore, controle de acesso por role (somente admin cria/edita/exclui) e comentários por tarefa com contador no card.
+
 ### Gestão de Eventos (sub-módulos pendentes)
-- ⬜ Controle de despesas por evento
-- ⬜ Controle de tarefas por evento (Kanban)
 - ⬜ Fórum com tópicos por evento
 - ⬜ Controle de participantes (upload CSV)
 - ⬜ Sorteio digital por evento
