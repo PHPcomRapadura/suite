@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\CfpController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\EventExpenseController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\EventSiteController;
 use App\Http\Controllers\Admin\EventSponsorController;
@@ -77,6 +78,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{event}/cfp',  [CfpController::class, 'show'])->name('cfp.show');
             Route::post('/{event}/cfp', [CfpController::class, 'store'])->name('cfp.store');
             Route::put('/{event}/cfp',  [CfpController::class, 'update'])->name('cfp.update');
+            // Despesas
+            Route::get('/{event}/expenses',                     [EventExpenseController::class, 'index'])->name('expenses.index');
+            Route::post('/{event}/expenses',                    [EventExpenseController::class, 'store'])->name('expenses.store');
+            Route::get('/{event}/expenses/{expense}',           [EventExpenseController::class, 'show'])->name('expenses.show');
+            Route::put('/{event}/expenses/{expense}',           [EventExpenseController::class, 'update'])->name('expenses.update')->middleware('role:admin');
+            Route::post('/{event}/expenses/{expense}',          [EventExpenseController::class, 'update'])->name('expenses.update.post')->middleware('role:admin');
+            Route::delete('/{event}/expenses/{expense}',        [EventExpenseController::class, 'destroy'])->name('expenses.destroy')->middleware('role:admin');
             // Talks
             Route::get('/{event}/talks',                 [TalkController::class, 'index'])->name('talks.index');
             Route::get('/{event}/talks/{talk}',          [TalkController::class, 'show'])->name('talks.show');
@@ -96,6 +104,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/{id}', fn () => view('admin'))->name('events.show');
         Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
         Route::get('/events/{id}/site', fn () => view('admin'))->name('events.site');
+        Route::get('/events/{id}/expenses', fn () => view('admin'))->name('events.expenses');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });

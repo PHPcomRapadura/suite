@@ -259,16 +259,24 @@ onMounted(() => fetchData())
                 </div>
 
                 <!-- Card Despesas -->
-                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
-                    <div class="flex items-center gap-2 mb-3">
+                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-(--color-text-muted) shrink-0" aria-hidden="true">
                             <line x1="12" y1="1" x2="12" y2="23"/>
                             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                         </svg>
                         <span class="font-semibold text-(--color-text)">Despesas</span>
-                        <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 shrink-0">Em breve</span>
                     </div>
-                    <p class="text-sm text-(--color-text-muted)">Em desenvolvimento. Em breve você poderá registrar despesas do evento.</p>
+                    <p class="text-sm text-(--color-text-muted)">Registre e acompanhe os gastos do evento para prestação de contas.</p>
+                    <RouterLink
+                        :to="{ name: 'admin.events.expenses', params: { id: event.id } }"
+                        class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-(--color-primary) hover:text-(--color-primary-hover) transition"
+                    >
+                        Gerenciar
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </RouterLink>
                 </div>
 
                 <!-- Card Tarefas -->

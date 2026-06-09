@@ -122,9 +122,16 @@ Cada evento publicado tem página pública `GET /{slug}`:
 
 **Testes:** 27 testes de site config + patrocinadores + página pública; 11 testes de grade de programação
 
+**Despesas por evento:**
+- `EventExpense` model com enum de 9 categorias, `decimal(10,2)`, `is_paid`, `receipt_url` (R2), `created_by`/`updated_by`
+- CRUD via `EventExpenseController` + `EventExpenseService`; admin tem acesso total, colaborador só cria
+- Comprovante opcional (JPG/PNG/WebP/PDF, 5 MB) armazenado no R2 em `events/{id}/expenses/{id}/receipt.{ext}`
+- `EventExpenses.vue`: painel de totais (total/pago/pendente + barra de progresso), toggle cards/lista (persistido em `localStorage`), filtros reativos por categoria/status/data
+- `ExpenseModal.vue`: máscara de moeda pt-BR sem biblioteca externa — `type="text" inputmode="numeric"`, lógica de centavos (`centsToDisplay`), `form.amount` armazena valor numérico
+- 22 testes em `tests/Feature/Admin/Events/EventExpensesTest.php`
+
 ### Eventos — sub-módulos pendentes
 
-- ⬜ Controle de despesas por evento
 - ⬜ Controle de tarefas por evento (Kanban)
 - ⬜ Fórum com tópicos por evento
 - ⬜ Controle de participantes (upload CSV)
