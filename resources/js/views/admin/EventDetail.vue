@@ -9,6 +9,7 @@ const event    = ref(null)
 const cfp      = ref(null)
 const site     = ref(null)
 const cfpTalks = ref({ total: 0, submetida: 0, em_analise: 0, aprovada: 0, rejeitada: 0, cancelada: 0 })
+const tasks    = ref({ total: 0, concluida: 0, overdue: 0 })
 const loading  = ref(true)
 const notFound = ref(false)
 
@@ -58,10 +59,11 @@ async function fetchData() {
     loading.value  = true
     notFound.value = false
     try {
-        const [eventRes, cfpRes, siteRes] = await Promise.allSettled([
+        const [eventRes, cfpRes, siteRes, tasksRes] = await Promise.allSettled([
             axios.get(`/admin/api/events/${route.params.id}`),
             axios.get(`/admin/api/events/${route.params.id}/cfp`),
             axios.get(`/admin/api/events/${route.params.id}/site`),
+            axios.get(`/admin/api/events/${route.params.id}/tasks`),
         ])
 
         if (eventRes.status === 'rejected') {
@@ -79,6 +81,10 @@ async function fetchData() {
 
         if (siteRes.status === 'fulfilled') {
             site.value = siteRes.value.data.data
+        }
+
+        if (tasksRes.status === 'fulfilled') {
+            tasks.value = tasksRes.value.data.summary
         }
     } finally {
         loading.value = false
@@ -280,16 +286,41 @@ onMounted(() => fetchData())
                 </div>
 
                 <!-- Card Tarefas -->
-                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
-                    <div class="flex items-center gap-2 mb-3">
+                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-(--color-text-muted) shrink-0" aria-hidden="true">
                             <polyline points="9 11 12 14 22 4"/>
                             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                         </svg>
                         <span class="font-semibold text-(--color-text)">Tarefas</span>
-                        <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 shrink-0">Em breve</span>
                     </div>
-                    <p class="text-sm text-(--color-text-muted)">Em desenvolvimento. Em breve você poderá gerenciar tarefas do evento.</p>
+
+                    <template v-if="tasks.total === 0">
+                        <p class="text-sm text-(--color-text-muted)">Nenhuma tarefa registrada.</p>
+                    </template>
+                    <template v-else>
+                        <p class="text-sm text-(--color-text)">{{ tasks.concluida }} de {{ tasks.total }} concluída{{ tasks.total !== 1 ? 's' : '' }}</p>
+                        <!-- Barra de progresso -->
+                        <div class="h-1.5 bg-(--color-border) rounded-full overflow-hidden">
+                            <div
+                                class="h-full bg-(--color-success) rounded-full transition-all"
+                                :style="{ width: tasks.total ? `${Math.round((tasks.concluida / tasks.total) * 100)}%` : '0%' }"
+                            />
+                        </div>
+                        <p v-if="tasks.overdue > 0" class="text-xs text-(--color-danger) font-medium">
+                            ⚠ {{ tasks.overdue }} atrasada{{ tasks.overdue !== 1 ? 's' : '' }}
+                        </p>
+                    </template>
+
+                    <RouterLink
+                        :to="{ name: 'admin.events.tasks', params: { id: event.id } }"
+                        class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-(--color-primary) hover:text-(--color-primary-hover) transition"
+                    >
+                        Gerenciar
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </RouterLink>
                 </div>
 
                 <!-- Card Participantes -->

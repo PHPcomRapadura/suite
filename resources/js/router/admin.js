@@ -49,6 +49,11 @@ const routes = [
                 component: () => import('@/views/admin/EventExpenses.vue'),
             },
             {
+                path: 'events/:id/tasks',
+                name: 'admin.events.tasks',
+                component: () => import('@/views/admin/EventTasks.vue'),
+            },
+            {
                 path: '',
                 redirect: { name: 'admin.dashboard' },
             },

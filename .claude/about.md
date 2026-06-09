@@ -130,9 +130,24 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - `ExpenseModal.vue`: máscara de moeda pt-BR sem biblioteca externa — `type="text" inputmode="numeric"`, lógica de centavos (`centsToDisplay`), `form.amount` armazena valor numérico
 - 22 testes em `tests/Feature/Admin/Events/EventExpensesTest.php`
 
+### ✅ Kanban de Tarefas — implementado
+
+Quadro Kanban vinculado a um evento (`/admin/events/{id}/tasks`):
+
+- **5 colunas**: A Fazer, Em Andamento, Em Revisão, Impedimento, Concluída — "Impedimento" sinaliza tarefa parada por bloqueio burocrático (cabeçalho vermelho)
+- **Drag-and-drop** via HTML5 API (sem biblioteca extra) com atualização otimista de estado
+- **Soft delete** com aba "Lixeira" (admin) e botão "Restaurar"
+- **Controle de acesso**: somente admin cria/edita/exclui; colaborador visualiza e move cards
+- **`assigned_to`** validado para admin/colaborador (não palestrante)
+- **`is_overdue`**: calculado no backend com prazo passado + status ≠ concluida
+- **Comentários** em cada tarefa: qualquer usuário autenticado pode comentar; editar/excluir somente o autor (soft delete)
+- **Contador de comentários** no card: ícone de balão + `N comentário(s)` abaixo do responsável, visível quando `> 0`; atualizado otimisticamente via evento `comment-changed` sem refetch do board
+- **`TaskModal.vue`**: abas Detalhes e Comentários; campos desabilitados para colaborador
+- **Card no hub** do evento com barra de progresso (concluídas/total) e alerta de atrasadas
+- **41 testes de feature** (28 de tarefas + 13 de comentários)
+
 ### Eventos — sub-módulos pendentes
 
-- ⬜ Controle de tarefas por evento (Kanban)
 - ⬜ Fórum com tópicos por evento
 - ⬜ Controle de participantes (upload CSV)
 - ⬜ Sorteio digital por evento

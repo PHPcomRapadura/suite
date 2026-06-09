@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\EventExpenseController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\EventSiteController;
 use App\Http\Controllers\Admin\EventSponsorController;
+use App\Http\Controllers\Admin\EventTaskCommentController;
+use App\Http\Controllers\Admin\EventTaskController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CfpPublicController;
@@ -85,6 +87,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{event}/expenses/{expense}',           [EventExpenseController::class, 'update'])->name('expenses.update')->middleware('role:admin');
             Route::post('/{event}/expenses/{expense}',          [EventExpenseController::class, 'update'])->name('expenses.update.post')->middleware('role:admin');
             Route::delete('/{event}/expenses/{expense}',        [EventExpenseController::class, 'destroy'])->name('expenses.destroy')->middleware('role:admin');
+            // Tarefas
+            Route::prefix('/{event}/tasks')->name('tasks.')->group(function () {
+                Route::get('/',                    [EventTaskController::class, 'index'])->name('index');
+                Route::post('/',                   [EventTaskController::class, 'store'])->name('store')->middleware('role:admin');
+                Route::get('/trash',               [EventTaskController::class, 'trash'])->name('trash')->middleware('role:admin');
+                Route::patch('/reorder',           [EventTaskController::class, 'reorder'])->name('reorder');
+                Route::get('/{task}',              [EventTaskController::class, 'show'])->name('show');
+                Route::put('/{task}',              [EventTaskController::class, 'update'])->name('update')->middleware('role:admin');
+                Route::patch('/{task}/status',     [EventTaskController::class, 'updateStatus'])->name('updateStatus');
+                Route::delete('/{task}',           [EventTaskController::class, 'destroy'])->name('destroy')->middleware('role:admin');
+                Route::patch('/{taskId}/restore',  [EventTaskController::class, 'restore'])->name('restore')->middleware('role:admin');
+                // Comentários
+                Route::get('/{task}/comments',                       [EventTaskCommentController::class, 'index'])->name('comments.index');
+                Route::post('/{task}/comments',                      [EventTaskCommentController::class, 'store'])->name('comments.store');
+                Route::put('/{task}/comments/{comment}',             [EventTaskCommentController::class, 'update'])->name('comments.update');
+                Route::delete('/{task}/comments/{comment}',          [EventTaskCommentController::class, 'destroy'])->name('comments.destroy');
+            });
             // Talks
             Route::get('/{event}/talks',                 [TalkController::class, 'index'])->name('talks.index');
             Route::get('/{event}/talks/{talk}',          [TalkController::class, 'show'])->name('talks.show');
@@ -105,6 +124,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
         Route::get('/events/{id}/site', fn () => view('admin'))->name('events.site');
         Route::get('/events/{id}/expenses', fn () => view('admin'))->name('events.expenses');
+        Route::get('/events/{id}/tasks', fn () => view('admin'))->name('events.tasks');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });

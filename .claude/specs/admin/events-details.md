@@ -17,7 +17,7 @@ Na primeira iteração, somente o **CFP** tem link ativo. Os demais exibem estad
 |-----------|--------|
 | CFP — configuração e gestão de palestras | ✅ Link ativo (ver `events-cfp.md`) |
 | Despesas | ✅ Link ativo (ver `expenses-spec.md`) |
-| Kanban de tarefas | ⬜ Placeholder "Em breve" |
+| Kanban de tarefas | ✅ Link ativo (ver `tasks-kanban-spec.md`) |
 | Participantes | ⬜ Placeholder "Em breve" |
 | Sorteio de brindes | ⬜ Placeholder "Em breve" |
 

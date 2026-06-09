@@ -479,3 +479,14 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Despesas — `ExpenseModal.vue` (criar e editar) | ✅ Implementado |
 | Despesas — card "Despesas" no hub do evento com link ativo | ✅ Implementado |
 | Testes Despesas (22 casos) | ✅ Implementado |
+| Kanban de tarefas — model `EventTask` + migration | ✅ Implementado |
+| Kanban de tarefas — model `EventTaskComment` + migration | ✅ Implementado |
+| Kanban de tarefas — `EventTaskController` CRUD (admin + colaborador) | ✅ Implementado |
+| Kanban de tarefas — `EventTaskCommentController` (qualquer autenticado; editar/excluir somente autor) | ✅ Implementado |
+| Kanban de tarefas — `EventTaskService` com drag-and-drop, soft delete e restore | ✅ Implementado |
+| Kanban de tarefas — `EventTasks.vue` com board, lixeira e HTML5 DnD | ✅ Implementado |
+| Kanban de tarefas — `TaskModal.vue` com abas Detalhes e Comentários | ✅ Implementado |
+| Kanban de tarefas — card no hub do evento com barra de progresso | ✅ Implementado |
+| Testes Tarefas (28 casos) | ✅ Implementado |
+| Testes Comentários de Tarefas (13 casos) | ✅ Implementado |
+| Kanban de tarefas — coluna "Impedimento" (5ª coluna para bloqueios burocráticos) | ✅ Implementado |

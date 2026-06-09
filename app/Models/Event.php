@@ -64,6 +64,11 @@ class Event extends Model
         return $this->hasMany(EventExpense::class)->orderBy('date', 'desc');
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(EventTask::class)->orderBy('sort_order');
+    }
+
     public function isPublished(): bool
     {
         return $this->status === 'publicado';
