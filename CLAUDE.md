@@ -503,3 +503,9 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Sorteio — `EventLottery.vue` com animação, contagem regressiva, confete e lista de sorteados | ✅ Implementado |
 | Sorteio — card no hub do evento com stats e link ativo | ✅ Implementado |
 | Testes Sorteio (15 casos) | ✅ Implementado |
+| Palestrantes — listagem somente-leitura com filtros (nome, cidade, estado) | ✅ Implementado |
+| Palestrantes — toggle cards/lista (localStorage) + paginação | ✅ Implementado |
+| Palestrantes — `SpeakerModal.vue` com detalhes, bio, contato e palestras | ✅ Implementado |
+| Palestrantes — `SpeakerService` com `withCount` + `orderByRaw` | ✅ Implementado |
+| Palestrantes — Sidebar colapsável (68 px colapsado, 260 px expandido) | ✅ Implementado |
+| Testes Palestrantes (16 casos) | ✅ Implementado |

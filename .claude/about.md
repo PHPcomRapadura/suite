@@ -189,6 +189,20 @@ Sorteio de participantes vinculado ao evento (`/admin/events/{id}/lottery`):
 - **Card no hub**: exibe sorteados e disponíveis; link para gerenciar
 - 15 testes de feature
 
+### ✅ Palestrantes — implementado
+
+Listagem somente-leitura de palestrantes cadastrados (`/admin/speakers`):
+
+- **Filtros**: busca por nome/e-mail (debounce 300 ms), cidade (debounce 300 ms), estado (dropdown 27 UFs)
+- **Toggle cards/lista** persistido em `localStorage` (`speakers_view_mode`)
+- **Cards**: avatar (ou iniciais coloridas), nome, e-mail, empresa, localização, contagem de palestras submetidas/aprovadas, badge Ativo/Inativo
+- **Lista**: tabela responsiva com avatar+nome, localização, telefone, palestras (submetidas + apr.), status
+- **Modal de detalhes** (`SpeakerModal.vue`): bio, contato (tel + site + redes sociais), último acesso, lista de palestras com badges de status, nível e duração
+- **Controle de acesso**: `admin` e `colaborador` têm acesso; `palestrante` recebe 403
+- **Paginação**: 12 por página com ellipsis
+- **`SpeakerService`**: `list()` com `withCount` para contagem de palestras (total e aprovadas), ordenação por `orderByRaw` para preservar subqueries; `detail()` com `load(['user', 'talks.event'])`
+- 16 testes de feature
+
 ### Eventos — sub-módulos pendentes
 
 - ⬜ Fórum com tópicos por evento

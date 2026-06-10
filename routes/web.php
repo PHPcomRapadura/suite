@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\EventLotteryController;
 use App\Http\Controllers\Admin\EventParticipantController;
 use App\Http\Controllers\Admin\EventTaskCommentController;
 use App\Http\Controllers\Admin\EventTaskController;
+use App\Http\Controllers\Admin\SpeakerController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CfpPublicController;
@@ -48,6 +49,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // API — utilitários
         Route::get('/api/me', fn () => response()->json(Auth::user()))->name('me');
         Route::get('/api/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+
+        // API — Palestrantes (somente leitura)
+        Route::prefix('api/speakers')->name('speakers.')->group(function () {
+            Route::get('/', [SpeakerController::class, 'index'])->name('index');
+            Route::get('/{speaker}', [SpeakerController::class, 'show'])->name('show');
+        });
 
         // API — CRUD de usuários (somente admin)
         Route::prefix('api/users')->name('users.')->middleware('role:admin')->group(function () {
@@ -133,6 +140,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // SPA Vue — rotas de página
         Route::get('/dashboard', fn () => view('admin'))->name('dashboard');
+        Route::get('/speakers', fn () => view('admin'))->name('speakers');
         Route::get('/users', fn () => view('admin'))->name('users');
         Route::get('/events', fn () => view('admin'))->name('events');
         Route::get('/events/{id}', fn () => view('admin'))->name('events.show');
