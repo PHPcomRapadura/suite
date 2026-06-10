@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
@@ -10,7 +10,15 @@ const route = useRoute()
 const { user, logout } = useAuth()
 const { isDark, toggle } = useTheme()
 
-const logoSrc = `${import.meta.env.BASE_URL}images/phpcomrapadura_branca.svg`
+const collapsed = ref(localStorage.getItem('sidebar_collapsed') === '1')
+
+function toggleCollapse() {
+    collapsed.value = !collapsed.value
+    localStorage.setItem('sidebar_collapsed', collapsed.value ? '1' : '0')
+}
+
+const logoExpanded  = '/images/phpcomrapadura_branca.svg?v=2'
+const logoCollapsed = '/images/favicon.png'
 
 const navItems = computed(() => [
     { name: 'admin.dashboard', label: 'Dashboard', icon: 'grid',     roles: ['admin', 'colaborador'] },
@@ -31,33 +39,78 @@ function initials(name) {
 </script>
 
 <template>
-    <aside class="w-[260px] h-screen flex flex-col bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border) shrink-0">
-
+    <aside
+        :class="[
+            'h-screen flex flex-col bg-(--color-sidebar-bg) border-r border-(--color-sidebar-border) shrink-0',
+            'transition-[width] duration-200 ease-in-out overflow-hidden',
+            collapsed ? 'w-[68px]' : 'w-[260px]',
+        ]"
+    >
         <!-- Logo -->
-        <div class="flex items-center justify-between h-16 px-5 bg-(--color-sidebar-logo-bg) shrink-0">
-            <img :src="logoSrc" alt="PHP com Rapadura" class="h-7" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" >
-            <span class="hidden items-center text-white font-semibold text-sm">PHP com Rapadura</span>
+        <div :class="['flex px-3 bg-(--color-sidebar-logo-bg) shrink-0 gap-2', collapsed ? 'flex-col items-center py-4 h-auto' : 'items-center h-16']">
 
-            <!-- Botão fechar (mobile) -->
-            <button
-                class="lg:hidden ml-auto text-(--color-sidebar-text) hover:text-(--color-sidebar-text-active) transition"
-                aria-label="Fechar menu"
-                @click="emit('close')"
-            >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-            </button>
+            <!-- Expandido: logo colorida + botão collapse -->
+            <template v-if="!collapsed">
+                <img
+                    :src="logoExpanded"
+                    alt="PHP com Rapadura"
+                    style="width: 155px; height: auto; display: block; margin-top: 8px;"
+                    onerror="this.style.display='none'"
+                >
+                <!-- Botão fechar (mobile) -->
+                <button
+                    class="lg:hidden text-(--color-sidebar-text) hover:text-(--color-sidebar-text-active) transition shrink-0"
+                    aria-label="Fechar menu"
+                    @click="emit('close')"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+                <!-- Botão collapse (desktop) -->
+                <button
+                    class="hidden lg:flex items-center justify-center w-7 h-7 rounded-md text-(--color-sidebar-text) hover:text-(--color-sidebar-text-active) hover:bg-(--color-sidebar-hover) transition shrink-0 ml-auto"
+                    aria-label="Recolher menu"
+                    @click="toggleCollapse"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+            </template>
+
+            <!-- Colapsado: favicon + botão expand -->
+            <template v-else>
+                <div class="flex flex-col items-center gap-1 w-full">
+                    <img
+                        :src="logoCollapsed"
+                        alt="PHP com Rapadura"
+                        class="w-9 h-9 rounded-lg object-contain"
+                        onerror="this.style.display='none'"
+                    >
+                    <button
+                        class="flex items-center justify-center w-7 h-7 rounded-md text-(--color-sidebar-text) hover:text-(--color-sidebar-text-active) hover:bg-(--color-sidebar-hover) transition"
+                        aria-label="Expandir menu"
+                        @click="toggleCollapse"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </div>
+            </template>
         </div>
 
         <!-- Navegação -->
-        <nav class="flex-1 flex flex-col gap-1 p-3 overflow-y-auto">
+        <nav class="flex-1 flex flex-col gap-1 p-2 overflow-y-auto">
             <RouterLink
                 v-for="item in navItems"
                 :key="item.name"
                 :to="{ name: item.name }"
+                :title="collapsed ? item.label : undefined"
                 :class="[
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-[40px] text-sm transition',
+                    'flex items-center rounded-lg min-h-[40px] text-sm transition',
+                    collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5',
                     isActive(item.name)
                         ? 'bg-(--color-sidebar-active) text-(--color-sidebar-text-active) font-medium'
                         : 'text-(--color-sidebar-text) hover:bg-(--color-sidebar-hover) hover:text-(--color-sidebar-text-active)',
@@ -81,19 +134,25 @@ function initials(name) {
                     <circle cx="9" cy="7" r="4"/>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
-                {{ item.label }}
+
+                <span v-if="!collapsed" class="truncate">{{ item.label }}</span>
             </RouterLink>
         </nav>
 
         <!-- Rodapé -->
-        <div class="p-3 border-t border-(--color-sidebar-border) flex flex-col gap-1">
+        <div class="p-2 border-t border-(--color-sidebar-border) flex flex-col gap-1">
 
             <!-- Usuário logado -->
-            <div class="flex items-center gap-3 px-3 py-2.5">
+            <div
+                :class="[
+                    'flex items-center px-2 py-2',
+                    collapsed ? 'justify-center' : 'gap-3',
+                ]"
+            >
                 <div class="w-9 h-9 rounded-full bg-(--color-primary) flex items-center justify-center text-white font-semibold text-sm shrink-0">
                     {{ initials(user?.name ?? '') }}
                 </div>
-                <div class="min-w-0">
+                <div v-if="!collapsed" class="min-w-0">
                     <p class="text-sm font-medium text-(--color-sidebar-text-active) truncate leading-tight">
                         {{ user?.name ?? '...' }}
                     </p>
@@ -105,8 +164,10 @@ function initials(name) {
 
             <!-- Toggle de tema -->
             <button
+                :title="collapsed ? (isDark ? 'Modo claro' : 'Modo escuro') : undefined"
                 :class="[
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-[40px] text-sm transition w-full text-left',
+                    'flex items-center rounded-lg min-h-[40px] text-sm transition w-full',
+                    collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5 text-left',
                     'text-(--color-sidebar-text) hover:bg-(--color-sidebar-hover) hover:text-(--color-sidebar-text-active)',
                 ]"
                 @click="toggle"
@@ -123,13 +184,17 @@ function initials(name) {
                 <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                 </svg>
-                {{ isDark ? 'Modo claro' : 'Modo escuro' }}
+                <span v-if="!collapsed">{{ isDark ? 'Modo claro' : 'Modo escuro' }}</span>
             </button>
 
             <!-- Logout -->
             <button
-                class="flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-[40px] text-sm transition w-full text-left
-                       text-(--color-sidebar-text) hover:text-red-400 hover:bg-red-500/10"
+                :title="collapsed ? 'Sair' : undefined"
+                :class="[
+                    'flex items-center rounded-lg min-h-[40px] text-sm transition w-full',
+                    collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5 text-left',
+                    'text-(--color-sidebar-text) hover:text-red-400 hover:bg-red-500/10',
+                ]"
                 @click="logout"
             >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -137,7 +202,7 @@ function initials(name) {
                     <polyline points="16 17 21 12 16 7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
-                Sair
+                <span v-if="!collapsed">Sair</span>
             </button>
         </div>
     </aside>

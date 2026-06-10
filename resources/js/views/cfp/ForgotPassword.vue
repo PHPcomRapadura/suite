@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-const logoSrc = `${import.meta.env.BASE_URL}images/PHPcomRapadura_color.svg`
+const logoSrc = `${import.meta.env.APP_URL}images/PHPcomRapadura_color.svg`
 
 const email   = ref('')
 const loading = ref(false)

@@ -10,7 +10,7 @@ const { user, fetchUser } = useCfpAuth()
 const events = ref([])
 const loading = ref(true)
 
-const logoSrc = `${import.meta.env.BASE_URL}images/PHPcomRapadura_color.svg`
+const logoSrc = `${import.meta.env.APP_URL}images/PHPcomRapadura_color.svg`
 
 onMounted(async () => {
     await fetchUser()

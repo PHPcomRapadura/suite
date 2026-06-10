@@ -6,7 +6,7 @@ import axios from 'axios'
 const router = useRouter()
 const route  = useRoute()
 
-const logoSrc = `${import.meta.env.BASE_URL}images/PHPcomRapadura_color.svg`
+const logoSrc = `${import.meta.env.APP_URL}images/PHPcomRapadura_color.svg`
 
 const form = ref({
     token:                 '',
