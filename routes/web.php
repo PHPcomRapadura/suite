@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventExpenseController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\EventSiteController;
 use App\Http\Controllers\Admin\EventSponsorController;
+use App\Http\Controllers\Admin\EventLotteryController;
 use App\Http\Controllers\Admin\EventParticipantController;
 use App\Http\Controllers\Admin\EventTaskCommentController;
 use App\Http\Controllers\Admin\EventTaskController;
@@ -105,6 +106,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::put('/{task}/comments/{comment}',             [EventTaskCommentController::class, 'update'])->name('comments.update');
                 Route::delete('/{task}/comments/{comment}',          [EventTaskCommentController::class, 'destroy'])->name('comments.destroy');
             });
+            // Sorteio
+            Route::prefix('/{event}/lottery')->name('lottery.')->group(function () {
+                Route::get('/',      [EventLotteryController::class, 'index'])->name('index');
+                Route::post('/draw', [EventLotteryController::class, 'draw'])->name('draw')->middleware('role:admin');
+                Route::delete('/',   [EventLotteryController::class, 'reset'])->name('reset')->middleware('role:admin');
+            });
             // Participantes
             Route::prefix('/{event}/participants')->name('participants.')->group(function () {
                 Route::get('/',              [EventParticipantController::class, 'index'])->name('index');
@@ -134,6 +141,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/{id}/expenses', fn () => view('admin'))->name('events.expenses');
         Route::get('/events/{id}/tasks', fn () => view('admin'))->name('events.tasks');
         Route::get('/events/{id}/participants', fn () => view('admin'))->name('events.participants');
+        Route::get('/events/{id}/lottery', fn () => view('admin'))->name('events.lottery');
         Route::get('/{any}', fn () => view('admin'))->where('any', '[a-zA-Z0-9/_-]+');
     });
 });

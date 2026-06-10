@@ -174,7 +174,21 @@ Importação e visualização de participantes de um evento (`/admin/events/{id}
 - Card "Participantes" no hub do evento com stats e link ativo
 - 27 testes de feature
 
+### ✅ Sorteio Digital — implementado
+
+Sorteio de participantes vinculado ao evento (`/admin/events/{id}/lottery`):
+
+- **Pool**: apenas participantes com `checked_in = true`
+- **Unicidade**: cada participante só pode ser sorteado uma vez por evento (`UNIQUE(event_id, participant_id)`)
+- **Animação**: overlay fullscreen com favicon girando (`spin-full 1.2s`), contagem regressiva 3→2→1, chamada API em paralelo com a animação
+- **Revelação**: nome + e-mail ofuscado (`wi*****@gmail.com`), chuva de confete via `canvas-confetti`
+- **Auto-close**: revelação fecha automaticamente após 4 s; botão "Continuar" para fechar manualmente
+- **Lista de sorteados**: posição, nome completo, e-mail ofuscado (sem tipo de ingresso)
+- **Reset**: `ConfirmModal` com contagem dinâmica dos já sorteados; somente `admin`
+- **Controle de acesso**: `draw` e `reset` exigem `role:admin`; `index` aberto para colaborador
+- **Card no hub**: exibe sorteados e disponíveis; link para gerenciar
+- 15 testes de feature
+
 ### Eventos — sub-módulos pendentes
 
 - ⬜ Fórum com tópicos por evento
-- ⬜ Sorteio digital por evento

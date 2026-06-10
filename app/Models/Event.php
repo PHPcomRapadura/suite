@@ -74,6 +74,11 @@ class Event extends Model
         return $this->hasMany(EventParticipant::class)->orderBy('registration_order');
     }
 
+    public function lotteryWinners(): HasMany
+    {
+        return $this->hasMany(EventLotteryWinner::class)->orderBy('position');
+    }
+
     public function isPublished(): bool
     {
         return $this->status === 'publicado';

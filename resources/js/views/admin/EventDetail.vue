@@ -11,6 +11,7 @@ const site     = ref(null)
 const cfpTalks = ref({ total: 0, submetida: 0, em_analise: 0, aprovada: 0, rejeitada: 0, cancelada: 0 })
 const tasks        = ref({ total: 0, concluida: 0, overdue: 0 })
 const participants = ref({ total: 0, approved: 0, checked_in: 0 })
+const lottery      = ref({ total_pool: 0, total_drawn: 0, remaining: 0 })
 const loading  = ref(true)
 const notFound = ref(false)
 
@@ -60,12 +61,13 @@ async function fetchData() {
     loading.value  = true
     notFound.value = false
     try {
-        const [eventRes, cfpRes, siteRes, tasksRes, participantsRes] = await Promise.allSettled([
+        const [eventRes, cfpRes, siteRes, tasksRes, participantsRes, lotteryRes] = await Promise.allSettled([
             axios.get(`/admin/api/events/${route.params.id}`),
             axios.get(`/admin/api/events/${route.params.id}/cfp`),
             axios.get(`/admin/api/events/${route.params.id}/site`),
             axios.get(`/admin/api/events/${route.params.id}/tasks`),
             axios.get(`/admin/api/events/${route.params.id}/participants`),
+            axios.get(`/admin/api/events/${route.params.id}/lottery`),
         ])
 
         if (eventRes.status === 'rejected') {
@@ -91,6 +93,10 @@ async function fetchData() {
 
         if (participantsRes.status === 'fulfilled') {
             participants.value = participantsRes.value.data.summary
+        }
+
+        if (lotteryRes.status === 'fulfilled') {
+            lottery.value = lotteryRes.value.data.stats
         }
     } finally {
         loading.value = false
@@ -366,8 +372,8 @@ onMounted(() => fetchData())
                 </div>
 
                 <!-- Card Sorteio -->
-                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5">
-                    <div class="flex items-center gap-2 mb-3">
+                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-(--color-text-muted) shrink-0" aria-hidden="true">
                             <polyline points="20 12 20 22 4 22 4 12"/>
                             <rect x="2" y="7" width="20" height="5"/>
@@ -376,9 +382,28 @@ onMounted(() => fetchData())
                             <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
                         </svg>
                         <span class="font-semibold text-(--color-text)">Sorteio</span>
-                        <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500 shrink-0">Em breve</span>
                     </div>
-                    <p class="text-sm text-(--color-text-muted)">Em desenvolvimento. Em breve você poderá realizar sorteios de brindes.</p>
+
+                    <template v-if="lottery.total_pool === 0">
+                        <p class="text-sm text-(--color-text-muted)">Nenhum participante com check-in.</p>
+                    </template>
+                    <template v-else-if="lottery.total_drawn === 0">
+                        <p class="text-sm text-(--color-text-muted)">Nenhum participante sorteado ainda.</p>
+                        <p class="text-sm text-(--color-text)">{{ lottery.remaining }} disponíve{{ lottery.remaining !== 1 ? 'is' : 'l' }} no pool</p>
+                    </template>
+                    <template v-else>
+                        <p class="text-sm text-(--color-text)">{{ lottery.total_drawn }} sorteado{{ lottery.total_drawn !== 1 ? 's' : '' }} · {{ lottery.remaining }} disponíve{{ lottery.remaining !== 1 ? 'is' : 'l' }}</p>
+                    </template>
+
+                    <RouterLink
+                        :to="{ name: 'admin.events.lottery', params: { id: event.id } }"
+                        class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-(--color-primary) hover:text-(--color-primary-hover) transition"
+                    >
+                        Gerenciar
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </RouterLink>
                 </div>
 
             </div>

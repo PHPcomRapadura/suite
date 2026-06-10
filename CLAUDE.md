@@ -497,3 +497,9 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Participantes — `EventParticipants.vue` com toggle cards/lista (localStorage) e filtros reativos | ✅ Implementado |
 | Participantes — card no hub do evento com stats e link ativo | ✅ Implementado |
 | Testes Participantes (27 casos) | ✅ Implementado |
+| Sorteio — model `EventLotteryWinner` + migration + índice único `(event_id, participant_id)` | ✅ Implementado |
+| Sorteio — `EventLotteryController` (index, draw, reset) | ✅ Implementado |
+| Sorteio — `EventLotteryService` com draw, reset, formatWinner, obfuscateEmail | ✅ Implementado |
+| Sorteio — `EventLottery.vue` com animação, contagem regressiva, confete e lista de sorteados | ✅ Implementado |
+| Sorteio — card no hub do evento com stats e link ativo | ✅ Implementado |
+| Testes Sorteio (15 casos) | ✅ Implementado |

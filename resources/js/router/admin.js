@@ -59,6 +59,11 @@ const routes = [
                 component: () => import('@/views/admin/EventParticipants.vue'),
             },
             {
+                path: 'events/:id/lottery',
+                name: 'admin.events.lottery',
+                component: () => import('@/views/admin/EventLottery.vue'),
+            },
+            {
                 path: '',
                 redirect: { name: 'admin.dashboard' },
             },
