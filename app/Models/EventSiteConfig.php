@@ -21,7 +21,7 @@ class EventSiteConfig extends Model
     {
         return [
             'is_published' => 'boolean',
-            'faq'          => 'array',
+            'faq' => 'array',
         ];
     }
 

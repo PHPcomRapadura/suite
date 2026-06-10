@@ -75,26 +75,30 @@ class EventSitePublicController extends Controller
             ];
         }
 
-        $eventData = json_encode([
-            'event' => [
-                'id' => $event->id,
-                'name' => $event->name,
-                'slug' => $event->slug,
-                'edition' => $event->edition,
-                'description' => $event->description,
-                'starts_at' => $event->starts_at,
-                'ends_at' => $event->ends_at,
-                'location' => $event->location,
-                'is_online' => $event->is_online,
-                'cover_image' => $event->cover_image,
-                'logo' => $event->logo,
-                'is_accepting_talks' => $event->is_accepting_talks,
+        $eventData = json_encode(
+            [
+                'event' => [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'slug' => $event->slug,
+                    'edition' => $event->edition,
+                    'description' => $event->description,
+                    'starts_at' => $event->starts_at,
+                    'ends_at' => $event->ends_at,
+                    'location' => $event->location,
+                    'is_online' => $event->is_online,
+                    'cover_image' => $event->cover_image,
+                    'logo' => $event->logo,
+                    'is_accepting_talks' => $event->is_accepting_talks,
+                ],
+                'site' => $eventSite,
+                'sponsors' => $sponsorsByLevel,
+                'schedule' => $scheduleByDay,
+                'speakers' => $speakers,
             ],
-            'site' => $eventSite,
-            'sponsors' => $sponsorsByLevel,
-            'schedule' => $scheduleByDay,
-            'speakers' => $speakers,
-        ]);
+            // Escapa <, >, &, ', " para impedir quebra do bloco <script> (XSS armazenado)
+            JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+        );
 
         return view('event-site', ['eventData' => $eventData]);
     }

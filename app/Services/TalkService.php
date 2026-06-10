@@ -11,11 +11,11 @@ class TalkService
 {
     /** @var array<string, list<string>> */
     private const TRANSITIONS = [
-        'submetida'  => ['em_analise', 'cancelada'],
+        'submetida' => ['em_analise', 'cancelada'],
         'em_analise' => ['aprovada', 'rejeitada', 'cancelada'],
-        'aprovada'   => ['cancelada'],
-        'rejeitada'  => ['em_analise'],
-        'cancelada'  => [],
+        'aprovada' => ['cancelada'],
+        'rejeitada' => ['em_analise'],
+        'cancelada' => [],
     ];
 
     /** @param array<string, mixed> $filters */

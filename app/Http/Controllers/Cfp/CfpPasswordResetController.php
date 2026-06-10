@@ -33,9 +33,9 @@ class CfpPasswordResetController extends Controller
     public function reset(Request $request): JsonResponse
     {
         $request->validate([
-            'token'                 => 'required',
-            'email'                 => 'required|email',
-            'password'              => 'required|min:8|confirmed',
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
             'password_confirmation' => 'required',
         ]);
 
@@ -50,8 +50,8 @@ class CfpPasswordResetController extends Controller
             return response()->json([
                 'message' => match ($status) {
                     Password::INVALID_TOKEN => 'Link inválido ou expirado. Solicite um novo.',
-                    Password::INVALID_USER  => 'Não encontramos uma conta com esse e-mail.',
-                    default                 => 'Não foi possível redefinir a senha. Tente novamente.',
+                    Password::INVALID_USER => 'Não encontramos uma conta com esse e-mail.',
+                    default => 'Não foi possível redefinir a senha. Tente novamente.',
                 },
             ], 422);
         }

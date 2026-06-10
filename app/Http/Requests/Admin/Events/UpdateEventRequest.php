@@ -29,7 +29,7 @@ class UpdateEventRequest extends FormRequest
             'is_online' => ['boolean'],
             'max_attendees' => ['nullable', 'integer', 'min:1'],
             'cover_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'logo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 
@@ -45,7 +45,7 @@ class UpdateEventRequest extends FormRequest
             'max_attendees.min' => 'A capacidade deve ser pelo menos 1.',
             'cover_image.mimes' => 'A imagem de capa deve ser jpg, jpeg, png ou webp.',
             'cover_image.max' => 'A imagem de capa deve ter no máximo 5 MB.',
-            'logo.mimes' => 'O logo deve ser jpg, jpeg, png, webp ou svg.',
+            'logo.mimes' => 'O logo deve ser jpg, jpeg, png ou webp.',
             'logo.max' => 'O logo deve ter no máximo 2 MB.',
         ];
     }

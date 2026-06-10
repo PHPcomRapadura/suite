@@ -10,6 +10,7 @@ use App\Models\EventSponsor;
 use App\Services\EventService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
 class EventSponsorController extends Controller
@@ -30,7 +31,7 @@ class EventSponsorController extends Controller
         $sponsor = $event->sponsors()->create($data);
 
         if ($request->hasFile('logo')) {
-            /** @var \Illuminate\Http\UploadedFile $logo */
+            /** @var UploadedFile $logo */
             $logo = $request->file('logo');
             $path = "events/{$event->id}/sponsors/{$sponsor->id}/logo.{$logo->extension()}";
             $sponsor->update(['logo_url' => $this->eventService->uploadImage($logo, $path)]);
@@ -41,11 +42,13 @@ class EventSponsorController extends Controller
 
     public function update(UpdateEventSponsorRequest $request, Event $event, EventSponsor $sponsor): JsonResponse
     {
+        abort_if($sponsor->event_id !== $event->id, Response::HTTP_NOT_FOUND);
+
         $data = $request->validated();
         unset($data['logo']);
 
         if ($request->hasFile('logo')) {
-            /** @var \Illuminate\Http\UploadedFile $logo */
+            /** @var UploadedFile $logo */
             $logo = $request->file('logo');
             $this->eventService->deleteImage($sponsor->logo_url);
             $path = "events/{$event->id}/sponsors/{$sponsor->id}/logo.{$logo->extension()}";
@@ -59,6 +62,8 @@ class EventSponsorController extends Controller
 
     public function destroy(Event $event, EventSponsor $sponsor): JsonResponse
     {
+        abort_if($sponsor->event_id !== $event->id, Response::HTTP_NOT_FOUND);
+
         $this->eventService->deleteImage($sponsor->logo_url);
         $sponsor->delete();
 
@@ -68,8 +73,8 @@ class EventSponsorController extends Controller
     public function reorder(Request $request, Event $event): JsonResponse
     {
         $validated = $request->validate([
-            'items'              => ['required', 'array'],
-            'items.*.id'         => ['required', 'integer'],
+            'items' => ['required', 'array'],
+            'items.*.id' => ['required', 'integer'],
             'items.*.sort_order' => ['required', 'integer', 'min:0'],
         ]);
 

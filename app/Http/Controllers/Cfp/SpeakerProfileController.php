@@ -7,6 +7,7 @@ use App\Http\Requests\Cfp\UpdateSpeakerProfileRequest;
 use App\Models\Speaker;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -40,7 +41,7 @@ class SpeakerProfileController extends Controller
             $existing = $user->speaker;
             $this->deleteAvatar($existing?->avatar_url);
 
-            /** @var \Illuminate\Http\UploadedFile $file */
+            /** @var UploadedFile $file */
             $file = $request->file('avatar');
             $path = "speakers/{$user->id}/avatar.{$file->extension()}";
             Storage::disk('r2')->putFileAs('', $file, $path, 'public');
@@ -59,16 +60,16 @@ class SpeakerProfileController extends Controller
     private function format(Speaker $speaker): array
     {
         return [
-            'bio'          => $speaker->bio,
-            'company'      => $speaker->company,
-            'city'         => $speaker->city,
-            'state'        => $speaker->state,
-            'avatar_url'   => $speaker->avatar_url,
+            'bio' => $speaker->bio,
+            'company' => $speaker->company,
+            'city' => $speaker->city,
+            'state' => $speaker->state,
+            'avatar_url' => $speaker->avatar_url,
             'phone_number' => $speaker->phone_number,
-            'website'      => $speaker->website,
-            'twitter'      => $speaker->twitter,
-            'github'       => $speaker->github,
-            'linkedin'     => $speaker->linkedin,
+            'website' => $speaker->website,
+            'twitter' => $speaker->twitter,
+            'github' => $speaker->github,
+            'linkedin' => $speaker->linkedin,
         ];
     }
 

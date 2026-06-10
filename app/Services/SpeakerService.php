@@ -36,16 +36,16 @@ class SpeakerService
     public function formatSummary(Speaker $speaker): array
     {
         return [
-            'id'             => $speaker->id,
-            'name'           => $speaker->user->name,
-            'email'          => $speaker->user->email,
-            'avatar_url'     => $speaker->avatar_url,
-            'company'        => $speaker->company,
-            'city'           => $speaker->city,
-            'state'          => $speaker->state,
-            'phone_number'   => $speaker->phone_number,
-            'is_active'      => $speaker->user->is_active,
-            'talks_count'    => $speaker->talks_count ?? 0,
+            'id' => $speaker->id,
+            'name' => $speaker->user->name,
+            'email' => $speaker->user->email,
+            'avatar_url' => $speaker->avatar_url,
+            'company' => $speaker->company,
+            'city' => $speaker->city,
+            'state' => $speaker->state,
+            'phone_number' => $speaker->phone_number,
+            'is_active' => $speaker->user->is_active,
+            'talks_count' => $speaker->talks_count ?? 0,
             'talks_approved' => $speaker->talks_approved_count ?? 0,
         ];
     }
@@ -53,19 +53,19 @@ class SpeakerService
     public function formatDetail(Speaker $speaker): array
     {
         return array_merge($this->formatSummary($speaker), [
-            'bio'           => $speaker->bio,
-            'website'       => $speaker->website,
-            'twitter'       => $speaker->twitter,
-            'github'        => $speaker->github,
-            'linkedin'      => $speaker->linkedin,
+            'bio' => $speaker->bio,
+            'website' => $speaker->website,
+            'twitter' => $speaker->twitter,
+            'github' => $speaker->github,
+            'linkedin' => $speaker->linkedin,
             'last_login_at' => $speaker->user->last_login_at?->toIso8601String(),
-            'talks'         => $speaker->talks->map(fn ($t) => [
-                'id'           => $t->id,
-                'title'        => $t->title,
-                'event'        => $t->event?->name,
-                'status'       => $t->status,
-                'level'        => $t->level,
-                'duration'     => $t->duration,
+            'talks' => $speaker->talks->map(fn ($t) => [
+                'id' => $t->id,
+                'title' => $t->title,
+                'event' => $t->event?->name,
+                'status' => $t->status,
+                'level' => $t->level,
+                'duration' => $t->duration,
                 'submitted_at' => $t->submitted_at?->toIso8601String(),
             ])->values()->all(),
         ]);

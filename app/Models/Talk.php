@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property \App\Models\Speaker|null $speaker
+ * @property Speaker|null $speaker
  */
 class Talk extends Model
 {

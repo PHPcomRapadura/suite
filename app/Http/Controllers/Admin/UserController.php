@@ -66,6 +66,13 @@ class UserController extends Controller
             );
         }
 
+        if ($request->validated()['role'] !== 'admin' && $this->userService->isLastActiveAdmin($user)) {
+            return response()->json(
+                ['message' => 'Não é possível rebaixar o único administrador ativo do sistema.'],
+                Response::HTTP_UNPROCESSABLE_ENTITY
+            );
+        }
+
         $updated = $this->userService->update($user, $request->validated());
 
         return response()->json($updated);
@@ -77,6 +84,13 @@ class UserController extends Controller
             return response()->json(
                 ['message' => 'Você não pode alterar o status da própria conta.'],
                 Response::HTTP_FORBIDDEN
+            );
+        }
+
+        if ($this->userService->isLastActiveAdmin($user)) {
+            return response()->json(
+                ['message' => 'Não é possível desativar o único administrador ativo do sistema.'],
+                Response::HTTP_UNPROCESSABLE_ENTITY
             );
         }
 

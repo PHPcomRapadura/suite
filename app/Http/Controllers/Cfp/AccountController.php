@@ -17,7 +17,7 @@ class AccountController extends Controller
         $user = Auth::user();
 
         $data = [
-            'name'  => $request->input('name'),
+            'name' => $request->input('name'),
             'email' => $request->input('email'),
         ];
 

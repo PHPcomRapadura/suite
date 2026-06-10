@@ -4,14 +4,17 @@ namespace App\Services;
 
 use App\Models\Event;
 use App\Models\EventParticipant;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class EventParticipantService
 {
     private const REQUIRED_COLUMNS = ['Ordem de inscrição', 'Nome', 'Email'];
+
+    /** Limite de linhas por importação — evita DoS por arquivo com dezenas de milhares de registros. */
+    private const MAX_ROWS = 10000;
 
     public function import(Event $event, UploadedFile $file): array
     {
@@ -28,6 +31,12 @@ class EventParticipantService
 
         if ($headers === null) {
             throw ValidationException::withMessages(['csv' => 'O arquivo CSV está vazio.']);
+        }
+
+        if (count($rows) > self::MAX_ROWS) {
+            throw ValidationException::withMessages([
+                'csv' => 'O arquivo excede o limite de '.self::MAX_ROWS.' linhas. Divida a importação em partes.',
+            ]);
         }
 
         $headers = array_map('trim', $headers);
@@ -58,11 +67,13 @@ class EventParticipantService
 
                 if ($registrationOrder === 0) {
                     $errors[] = "Linha {$lineNumber}: Ordem de inscrição inválida.";
+
                     continue;
                 }
 
                 if ($email === '') {
                     $errors[] = "Linha {$lineNumber}: campo Email ausente.";
+
                     continue;
                 }
 
@@ -78,7 +89,7 @@ class EventParticipantService
                         'email' => $email,
                         'ticket_type' => trim($row[$map['Tipo de ingresso']] ?? ''),
                         'amount' => self::parseAmount($row[$map['Valor']] ?? '0'),
-                        'purchased_at' => \Carbon\Carbon::parse($row[$map['Data compra']] ?? now()),
+                        'purchased_at' => Carbon::parse($row[$map['Data compra']] ?? now()),
                         'payment_status' => trim($row[$map['Estado de pagamento']] ?? ''),
                         'checked_in' => strtolower(trim($row[$map['Check-in']] ?? '')) === 'sim',
                         'discount_coupon' => ($row[$map['Cupom de Desconto']] ?? '') ?: null,

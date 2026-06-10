@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @property \App\Models\User|null $user
+ * @property User|null $user
  */
 class Speaker extends Model
 {

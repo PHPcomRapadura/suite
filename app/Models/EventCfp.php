@@ -21,7 +21,7 @@ class EventCfp extends Model
     protected function casts(): array
     {
         return [
-            'opens_at'  => 'datetime',
+            'opens_at' => 'datetime',
             'closes_at' => 'datetime',
         ];
     }
@@ -39,8 +39,13 @@ class EventCfp extends Model
     public function status(): string
     {
         $now = now();
-        if ($now->lt($this->opens_at))  return 'aguardando';
-        if ($now->lte($this->closes_at)) return 'aberto';
+        if ($now->lt($this->opens_at)) {
+            return 'aguardando';
+        }
+        if ($now->lte($this->closes_at)) {
+            return 'aberto';
+        }
+
         return 'encerrado';
     }
 }

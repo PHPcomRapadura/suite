@@ -23,9 +23,9 @@ class TalkController extends Controller
             'data' => $paginator->items(),
             'meta' => [
                 'current_page' => $paginator->currentPage(),
-                'last_page'    => $paginator->lastPage(),
-                'per_page'     => $paginator->perPage(),
-                'total'        => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
             ],
         ]);
     }
@@ -48,7 +48,7 @@ class TalkController extends Controller
         }
 
         $request->validate([
-            'status'   => ['required', 'string', 'in:em_analise,aprovada,rejeitada,cancelada'],
+            'status' => ['required', 'string', 'in:em_analise,aprovada,rejeitada,cancelada'],
             'feedback' => ['required_if:status,rejeitada', 'nullable', 'string'],
         ]);
 

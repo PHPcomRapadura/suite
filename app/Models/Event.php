@@ -44,7 +44,7 @@ class Event extends Model
         return $this->hasMany(Talk::class);
     }
 
-    public function site(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function site(): HasOne
     {
         return $this->hasOne(EventSiteConfig::class);
     }

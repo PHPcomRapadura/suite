@@ -176,7 +176,7 @@ Imagens dos eventos (`cover_image`, `logo`) são armazenadas no **Cloudflare R2*
 Estrutura de paths no bucket:
 ```
 events/{event_id}/cover.{ext}    ← imagem de capa (jpg/jpeg/png/webp, máx 5 MB)
-events/{event_id}/logo.{ext}     ← logo do evento (jpg/jpeg/png/webp/svg, máx 2 MB)
+events/{event_id}/logo.{ext}     ← logo do evento (jpg/jpeg/png/webp, máx 2 MB — SVG bloqueado por risco de XSS)
 ```
 
 Para testes: usar `Storage::fake('r2')` — o `EventService::deleteImage()` usa `Storage::disk('r2')->url('')` dinamicamente para extrair o path da URL, funcionando tanto com o disco real quanto com o fake.
@@ -513,3 +513,19 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Palestrantes — `SpeakerService` com `withCount` + `orderByRaw` | ✅ Implementado |
 | Palestrantes — Sidebar colapsável (68 px colapsado, 260 px expandido) | ✅ Implementado |
 | Testes Palestrantes (16 casos) | ✅ Implementado |
+
+### Segurança
+
+| Item | Status |
+|------|--------|
+| XSS — `eventData` na página pública escapado com `JSON_HEX_*` (impede breakout de `</script>`) | ✅ Implementado |
+| IDOR — scoping `event_id` em Sponsors e Schedule (`abort_if`) | ✅ Implementado |
+| Upload — logo SVG bloqueado (vetor de XSS) | ✅ Implementado |
+| Rate limiting — `throttle:auth` (5/min por IP+e-mail) em login/registro/forgot/reset; limiter `api` (60/min) | ✅ Implementado |
+| `TrustProxies` configurável via `TRUSTED_PROXIES` (CDN/LB) | ✅ Implementado |
+| Security headers — middleware `SecurityHeaders` (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS em HTTPS, CSP em produção) | ✅ Implementado |
+| Seed admin — senha previsível removida; aborta em produção sem `ADMIN_PASSWORD`, gera aleatória em dev | ✅ Implementado |
+| Lockout — `UserService::isLastActiveAdmin` impede rebaixar/desativar o último admin ativo | ✅ Implementado |
+| Import CSV — limite de 10.000 linhas (anti-DoS) | ✅ Implementado |
+| `.env.example` — `SESSION_SECURE_COOKIE`, `TRUSTED_PROXIES` e avisos de produção | ✅ Implementado |
+| Testes de segurança (9 casos: XSS, IDOR, SVG, lockout, isolamento) | ✅ Implementado |

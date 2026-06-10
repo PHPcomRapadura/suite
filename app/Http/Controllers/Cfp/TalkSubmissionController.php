@@ -25,7 +25,7 @@ class TalkSubmissionController extends Controller
 
         if (! $speaker) {
             return response()->json([
-                'data'  => [],
+                'data' => [],
                 'stats' => ['total' => 0, 'approved' => 0, 'pending' => 0, 'rejected' => 0],
             ]);
         }
@@ -36,9 +36,9 @@ class TalkSubmissionController extends Controller
             ->get(['id', 'event_id', 'title', 'abstract', 'duration', 'level', 'status', 'submitted_at']);
 
         $stats = [
-            'total'    => $talks->count(),
+            'total' => $talks->count(),
             'approved' => $talks->where('status', 'aprovada')->count(),
-            'pending'  => $talks->whereIn('status', ['submetida', 'em_analise'])->count(),
+            'pending' => $talks->whereIn('status', ['submetida', 'em_analise'])->count(),
             'rejected' => $talks->where('status', 'recusada')->count(),
         ];
 
@@ -117,13 +117,13 @@ class TalkSubmissionController extends Controller
         }
 
         $talk = Talk::create([
-            'event_id'     => $event->id,
-            'speaker_id'   => $speaker->id,
-            'title'        => $request->input('title'),
-            'abstract'     => $request->input('abstract'),
-            'duration'     => $request->input('duration'),
-            'level'        => $request->input('level'),
-            'status'       => 'submetida',
+            'event_id' => $event->id,
+            'speaker_id' => $speaker->id,
+            'title' => $request->input('title'),
+            'abstract' => $request->input('abstract'),
+            'duration' => $request->input('duration'),
+            'level' => $request->input('level'),
+            'status' => 'submetida',
             'submitted_at' => now(),
         ]);
 

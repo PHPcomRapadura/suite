@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Cfp\StoreCfpRequest;
 use App\Http\Requests\Admin\Cfp\UpdateCfpRequest;
 use App\Models\Event;
+use App\Models\EventCfp;
 use App\Services\CfpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class CfpController extends Controller
 
     public function update(UpdateCfpRequest $request, Event $event): JsonResponse
     {
-        /** @var \App\Models\EventCfp|null $cfp */
+        /** @var EventCfp|null $cfp */
         $cfp = $event->cfp;
 
         if (! $cfp) {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventCfp;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 
 class CfpPublicController extends Controller
@@ -27,7 +28,7 @@ class CfpPublicController extends Controller
                 /** @var EventCfp $cfp */
                 $cfp = $event->cfp;
 
-                /** @var \Illuminate\Support\Carbon $opensAt */
+                /** @var Carbon $opensAt */
                 $opensAt = $cfp->opens_at;
 
                 return $opensAt->timestamp;
@@ -39,21 +40,21 @@ class CfpPublicController extends Controller
             $cfp = $event->cfp;
 
             return [
-                'id'          => $event->id,
-                'name'        => $event->name,
-                'slug'        => $event->slug,
-                'edition'     => $event->edition,
-                'starts_at'   => $event->starts_at,
-                'ends_at'     => $event->ends_at,
-                'location'    => $event->location,
-                'is_online'   => $event->is_online,
+                'id' => $event->id,
+                'name' => $event->name,
+                'slug' => $event->slug,
+                'edition' => $event->edition,
+                'starts_at' => $event->starts_at,
+                'ends_at' => $event->ends_at,
+                'location' => $event->location,
+                'is_online' => $event->is_online,
                 'cover_image' => $event->cover_image,
-                'cfp'         => [
-                    'opens_at'              => $cfp->opens_at,
-                    'closes_at'             => $cfp->closes_at,
-                    'speaker_guide'         => $cfp->speaker_guide,
+                'cfp' => [
+                    'opens_at' => $cfp->opens_at,
+                    'closes_at' => $cfp->closes_at,
+                    'speaker_guide' => $cfp->speaker_guide,
                     'max_talks_per_speaker' => $cfp->max_talks_per_speaker,
-                    'status'                => $cfp->status(),
+                    'status' => $cfp->status(),
                 ],
             ];
         });
@@ -71,19 +72,19 @@ class CfpPublicController extends Controller
         }
 
         return response()->json(['data' => [
-            'id'          => $event->id,
-            'name'        => $event->name,
-            'edition'     => $event->edition,
-            'starts_at'   => $event->starts_at,
-            'location'    => $event->location,
-            'is_online'   => $event->is_online,
+            'id' => $event->id,
+            'name' => $event->name,
+            'edition' => $event->edition,
+            'starts_at' => $event->starts_at,
+            'location' => $event->location,
+            'is_online' => $event->is_online,
             'cover_image' => $event->cover_image,
-            'cfp'         => [
-                'opens_at'              => $cfp->opens_at,
-                'closes_at'             => $cfp->closes_at,
-                'speaker_guide'         => $cfp->speaker_guide,
+            'cfp' => [
+                'opens_at' => $cfp->opens_at,
+                'closes_at' => $cfp->closes_at,
+                'speaker_guide' => $cfp->speaker_guide,
                 'max_talks_per_speaker' => $cfp->max_talks_per_speaker,
-                'status'                => $cfp->status(),
+                'status' => $cfp->status(),
             ],
         ]]);
     }

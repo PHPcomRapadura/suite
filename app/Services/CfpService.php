@@ -34,14 +34,14 @@ class CfpService
         }
 
         return [
-            'id'                    => $cfp->id,
-            'event_id'              => $cfp->event_id,
-            'opens_at'              => $cfp->opens_at,
-            'closes_at'             => $cfp->closes_at,
-            'speaker_guide'         => $cfp->speaker_guide,
+            'id' => $cfp->id,
+            'event_id' => $cfp->event_id,
+            'opens_at' => $cfp->opens_at,
+            'closes_at' => $cfp->closes_at,
+            'speaker_guide' => $cfp->speaker_guide,
             'max_talks_per_speaker' => $cfp->max_talks_per_speaker,
-            'status'                => $cfp->status(),
-            'talks_count'           => $talksCount,
+            'status' => $cfp->status(),
+            'talks_count' => $talksCount,
         ];
     }
 
@@ -54,7 +54,7 @@ class CfpService
 
         return EventCfp::create([
             ...$data,
-            'event_id'   => $event->id,
+            'event_id' => $event->id,
             'created_by' => $createdBy,
         ]);
     }

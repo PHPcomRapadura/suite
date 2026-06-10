@@ -52,4 +52,15 @@ class UserService
 
         return $user->fresh();
     }
+
+    /**
+     * Indica se o usuário é o único admin ativo restante — usado para impedir
+     * que o sistema fique sem nenhum administrador (lockout).
+     */
+    public function isLastActiveAdmin(User $user): bool
+    {
+        return $user->role === 'admin'
+            && $user->is_active
+            && User::where('role', 'admin')->where('is_active', true)->count() <= 1;
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EventSite\StoreEventSiteRequest;
 use App\Http\Requests\Admin\EventSite\UpdateEventSiteRequest;
 use App\Models\Event;
+use App\Models\EventSiteConfig;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,7 +34,7 @@ class EventSiteController extends Controller
 
     public function update(UpdateEventSiteRequest $request, Event $event): JsonResponse
     {
-        /** @var \App\Models\EventSiteConfig|null $site */
+        /** @var EventSiteConfig|null $site */
         $site = $event->site;
 
         if (! $site) {
@@ -47,7 +48,7 @@ class EventSiteController extends Controller
 
     public function togglePublished(Event $event): JsonResponse
     {
-        /** @var \App\Models\EventSiteConfig|null $site */
+        /** @var EventSiteConfig|null $site */
         $site = $event->site;
 
         if (! $site) {
