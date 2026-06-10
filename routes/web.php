@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountController as AdminAccountController;
 use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\CfpController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -49,6 +50,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // API — utilitários
         Route::get('/api/me', fn () => response()->json(Auth::user()))->name('me');
+        Route::put('/api/account/password', [AdminAccountController::class, 'updatePassword'])->name('account.password');
         Route::get('/api/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
         Route::get('/api/dashboard/next-event', [DashboardController::class, 'nextEvent'])->name('dashboard.nextEvent');
         Route::get('/api/dashboard/activity', [DashboardController::class, 'activity'])->name('dashboard.activity');

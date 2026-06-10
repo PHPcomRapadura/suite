@@ -37,6 +37,14 @@
         "enabled": true,
         "actions": [
             {
+                "action": "docker compose exec -T app composer audit --no-dev",
+                "label": "Composer audit (CVEs em dependências de produção)"
+            },
+            {
+                "action": "npm audit --omit=dev --audit-level=high",
+                "label": "NPM audit (CVEs no bundle de produção)"
+            },
+            {
                 "action": "docker compose exec -T app php ./vendor/bin/pest --parallel --coverage --min=80",
                 "label": "Pest (coverage ≥ 80%)"
             }

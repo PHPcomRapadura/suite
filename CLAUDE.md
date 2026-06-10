@@ -118,7 +118,8 @@ resources/js/
 │   ├── AppSidebar.vue              # Sidebar com nav, toggle de tema e logout
 │   ├── ConfirmModal.vue            # Modal de confirmação genérico
 │   ├── EventModal.vue              # Modal criar/editar evento (com upload R2)
-│   └── UserModal.vue               # Modal criar/editar usuário
+│   ├── UserModal.vue               # Modal criar/editar usuário
+│   └── ChangePasswordModal.vue     # Modal para o usuário logado trocar a própria senha
 └── views/
     ├── auth/Login.vue              # Página de login (dark mode nativo)
     └── admin/
@@ -133,6 +134,7 @@ GET  /admin/login              → view('admin')  [pública]
 POST /admin/login              → AdminLoginController@login
 POST /admin/logout             → AdminLoginController@logout  [auth]
 GET  /admin/api/me             → Auth::user()  [auth]
+PUT  /admin/api/account/password → AccountController@updatePassword  [auth]  ← troca da própria senha (exige current_password)
 GET  /admin/api/dashboard/stats → DashboardController@stats  [auth]
 GET  /admin/api/users          → UserController@index  [auth, role:admin]
 POST /admin/api/users          → UserController@store  [auth, role:admin]
@@ -340,14 +342,23 @@ Pre-commit hooks gerenciados pelo **CaptainHook** com a seguinte stack:
 | `pre-commit` | **Pint** | Code style PSR-12 (Laravel preset) |
 | `pre-commit` | **Larastan** | Análise estática nível 5 |
 | `pre-commit` | **Pest** | Testes de feature |
+| `pre-push` | **Composer audit** | CVEs em dependências PHP de produção (`--no-dev`) |
+| `pre-push` | **NPM audit** | CVEs no bundle de produção (`--omit=dev --audit-level=high`) |
 | `pre-push` | **Pest** | Testes + cobertura ≥ 80% |
 | `commit-msg` | Beams | Subject 10–50 chars, body ≤ 72 chars/linha, capitalizado |
+
+> **Auditoria de dependências:** os hooks de `pre-push` bloqueiam apenas vulnerabilidades em dependências de **produção** (o que é servido ao usuário/roda no servidor), evitando travar o push com avisos de ferramentas de dev sem correção disponível. Rode `npm audit` (completo) periodicamente para revisar vulnerabilidades de dev também.
 
 ```bash
 # Rodar manualmente antes de commitar
 docker compose exec app ./vendor/bin/pint              # corrige code style
 docker compose exec app ./vendor/bin/phpstan analyse   # análise estática
 docker compose exec app ./vendor/bin/pest --parallel   # testes
+
+# Auditoria de dependências
+docker compose exec app composer audit --no-dev        # CVEs PHP (produção)
+npm audit --omit=dev --audit-level=high                # CVEs do bundle (produção)
+npm audit                                              # auditoria completa (inclui dev)
 ```
 
 Configuração: `captainhook.json` e `phpstan.neon` na raiz do projeto.
@@ -529,3 +540,5 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Import CSV — limite de 10.000 linhas (anti-DoS) | ✅ Implementado |
 | `.env.example` — `SESSION_SECURE_COOKIE`, `TRUSTED_PROXIES` e avisos de produção | ✅ Implementado |
 | Testes de segurança (9 casos: XSS, IDOR, SVG, lockout, isolamento) | ✅ Implementado |
+| Conta — usuário logado troca a própria senha (`AccountController` + `ChangePasswordModal` na sidebar; exige `current_password`) | ✅ Implementado |
+| Testes troca de senha (7 casos) | ✅ Implementado |

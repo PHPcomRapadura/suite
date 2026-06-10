@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
+import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
 
 const emit = defineEmits(['close'])
 
@@ -11,6 +12,7 @@ const { user, logout } = useAuth()
 const { isDark, toggle } = useTheme()
 
 const collapsed = ref(localStorage.getItem('sidebar_collapsed') === '1')
+const showPasswordModal = ref(false)
 
 function toggleCollapse() {
     collapsed.value = !collapsed.value
@@ -195,6 +197,23 @@ function initials(name) {
                 <span v-if="!collapsed">{{ isDark ? 'Modo claro' : 'Modo escuro' }}</span>
             </button>
 
+            <!-- Alterar senha -->
+            <button
+                :title="collapsed ? 'Alterar senha' : undefined"
+                :class="[
+                    'flex items-center rounded-lg min-h-[40px] text-sm transition w-full',
+                    collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2.5 text-left',
+                    'text-(--color-sidebar-text) hover:bg-(--color-sidebar-hover) hover:text-(--color-sidebar-text-active)',
+                ]"
+                @click="showPasswordModal = true"
+            >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span v-if="!collapsed">Alterar senha</span>
+            </button>
+
             <!-- Logout -->
             <button
                 :title="collapsed ? 'Sair' : undefined"
@@ -213,5 +232,7 @@ function initials(name) {
                 <span v-if="!collapsed">Sair</span>
             </button>
         </div>
+
+        <ChangePasswordModal :show="showPasswordModal" @close="showPasswordModal = false" />
     </aside>
 </template>
