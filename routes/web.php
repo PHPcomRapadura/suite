@@ -48,7 +48,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // API — utilitários
         Route::get('/api/me', fn () => response()->json(Auth::user()))->name('me');
-        Route::get('/api/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+        Route::get('/api/dashboard/stats',      [DashboardController::class, 'stats'])->name('dashboard.stats');
+        Route::get('/api/dashboard/next-event', [DashboardController::class, 'nextEvent'])->name('dashboard.nextEvent');
+        Route::get('/api/dashboard/activity',   [DashboardController::class, 'activity'])->name('dashboard.activity');
 
         // API — Palestrantes (somente leitura)
         Route::prefix('api/speakers')->name('speakers.')->group(function () {

@@ -1,36 +1,41 @@
 # Spec — Dashboard & Layout do Admin
 
 **Status:** ✅ Implementado
-**Módulo:** Admin — estrutura de layout
-**Depende de:** `.claude/specs/admin/auth-spec.md`, `.claude/specs/admin/user-crud-spec.md`
+**Módulo:** Admin — estrutura de layout + dashboard
+**Depende de:** `auth-spec.md`, `user-crud-spec.md`, todos os módulos de evento, CFP, palestrantes
 
 ---
 
 ## 1. Visão geral
 
-Introduz o layout permanente do painel: **sidebar lateral esquerda** fixa com navegação, informações do usuário logado, alternância de tema (light/dark) e logout. Todas as rotas autenticadas passam a usar esse layout via Vue Router nested routes.
+Layout permanente do painel administrativo: **sidebar lateral esquerda** colapsável com navegação, informações do usuário logado, alternância de tema e logout. Todas as rotas autenticadas usam esse layout via Vue Router nested routes.
+
+O **Dashboard** é a tela inicial (`/admin/dashboard`) e funciona como painel de controle: exibe métricas de todo o sistema, destaca o próximo evento publicado, lista atividade recente (palestras aguardando + tarefas críticas) e oferece ações rápidas.
 
 ---
 
-## 2. Resultado esperado
+## 2. Estrutura visual do layout
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│  Sidebar (260px)           │  Área de conteúdo (flex-1)        │
-│ ─────────────────────────  │                                   │
-│  [Logo]                    │  <RouterView />                   │
-│                            │  (Dashboard, Users, etc.)         │
-│  ● Dashboard               │                                   │
-│  ○ Usuários                │                                   │
-│                            │                                   │
-│  ─── (flex-grow) ───────── │                                   │
-│                            │                                   │
-│  [Avatar] Nome Sobrenome   │                                   │
-│           Administrador    │                                   │
-│                            │                                   │
-│  ○ ☀ / 🌙  Tema           │                                   │
-│  ○ Sair                    │                                   │
-└────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  Sidebar (260px expandida | 68px colapsada)  │  Área de conteúdo     │
+│  ───────────────────────────────────────────  │                       │
+│  [Logo PHP com Rapadura / favicon]            │  <RouterView />        │
+│  [← colapsar / → expandir]                   │                       │
+│                                              │                       │
+│  ● Dashboard                                 │                       │
+│  ○ Eventos                                   │                       │
+│  ○ Palestrantes                              │                       │
+│  ○ Usuários (só admin)                       │                       │
+│                                              │                       │
+│  ─── (flex-grow) ────────────────────────── │                       │
+│                                              │                       │
+│  [Avatar] Nome Sobrenome                     │                       │
+│           Administrador                      │                       │
+│                                              │                       │
+│  ☀ / 🌙  Alternar tema                      │                       │
+│  ↪ Sair                                     │                       │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 Em **mobile** (< `lg`): sidebar se torna drawer deslizante com overlay, acionado por botão hambúrguer no topo do conteúdo.
@@ -42,129 +47,58 @@ Em **mobile** (< `lg`): sidebar se torna drawer deslizante com overlay, acionado
 ```
 App.vue
   └── RouterView
-        ├── Login.vue              ← rota guest (sem layout)
-        └── AdminLayout.vue        ← rota pai autenticada
-              ├── AppSidebar.vue   ← sidebar (usa RouterLink)
-              └── RouterView       ← conteúdo da rota filha
+        ├── Login.vue                  ← rota guest (sem layout)
+        └── AdminLayout.vue            ← rota pai autenticada
+              ├── AppSidebar.vue       ← sidebar colapsável
+              └── RouterView           ← conteúdo da rota filha
                     ├── Dashboard.vue
+                    ├── Events.vue
+                    ├── Speakers.vue
                     └── Users.vue
 ```
 
-### 3.1 Nested routes no Vue Router
+### 3.1 Nested routes (`resources/js/router/admin.js`)
 
 ```js
-// resources/js/router/admin.js
 {
     path: '/admin',
     component: () => import('@/layouts/AdminLayout.vue'),
     meta: { auth: true },
     children: [
-        { path: 'dashboard', name: 'admin.dashboard', component: () => import('@/views/admin/Dashboard.vue') },
-        { path: 'users',     name: 'admin.users',     component: () => import('@/views/admin/Users.vue') },
-        { path: '',          redirect: { name: 'admin.dashboard' } },
+        { path: 'dashboard',   name: 'admin.dashboard',  component: () => import('@/views/admin/Dashboard.vue') },
+        { path: 'events',      name: 'admin.events',     component: () => import('@/views/admin/Events.vue') },
+        { path: 'events/:id',  name: 'admin.events.show', component: () => import('@/views/admin/EventDetail.vue') },
+        // ... sub-rotas de evento
+        { path: 'speakers',    name: 'admin.speakers',   component: () => import('@/views/admin/Speakers.vue') },
+        { path: 'users',       name: 'admin.users',      component: () => import('@/views/admin/Users.vue') },
+        { path: '',            redirect: { name: 'admin.dashboard' } },
     ],
-},
+}
 ```
-
-> Remover as rotas planas atuais de `dashboard` e `users` que existem no nível raiz.
 
 ---
 
-## 4. Usuário logado
-
-### 4.1 Endpoint
-
-```
-GET /admin/api/me
-→ middleware: auth + EnsureAdminRole
-→ retorna: { id, name, email, role, is_active, last_login_at }
-→ nunca inclui password
-```
-
-Rota em `routes/web.php`, dentro do grupo protegido:
-
-```php
-Route::get('/api/me', fn () => response()->json(Auth::user()))->name('me');
-```
-
-### 4.2 Composable `useAuth`
+## 4. Usuário logado (`useAuth`)
 
 **Arquivo:** `resources/js/composables/useAuth.js`
 
-Estado global reativo no nível do módulo (singleton): o objeto `user` é compartilhado entre todos os componentes que importam o composable. `AdminLayout.vue` chama `fetchUser()` no `onMounted`.
+Estado global reativo no nível do módulo (singleton). `AdminLayout.vue` chama `fetchUser()` no `onMounted`.
 
-```js
-import { ref } from 'vue'
-import axios from 'axios'
-
-const user = ref(null)
-
-async function fetchUser() {
-    const { data } = await axios.get('/admin/api/me')
-    user.value = data
-}
-
-async function logout() {
-    await axios.post('/admin/logout')
-    user.value = null
-    window.location.href = '/admin/login'
-}
-
-export function useAuth() {
-    return { user, fetchUser, logout }
-}
+```
+GET /admin/api/me  →  middleware: auth + EnsureAdminRole  →  Auth::user()
 ```
 
 ---
 
-## 5. Tema (light / dark)
-
-### 5.1 Mecanismo
-
-- Persiste em `localStorage` sob a chave `'admin-theme'` (`'light'` | `'dark'`)
-- Aplica a classe `dark` no elemento `<html>` via JavaScript
-- **Anti-flash:** script inline no `<head>` do `admin.blade.php` aplica o tema antes do primeiro render
-
-```html
-<!-- admin.blade.php — no <head>, antes do @vite -->
-<script>
-    (function () {
-        var t = localStorage.getItem('admin-theme')
-        if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark')
-        }
-    })()
-</script>
-```
-
-### 5.2 Composable `useTheme`
+## 5. Tema light/dark (`useTheme`)
 
 **Arquivo:** `resources/js/composables/useTheme.js`
 
-Estado no nível do módulo (singleton), `watchEffect` mantém o DOM e o `localStorage` sincronizados.
+- Persiste em `localStorage` sob a chave `'admin-theme'`
+- Aplica a classe `dark` no `<html>`
+- **Anti-flash:** script inline no `<head>` do `admin.blade.php` aplica o tema antes do primeiro render
 
-```js
-import { ref, watchEffect } from 'vue'
-
-const isDark = ref(document.documentElement.classList.contains('dark'))
-
-function toggle() {
-    isDark.value = !isDark.value
-}
-
-watchEffect(() => {
-    document.documentElement.classList.toggle('dark', isDark.value)
-    localStorage.setItem('admin-theme', isDark.value ? 'dark' : 'light')
-})
-
-export function useTheme() {
-    return { isDark, toggle }
-}
-```
-
-### 5.3 Tokens CSS — dark mode
-
-Adicionar ao final de `resources/css/app.css`:
+### Tokens CSS — dark mode (`resources/css/app.css`)
 
 ```css
 html.dark {
@@ -175,15 +109,10 @@ html.dark {
     --color-border:        #334155;
     --color-text:          #f1f5f9;
     --color-text-muted:    #94a3b8;
-    --color-success:       #22c55e;
-    --color-warning:       #fbbf24;
-    --color-danger:        #f87171;
 }
 ```
 
-### 5.4 Tokens CSS — sidebar
-
-A sidebar usa fundo escuro **independente do tema** (padrão de admin panels). Adicionar em `app.css`:
+### Tokens CSS — sidebar (independente do tema)
 
 ```css
 :root {
@@ -203,73 +132,41 @@ A sidebar usa fundo escuro **independente do tema** (padrão de admin panels). A
 
 **Arquivo:** `resources/js/components/AppSidebar.vue`
 
-### 6.1 Estrutura visual
+### 6.1 Colapso
 
-```
-┌──────────────────────────────┐
-│  [Logo 140px]                │  ← h-16, fundo --color-sidebar-logo-bg
-├──────────────────────────────┤
-│  🏠 Dashboard                │  ← nav, flex-col, gap-1, p-3
-│  👤 Usuários (só admin)      │
-│                              │
-│         [flex-grow]          │  ← empurra rodapé para baixo
-│                              │
-├──────────────────────────────┤
-│  [Avatar] Nome Sobrenome     │  ← p-3
-│           Administrador      │
-│                              │
-│  ☀/🌙  Alternar tema        │
-│  ↪ Sair                     │
-└──────────────────────────────┘
-```
+- Estado `collapsed` persistido em `localStorage` sob a chave `'sidebar_collapsed'`
+- Expandida: `w-[260px]` — exibe logo `phpcomrapadura_branca.svg?v=2` (155px wide) + rótulos dos itens
+- Colapsada: `w-[68px]` — exibe `favicon.png` (36×36px) + somente ícones com `title` tooltip
+- Transição suave: `transition-[width] duration-200 ease-in-out overflow-hidden`
+- Botão colapsar: chevron esquerdo (`ml-auto` alinhado à direita), visível apenas em desktop (`hidden lg:flex`)
+- Botão expandir: chevron direito, visível quando colapsado
+- Botão fechar (mobile): `lg:hidden`, emite evento `@close` para `AdminLayout`
 
-### 6.2 Largura e dimensões
+### 6.2 Itens de navegação
 
-- Largura fixa: `w-[260px]`
-- Altura: `h-screen`
-- Fundo: `bg-(--color-sidebar-bg)`
-- Borda direita: `border-r border-(--color-sidebar-border)`
-- Layout: `flex flex-col`
+| Ícone SVG | Rótulo | Rota nomeada | Roles |
+|-----------|--------|--------------|-------|
+| grid 2×2 | Dashboard | `admin.dashboard` | admin, colaborador |
+| calendar | Eventos | `admin.events` | admin, colaborador |
+| mic | Palestrantes | `admin.speakers` | admin, colaborador |
+| users | Usuários | `admin.users` | admin |
 
-### 6.3 Estilo dos itens de menu
+Filtro aplicado via `computed` usando `user.value.role`.
 
-- Container: `flex items-center gap-3 px-3 py-2.5 rounded-lg min-h-[40px] transition text-sm`
+### 6.3 Estilo dos itens
+
+- Colapsado: `justify-center px-0 py-2.5`, sem rótulo
+- Expandido: `gap-3 px-3 py-2.5`, com rótulo truncado
 - Ativo: `bg-(--color-sidebar-active) text-(--color-sidebar-text-active) font-medium`
 - Inativo: `text-(--color-sidebar-text) hover:bg-(--color-sidebar-hover) hover:text-(--color-sidebar-text-active)`
-- Detecção do item ativo: comparar `route.name` via `useRoute()`
+- Altura mínima: `min-h-[40px]`
 
-### 6.4 Itens de navegação
+### 6.4 Avatar e rodapé
 
-| Ícone | Rótulo | Rota nomeada | Visível para |
-|-------|--------|--------------|--------------|
-| grid 2×2 | Dashboard | `admin.dashboard` | admin, colaborador |
-| silhueta grupo | Usuários | `admin.users` | somente `admin` |
-
-### 6.5 Avatar do usuário
-
-- Círculo `w-9 h-9`, fundo `--color-primary`, texto branco `font-semibold text-sm`
-- Iniciais: primeiras letras do primeiro e último nome (ex.: "Alisson Sousa" → "AS")
-- Ao lado: nome truncado (`max-w-[130px] truncate text-sm font-medium text-(--color-sidebar-text-active)`) e role em texto `text-xs text-(--color-sidebar-text)`
-
-### 6.6 Toggle de tema
-
-- Botão full-width com o mesmo estilo visual dos itens de menu
-- Ícone sol quando `isDark === true` (indicando que clica para voltar ao claro)
-- Ícone lua quando `isDark === false` (indicando que clica para ir ao escuro)
-- Label: `"Modo claro"` no dark / `"Modo escuro"` no light
-
-### 6.7 Botão logout
-
-- Label: `"Sair"`, ícone `log-out`
-- Cor base: `text-(--color-sidebar-text)`
-- Hover: `text-red-400 bg-red-500/10`
-- Ao clicar: `logout()` do composable `useAuth`
-
-### 6.8 Botão fechar (mobile)
-
-- Visível apenas em mobile (`lg:hidden`)
-- Posicionado no canto superior direito da sidebar, dentro da área de logo
-- Emite evento `@close` para que `AdminLayout` feche o drawer
+- Círculo `w-9 h-9`, fundo `--color-primary`, iniciais do nome (primeiras letras do 1º e 2º token)
+- Quando colapsado: apenas avatar centralizado, sem texto
+- Toggle de tema: mesmo estilo visual dos itens de menu
+- Logout: `hover:text-red-400 hover:bg-red-500/10`
 
 ---
 
@@ -277,22 +174,18 @@ A sidebar usa fundo escuro **independente do tema** (padrão de admin panels). A
 
 **Arquivo:** `resources/js/layouts/AdminLayout.vue`
 
-### 7.1 Estrutura
-
 ```
 div.flex.h-screen.overflow-hidden.bg-(--color-bg)
-  ├── AppSidebar (hidden lg:flex — desktop)
+  ├── AppSidebar (hidden lg:flex — desktop, recebe largura reativa via collapsed)
   ├── div.fixed.inset-0.z-20 (overlay mobile — só quando sidebarOpen)
   ├── AppSidebar (fixed.inset-y-0.left-0.z-30 lg:hidden — mobile drawer)
   └── div.flex-1.flex.flex-col.min-w-0.overflow-auto
-        ├── header (lg:hidden — topbar mobile)
-        │     ├── botão hambúrguer
-        │     └── logo centralizada (h-7)
+        ├── header (lg:hidden — topbar mobile com hambúrguer + logo)
         └── main.flex-1
               └── RouterView
 ```
 
-### 7.2 Transição do drawer mobile
+### Transição drawer mobile
 
 ```css
 .sidebar-slide-enter-active,
@@ -301,145 +194,248 @@ div.flex.h-screen.overflow-hidden.bg-(--color-bg)
 .sidebar-slide-leave-to    { transform: translateX(-100%); }
 ```
 
-### 7.3 Responsividade
-
-| Breakpoint | Comportamento |
-|-----------|---------------|
-| `< lg` (< 1024px) | Sidebar oculta; topbar com hambúrguer; drawer ao clicar |
-| `≥ lg` (≥ 1024px) | Sidebar fixa 260px; topbar oculta |
-
 ---
 
 ## 8. Dashboard — `Dashboard.vue`
 
-### 8.1 Layout
+**Arquivo:** `resources/js/views/admin/Dashboard.vue`
+
+### 8.1 Layout geral
 
 ```
-div.p-6 (ou p-8 em desktop)
-  ├── Saudação: "Olá, [Nome]!" (text-2xl font-bold)
-  │   Data/hora atual (text-sm text-muted, atualiza a cada minuto)
-  │
-  └── Grid de cards (grid-cols-1 md:grid-cols-3 gap-4, mt-8)
-        ├── Card: Total de usuários
-        ├── Card: Administradores
-        └── Card: Usuários inativos
+div.p-5.lg:p-8.max-w-7xl.mx-auto.flex.flex-col.gap-7
+  ├── Saudação + data
+  ├── Grid de 5 stat cards
+  └── Grid 3 colunas (lg)
+        ├── Coluna principal (lg:col-span-2)
+        │     ├── Card "Próximo evento"
+        │     └── Card "Atividade recente"
+        └── Coluna lateral (lg:col-span-1)
+              ├── Card "Ações rápidas"
+              └── Card "Status do sistema"
 ```
 
-### 8.2 Card de estatística
+### 8.2 Saudação
 
+- `"Bom dia"` / `"Boa tarde"` / `"Boa noite"` por faixa de hora
+- Exibe o primeiro token do nome do usuário logado
+- Data formatada `pt-BR` com `weekday: 'long'`, atualiza via `setInterval(60000)`
+
+### 8.3 Stat cards (5 cards)
+
+Grid: `grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3`
+
+| Card | Dado | Ícone | Cor | Clicável |
+|------|------|-------|-----|----------|
+| Eventos publicados | `events_published` | calendar | blue-500 | → `admin.events` |
+| Palestras aguardando | `talks_pending` | mic | violet-500 | — |
+| Palestrantes | `speakers_total` | users | teal-500 | → `admin.speakers` |
+| Tarefas urgentes | `tasks_urgent` | alert-circle | red-500 (se > 0) | — |
+| Usuários | `users_total` | shield | amber-500 | → `admin.users` |
+
+Cada card: ícone em caixa colorida (fundo suave), número `text-2xl font-bold`, label, subtítulo contextual.
+Cards clicáveis: `hover:border-(--color-primary)/40 hover:shadow-sm transition`.
+Skeleton: 5 blocos `animate-pulse` enquanto `loading === true`.
+
+### 8.4 Card "Próximo evento"
+
+Fonte: `GET /admin/api/dashboard/next-event`
+
+- Exibe o primeiro evento com `status = 'publicado'` e `starts_at >= now()`, ordenado por data
+- Header: nome do evento, badges "CFP aberto" (verde) e "Online" (azul) quando aplicável
+- Linha de metadados: data formatada + countdown `"em X dias"` / `"Amanhã"` / `"Hoje"`, localização
+- Mini-stats row (3 cards `bg-(--color-bg)`): Inscritos / Check-in / Palestras pend.
+- Botão "Gerenciar" → `admin.events.show` com o id do evento
+- Estado vazio: ícone + texto + botão "Criar evento" → `admin.events`
+- Skeleton durante carregamento
+
+### 8.5 Card "Atividade recente"
+
+Fonte: `GET /admin/api/dashboard/activity`
+
+Lista unificada de até 8 itens (palestras aguardando + tarefas críticas), ordenados por data descendente.
+
+**Palestras** (`type: 'talk'`):
+- Ícone mic em círculo violeta
+- Título da palestra + badge de status (Submetida / Em análise)
+- Subtítulo: `"Nome do Palestrante · Nome do Evento · há Xh"`
+- Clique navega para `admin.events.show` do evento
+
+**Tarefas** (`type: 'task'`):
+- Ícone alert em círculo vermelho (em atraso) ou laranja (impedimento)
+- Título + badge `"Em atraso"` (vermelho) ou `"Impedimento"` (laranja)
+- Subtítulo: `"Nome do Evento · há Xd"`
+- Clique navega para `admin.events.show` do evento
+
+Estado vazio: `"Nenhuma atividade pendente. Tudo em dia!"`
+
+### 8.6 Card "Ações rápidas"
+
+Botões com ícone colorido em caixa + título + subtítulo contextual:
+
+| Ação | Destino | Subtítulo |
+|------|---------|-----------|
+| Criar evento | `admin.events` | "Novo evento na plataforma" |
+| Ver palestrantes | `admin.speakers` | "X palestras aguardando" |
+| Participantes *(se nextEvent)* | `admin.events.participants` | nome do próximo evento |
+| Sorteio *(se nextEvent)* | `admin.events.lottery` | nome do próximo evento |
+| Gerenciar usuários | `admin.users` | "X usuário(s) cadastrado(s)" |
+
+### 8.7 Card "Status do sistema"
+
+Três linhas label/valor:
+- Usuários ativos: `(users_total - users_inactive) / users_total`
+- CFPs abertos: `events_cfp_open`
+- Tarefas críticas: `tasks_urgent` — texto vermelho se > 0
+
+---
+
+## 9. Endpoints da API
+
+Todos dentro do grupo `middleware(['auth', EnsureAdminRole::class])` em `routes/web.php`.
+
+### `GET /admin/api/dashboard/stats`
+
+Controller: `DashboardController@stats`
+
+```json
+{
+    "events_published": 3,
+    "events_cfp_open":  1,
+    "talks_pending":    12,
+    "speakers_total":   47,
+    "tasks_urgent":     2,
+    "users_total":      8,
+    "users_inactive":   1
+}
 ```
-bg-(--color-surface) border border-(--color-border) rounded-xl p-5
-  ├── Ícone (24px, text-(--color-text-muted))
-  ├── Número (text-3xl font-bold text-(--color-text), mt-3)
-  └── Label (text-sm text-(--color-text-muted), mt-1)
+
+`tasks_urgent` = `EventTask` com `status = 'impedimento'` OU `due_date < today AND status != 'concluida'`.
+
+### `GET /admin/api/dashboard/next-event`
+
+Controller: `DashboardController@nextEvent`
+
+```json
+{
+    "id": 1,
+    "name": "PHP com Rapadura 2026",
+    "starts_at": "2026-08-15T00:00:00+00:00",
+    "ends_at": null,
+    "location": "Fortaleza, CE",
+    "is_online": false,
+    "is_accepting_talks": true,
+    "participants_count": 120,
+    "participants_checkedin": 47,
+    "talks_pending": 8
+}
 ```
 
-Skeleton loader enquanto `loading === true`: retângulo `animate-pulse bg-gray-200 dark:bg-gray-700 rounded`.
+Retorna `null` se não houver evento futuro publicado. Usa `withCount` para as contagens (sem `join` — evita sobreescrita dos subqueries de contagem).
 
-### 8.3 Endpoint de estatísticas
+### `GET /admin/api/dashboard/activity`
 
-```
-GET /admin/api/dashboard/stats
-→ middleware: auth + EnsureAdminRole
-→ controller: DashboardController@stats
-```
+Controller: `DashboardController@activity`
 
-```php
-// app/Http/Controllers/Admin/DashboardController.php
-return response()->json([
-    'users_total'    => User::count(),
-    'users_admin'    => User::where('role', 'admin')->count(),
-    'users_inactive' => User::where('is_active', false)->count(),
-]);
-```
+Array de até 8 itens mesclando talks e tasks, ordenados por `at` desc:
 
-Rota em `routes/web.php` dentro do grupo protegido:
-
-```php
-Route::get('/api/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
+```json
+[
+    {
+        "type": "talk",
+        "id": 5,
+        "title": "Testes em PHP 8.4",
+        "speaker_name": "Alice Silva",
+        "event_name": "PHP com Rapadura 2026",
+        "event_id": 1,
+        "status": "submetida",
+        "at": "2026-06-09T14:30:00+00:00"
+    },
+    {
+        "type": "task",
+        "id": 12,
+        "title": "Contratar buffet",
+        "event_name": "PHP com Rapadura 2026",
+        "event_id": 1,
+        "status": "impedimento",
+        "is_overdue": false,
+        "at": "2026-06-09T10:00:00+00:00"
+    }
+]
 ```
 
 ---
 
-## 9. Ajustes nas views existentes
+## 10. Padrões de implementação relevantes
 
-### 9.1 `Dashboard.vue`
+### withCount sem join
 
-- Remover `min-h-screen flex items-center justify-center` — o layout gerencia isso
-- Novo conteúdo: saudação + cards de stats (seção 8)
+`withCount` usa `addSelect` internamente. Chamar `->select('tabela.*')` após `withCount` **sobrescreve** as subqueries e zera as contagens. Usar `->orderByRaw('...')` em vez de `->join()->select()` quando a ordenação envolve outra tabela.
 
-### 9.2 `Users.vue`
+### Tipo das datas no PHPStan
 
-- Remover o wrapper `<div class="min-h-screen bg-(--color-bg)">` externo
-- Manter o `<div class="max-w-7xl mx-auto px-4 py-8">` interno inalterado
+`$model->starts_at` retorna `Carbon` (via cast), mas o PHPStan nível 5 não infere isso automaticamente sem `@property` no modelo. Anotar com `/** @var \Carbon\Carbon $startsAt */` antes de usar métodos Carbon.
 
----
+### Propriedades dinâmicas de withCount no PHPStan
 
-## 10. Arquivos a criar / modificar
+`$event->participants_checkedin_count` não existe como propriedade tipada. Usar `(int) $event->getAttribute('participants_checkedin_count')` para evitar erro de propriedade indefinida.
 
-| Arquivo | Ação |
-|---------|------|
-| `resources/js/layouts/AdminLayout.vue` | Criar |
-| `resources/js/components/AppSidebar.vue` | Criar |
-| `resources/js/composables/useAuth.js` | Criar |
-| `resources/js/composables/useTheme.js` | Criar |
-| `app/Http/Controllers/Admin/DashboardController.php` | Criar |
-| `resources/js/router/admin.js` | Modificar (nested routes) |
-| `resources/js/views/admin/Dashboard.vue` | Modificar (saudação + stats) |
-| `resources/js/views/admin/Users.vue` | Modificar (remover wrapper) |
-| `resources/css/app.css` | Modificar (dark mode + sidebar tokens) |
-| `resources/views/admin.blade.php` | Modificar (script anti-flash) |
-| `routes/web.php` | Modificar (`/api/me` e `/api/dashboard/stats`) |
+### Helpers privados no controller
+
+Para `map()` com callbacks complexos que causam `unresolvable type` no PHPStan, extrair a lógica para métodos privados tipados (`private function formatTalkActivity(Talk $t): array`).
 
 ---
 
-## 11. Ícones SVG (inline, 24×24, stroke-width 1.5)
+## 11. Arquivos
 
-| Uso | `d` do `<path>` |
-|-----|-----------------|
-| Dashboard | `M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z` |
-| Usuários | `M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2` + `<circle cx="9" cy="7" r="4"/>` + `M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75` |
-| Sol | `M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42` + `<circle cx="12" cy="12" r="5"/>` |
-| Lua | `M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z` |
-| Logout | `M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9` |
-| Hambúrguer | `M3 12h18M3 6h18M3 18h18` |
-| Fechar | `M18 6L6 18M6 6l12 12` |
+| Arquivo | Estado |
+|---------|--------|
+| `resources/js/layouts/AdminLayout.vue` | ✅ Implementado |
+| `resources/js/components/AppSidebar.vue` | ✅ Implementado (com colapso) |
+| `resources/js/composables/useAuth.js` | ✅ Implementado |
+| `resources/js/composables/useTheme.js` | ✅ Implementado |
+| `resources/js/views/admin/Dashboard.vue` | ✅ Implementado (dashboard completo) |
+| `app/Http/Controllers/Admin/DashboardController.php` | ✅ Implementado (3 endpoints) |
+| `resources/js/router/admin.js` | ✅ Implementado |
+| `resources/css/app.css` | ✅ Implementado |
+| `resources/views/admin.blade.php` | ✅ Implementado (anti-flash) |
+| `routes/web.php` | ✅ Implementado |
 
 ---
 
 ## 12. Critérios de aceite
 
-### Layout
-- [ ] Sidebar visível e fixa (260px) em telas ≥ 1024px
-- [ ] Sidebar abre/fecha como drawer em telas < 1024px
-- [ ] Overlay escurece o fundo com o drawer aberto
-- [ ] Clicar no overlay fecha o drawer
-- [ ] Topbar mobile exibe logo e botão hambúrguer
+### Layout e sidebar
+- [x] Sidebar fixa 260px em ≥ lg; drawer em < lg
+- [x] Colapso para 68px persiste em `localStorage`
+- [x] Logo branca 155px quando expandida; favicon 36px quando colapsada
+- [x] Itens de nav mostram tooltip (`title`) quando colapsados
+- [x] Item "Usuários" oculto para `colaborador`
+- [x] Item ativo destacado via `route.name`
+- [x] Transição de colapso suave (`transition-[width] duration-200`)
+- [x] Toggle de tema alterna light/dark com persistência
+- [x] Script anti-flash no `<head>` evita FOUC
+- [x] Sidebar mantém visual escuro em ambos os temas
 
-### Navegação
-- [ ] Item da rota ativa destacado visualmente
-- [ ] Item "Usuários" oculto para `colaborador`
-- [ ] `/admin` redireciona para `/admin/dashboard`
-- [ ] Transição de rota não causa flash de layout
+### Dashboard — stat cards
+- [x] 5 cards com contagens reais do banco
+- [x] Card "Tarefas urgentes" em vermelho quando > 0
+- [x] Cards clicáveis navegam para a tela correspondente
+- [x] Skeleton visível durante `loading === true`
 
-### Usuário logado
-- [ ] Nome e role exibidos no rodapé da sidebar
-- [ ] Avatar com iniciais corretas do nome
-- [ ] Dados carregados via `GET /admin/api/me` após montagem do layout
+### Dashboard — próximo evento
+- [x] Exibe o evento publicado com `starts_at` futuro mais próximo
+- [x] Countdown: "Hoje" / "Amanhã" / "em X dias"
+- [x] Mini-stats: inscritos, check-ins, palestras pendentes
+- [x] Estado vazio com botão "Criar evento"
 
-### Tema
-- [ ] Toggle alterna entre light e dark instantaneamente
-- [ ] Preferência persiste após recarregar a página
-- [ ] Script anti-flash evita FOUC
-- [ ] Todos os tokens CSS respondem ao `.dark`
-- [ ] Sidebar mantém visual escuro em ambos os temas
+### Dashboard — atividade recente
+- [x] Palestras `submetida`/`em_analise` com badge de status
+- [x] Tarefas em atraso (badge vermelho) e impedimento (badge laranja)
+- [x] Máx 8 itens, ordenados por data descendente
+- [x] Estado vazio: "Tudo em dia!"
+- [x] Clique navega para o evento correspondente
 
-### Dashboard
-- [ ] Saudação exibe o nome do usuário logado
-- [ ] Data/hora atualiza a cada minuto
-- [ ] 3 cards exibem contagens reais do banco
-- [ ] Skeleton visível durante carregamento
-
-### Logout
-- [ ] POST `/admin/logout` é chamado ao clicar em "Sair"
-- [ ] Redireciona para `/admin/login` após logout
+### Dashboard — ações rápidas
+- [x] Links para criação de evento, palestrantes, usuários
+- [x] Links contextuais para participantes e sorteio quando há próximo evento

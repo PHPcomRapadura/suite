@@ -419,7 +419,10 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | CRUD de usuários (admin/colaborador) | ✅ Implementado |
 | Middleware `CheckRole` (role:admin) | ✅ Implementado |
 | Testes CRUD de usuários (31 casos) | ✅ Implementado |
-| Dashboard com stats + layout sidebar | ✅ Implementado |
+| Dashboard com stats expandidas (eventos, CFP, palestras, palestrantes, tarefas, usuários) | ✅ Implementado |
+| Dashboard — card "Próximo evento" com countdown e mini-stats | ✅ Implementado |
+| Dashboard — feed "Atividade recente" (palestras pendentes + tarefas críticas) | ✅ Implementado |
+| Dashboard — painel "Ações rápidas" e "Status do sistema" | ✅ Implementado |
 | Dark mode (tokens + toggle + anti-flash) | ✅ Implementado |
 | Dark mode na página de login | ✅ Implementado |
 | Composables useAuth + useTheme | ✅ Implementado |
