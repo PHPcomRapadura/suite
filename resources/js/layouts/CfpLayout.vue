@@ -7,7 +7,7 @@ const router = useRouter()
 const { user, fetchUser, logout } = useCfpAuth()
 
 const sidebarOpen = ref(false)
-const logoSrc = `${import.meta.env.APP_URL}images/PHPcomRapadura_color.svg`
+const logoSrc = '/images/phpcomrapadura_branca.svg'
 
 onMounted(async () => {
     await fetchUser()
