@@ -65,7 +65,7 @@ Relação **1:N** com `events`.
 | Nível (DB) | Rótulo exibido | Posição |
 |------------|---------------|---------|
 | `rapadura_com_castanha` | Rapadura com Castanha | Destaque — topo |
-| `rapadura_com_coco` | Rapadura com Côco | Intermediário |
+| `rapadura_com_coco` | Rapadura com Coco | Intermediário |
 | `rapadura_tradicional` | Rapadura Tradicional | Base |
 
 ### 2.3 Tabela `event_schedule_items`
@@ -262,7 +262,7 @@ Patrocinadores
   │ website.com   [Editar] [Remover] [↕]  │
   └────────────────────────┘
 
-  Rapadura com Côco
+  Rapadura com Coco
   ...
 
   Rapadura Tradicional
@@ -376,6 +376,7 @@ return view('event-site', [
         'site'     => [...],   // config de aparência e conteúdo (layout, cores, fonte, faq, etc.)
         'sponsors' => [...],   // agrupados por nível: { rapadura_com_castanha: [...], ... }
         'schedule' => [...],   // agrupados por data (YYYY-MM-DD): { '2026-06-10': [{...}], ... }
+        'speakers' => [...],   // palestrantes com talks aprovadas: [{ id, name, avatar_url, city, state, twitter, github, linkedin, website }]
     ]),
 ]);
 ```
@@ -415,8 +416,8 @@ Implementados como melhoria pós-avaliação:
 | **Nav sticky / header sticky** | Aparece ao scrollar (L1/L2: slide-down via `IntersectionObserver` no hero; L3: header sempre fixo); contém nome do evento, links condicionais por seção disponível, botão "Ingressos" em `secondary_color` |
 | **Scroll spy** | `onScroll` percorre `main section[id]` e aplica `bg-white/15` + `aria-current="true"` no link da última seção cujo `getBoundingClientRect().top` passou o offset do nav (80px L1/L2, 56px L3) |
 | **Back-to-top** | Botão circular fixo `bottom-6 right-6`, aparece após 400px de scroll, com `Transition` scale+opacity e `aria-label="Voltar ao topo"` |
-| **IDs de seção** | Todas as seções têm `id` (`sobre`, `cfp`, `patrocinadores`, `programacao`, `faq`, `conduta`) e `scroll-mt-16` / `scroll-mt-14` para compensar o nav sticky |
-| **Patrocinadores por tier** | Todos os layouts diferenciam o tamanho dos cards por nível (Castanha > Côco > Tradicional) |
+| **IDs de seção** | Todas as seções têm `id` (`sobre`, `cfp`, `palestrantes`, `patrocinadores`, `programacao`, `faq`, `conduta`) e `scroll-mt-16` / `scroll-mt-14` para compensar o nav sticky |
+| **Patrocinadores por tier** | Todos os layouts diferenciam o tamanho dos cards por nível (Castanha > Coco > Tradicional) |
 | **`onUnmounted` cleanup** | Listener de scroll removido em todos os layouts |
 | **`aria-hidden`** | SVGs decorativos marcados em todos os layouts |
 | **`aria-controls` + `id` no FAQ** | Accordion com ARIA correto em todos os layouts |
@@ -441,6 +442,9 @@ Implementados como melhoria pós-avaliação:
 ├─────────────────────────────────────────────┤
 │  CFP — card centralizado com ícone sólido   │
 ├─────────────────────────────────────────────┤
+│  Palestrantes — grid 2→4 cols, card com     │
+│  avatar/iniciais, nome, cidade, redes sociais│
+├─────────────────────────────────────────────┤
 │  Patrocinadores — por tier, tamanhos distintos │
 ├─────────────────────────────────────────────┤
 │  Programação — grade multi-dia              │
@@ -455,7 +459,7 @@ Implementados como melhoria pós-avaliação:
 - Cover image como banner superior com overlay gradiente `from-black/50 via-black/60 to-black/80`; fallback para `primary_color` sólido quando ausente
 - `<main id="conteudo">` envolvendo o corpo de conteúdo
 - CFP: card centralizado com ícone de microfone em fundo sólido `primary_color`, título em `primary_color`, botão com sombra
-- Patrocinadores: Castanha `w-44 h-28`, Côco `w-36 h-20`, Tradicional `w-28 h-16`; logos em grayscale com `hover:grayscale-0`
+- Patrocinadores: Castanha `w-44 h-28`, Coco `w-36 h-20`, Tradicional `w-28 h-16`; logos em grayscale com `hover:grayscale-0`
 - FAQ com `aria-controls` + `id` no painel de resposta
 
 ### Layout 2 — Imersivo
@@ -479,6 +483,9 @@ Implementados como melhoria pós-avaliação:
 ├─────────────────────────────────────────────┤
 │  CFP — card rounded-3xl centralizado        │
 ├─────────────────────────────────────────────┤
+│  Palestrantes — grid 2→3 cols, cards com    │
+│  ring colorido, avatar, nome, redes sociais │
+├─────────────────────────────────────────────┤
 │  Patrocinadores — cards brancos por tier    │
 ├─────────────────────────────────────────────┤
 │  Programação — grade multi-dia              │
@@ -493,7 +500,7 @@ Implementados como melhoria pós-avaliação:
 - Sem cover image — `primary_color` como fundo de tela inteira
 - `<main id="conteudo">` envolvendo o corpo de conteúdo
 - Back-to-top usa `secondary_color` para coerência com o CTA de ingressos
-- Patrocinadores: Castanha `w-52 h-32`, Côco `w-40 h-24`, Tradicional `w-32 h-20`; cards brancos com sombra no hover
+- Patrocinadores: Castanha `w-52 h-32`, Coco `w-40 h-24`, Tradicional `w-32 h-20`; cards brancos com sombra no hover
 
 ### Layout 3 — Minimalista
 
@@ -510,8 +517,11 @@ Implementados como melhoria pós-avaliação:
 ├─────────────────────────────────────────────┤
 │  CFP — card horizontal com ícone e botão    │
 ├─────────────────────────────────────────────┤
+│  Palestrantes — grid 2 cols, estilo lista   │
+│  avatar 40px, nome, cidade, redes sociais   │
+├─────────────────────────────────────────────┤
 │  Patrocinadores — por tier com labels       │
-│  Castanha > Côco > Tradicional              │
+│  Castanha > Coco > Tradicional              │
 ├─────────────────────────────────────────────┤
 │  Programação — lista minimalista com dots   │
 ├─────────────────────────────────────────────┤
@@ -525,7 +535,7 @@ Implementados como melhoria pós-avaliação:
 - Header `sticky top-0 z-50` sempre visível; links de nav `hidden md:flex`
 - Sem cover image — tipografia e conteúdo como identidade principal
 - CFP: card horizontal `flex-col sm:flex-row` com ícone em `primary_color`, texto e botão "Enviar proposta"
-- Patrocinadores: Castanha `w-36 h-20`, Côco `w-28 h-16`, Tradicional `w-24 h-14`; todos com `grayscale hover:grayscale-0`
+- Patrocinadores: Castanha `w-36 h-20`, Coco `w-28 h-16`, Tradicional `w-24 h-14`; todos com `grayscale hover:grayscale-0`
 - FAQ: hover no botão aplica `color: primary_color` via inline style
 
 ---
@@ -596,6 +606,7 @@ function onLayoutReady() {
             :site="data.site"
             :sponsors="data.sponsors"
             :schedule="data.schedule"
+            :speakers="data.speakers ?? []"
         />
     </Suspense>
 </template>
@@ -809,7 +820,11 @@ return {
 - [ ] Seção "Sobre o evento" aparece quando `description` está preenchido e é ocultada quando nulo
 - [ ] Seção CFP aparece quando `is_accepting_talks = true` e é ocultada quando false
 - [ ] Botão "Enviar proposta" da seção CFP aponta para `/cfp`
-- [ ] Patrocinadores exibidos na hierarquia correta (castanha > côco > tradicional)
+- [ ] Seção "Palestrantes" aparece quando há ao menos um palestrante com palestra aprovada
+- [ ] Seção "Palestrantes" é omitida quando não há palestras aprovadas
+- [ ] Cada card exibe: avatar (ou círculo de iniciais com `primary_color`), nome, cidade/estado, ícones de redes sociais condicionais (Twitter/X, GitHub, LinkedIn, website)
+- [ ] Palestrante com múltiplas palestras aprovadas aparece apenas uma vez (deduplicação por `speaker.id`)
+- [ ] Patrocinadores exibidos na hierarquia correta (castanha > coco > tradicional)
 - [ ] Link de ingressos abre em nova aba
 - [ ] FAQ funciona como accordion
 - [ ] Página não quebra quando campos opcionais são nulos (tagline, description, FAQ, código de conduta)

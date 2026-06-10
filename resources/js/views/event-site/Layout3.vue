@@ -6,6 +6,7 @@ const props = defineProps({
     site:     { type: Object, required: true },
     sponsors: { type: Object, default: () => ({}) },
     schedule: { type: Object, default: () => ({}) },
+    speakers: { type: Array,  default: () => [] },
 })
 
 const openFaq       = ref(null)
@@ -26,7 +27,7 @@ function formatPeriod(start, end) {
 
 const levelLabels = {
     rapadura_com_castanha: 'Rapadura com Castanha',
-    rapadura_com_coco:     'Rapadura com Côco',
+    rapadura_com_coco:     'Rapadura com Coco',
     rapadura_tradicional:  'Rapadura Tradicional',
 }
 
@@ -66,6 +67,11 @@ function formatTime(isoStr) {
 const TYPE_DOT = {
     palestra: 'bg-blue-500', intervalo: 'bg-yellow-400', abertura: 'bg-green-500',
     encerramento: 'bg-purple-500', outro: 'bg-gray-400',
+}
+
+function initials(name) {
+    if (!name) return '?'
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 }
 
 function scrollToTop() {
@@ -127,6 +133,7 @@ onUnmounted(() => {
                 <nav class="hidden md:flex items-center gap-0.5 ml-2" aria-label="Seções do evento">
                     <a v-if="event.description"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Sobre</a>
                     <a v-if="event.is_accepting_talks" href="#cfp"            :aria-current="activeSection === 'cfp'            ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'cfp'            ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">CFP</a>
+                    <a v-if="speakers.length"          href="#palestrantes"   :aria-current="activeSection === 'palestrantes'   ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'palestrantes'   ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Palestrantes</a>
                     <a v-if="orderedLevels().length"   href="#patrocinadores" :aria-current="activeSection === 'patrocinadores'  ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'patrocinadores'  ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Patrocinadores</a>
                     <a v-if="scheduleDays.length"      href="#programacao"    :aria-current="activeSection === 'programacao'     ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'programacao'     ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Programação</a>
                     <a v-if="site.faq?.length"         href="#faq"            :aria-current="activeSection === 'faq'             ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'faq'             ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">FAQ</a>
@@ -216,6 +223,54 @@ onUnmounted(() => {
                             <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                         </svg>
                     </a>
+                </div>
+            </section>
+
+            <!-- Palestrantes -->
+            <section v-if="speakers.length" id="palestrantes" class="section-hidden scroll-mt-14">
+                <h2 class="text-xl font-bold text-(--color-text) mb-5">Palestrantes</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div
+                        v-for="s in speakers"
+                        :key="s.id"
+                        class="flex items-center gap-3 py-3 border-b border-(--color-border) last:border-0 sm:last:border-b sm:[&:nth-last-child(-n+2)]:border-0"
+                    >
+                        <img
+                            v-if="s.avatar_url"
+                            :src="s.avatar_url"
+                            :alt="s.name"
+                            class="w-10 h-10 rounded-full object-cover shrink-0"
+                        >
+                        <div
+                            v-else
+                            class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm shrink-0"
+                            :style="`background-color: var(--site-primary)`"
+                        >
+                            {{ initials(s.name) }}
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-(--color-text) leading-tight truncate">{{ s.name }}</p>
+                            <p v-if="s.city || s.state" class="text-xs text-(--color-text-muted) mt-0.5 truncate">
+                                {{ [s.city, s.state].filter(Boolean).join(', ') }}
+                            </p>
+                        </div>
+
+                        <div v-if="s.twitter || s.github || s.linkedin || s.website" class="flex items-center gap-1.5 shrink-0">
+                            <a v-if="s.twitter" :href="`https://twitter.com/${s.twitter}`" target="_blank" rel="noopener noreferrer" :aria-label="`${s.name} no Twitter`" class="text-(--color-text-muted) hover:text-(--color-primary) transition">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.738l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+                            </a>
+                            <a v-if="s.github" :href="`https://github.com/${s.github}`" target="_blank" rel="noopener noreferrer" :aria-label="`${s.name} no GitHub`" class="text-(--color-text-muted) hover:text-(--color-primary) transition">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5 5 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5 5 0 0 0-1.33 3.48c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                            </a>
+                            <a v-if="s.linkedin" :href="s.linkedin" target="_blank" rel="noopener noreferrer" :aria-label="`${s.name} no LinkedIn`" class="text-(--color-text-muted) hover:text-(--color-primary) transition">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                            </a>
+                            <a v-if="s.website" :href="s.website" target="_blank" rel="noopener noreferrer" :aria-label="`Site de ${s.name}`" class="text-(--color-text-muted) hover:text-(--color-primary) transition">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </section>
 

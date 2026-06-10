@@ -475,6 +475,7 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Site do evento — back-to-top button com transição (3 layouts) | ✅ Implementado |
 | Site do evento — patrocinadores por tier com tamanhos diferenciados (3 layouts) | ✅ Implementado |
 | Site do evento — ARIA: `aria-hidden` em SVGs, accordion FAQ com `aria-controls` + `id` | ✅ Implementado |
+| Site do evento — seção "Palestrantes" com palestras aprovadas (foto, nome, cidade, estado, redes sociais) nos 3 layouts | ✅ Implementado |
 | Despesas — model `EventExpense` + migration | ✅ Implementado |
 | Despesas — `EventExpenseController` CRUD (admin + colaborador) | ✅ Implementado |
 | Despesas — `EventExpenseService` com upload/delete de comprovante no R2 | ✅ Implementado |

@@ -52,7 +52,7 @@ const FONTS = [
 
 const LEVELS = [
     { value: 'rapadura_com_castanha', label: 'Rapadura com Castanha' },
-    { value: 'rapadura_com_coco',     label: 'Rapadura com Côco' },
+    { value: 'rapadura_com_coco',     label: 'Rapadura com Coco' },
     { value: 'rapadura_tradicional',  label: 'Rapadura Tradicional' },
 ]
 

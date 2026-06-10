@@ -29,6 +29,7 @@ function onLayoutReady() {
             :site="data.site"
             :sponsors="data.sponsors"
             :schedule="data.schedule"
+            :speakers="data.speakers ?? []"
         />
     </Suspense>
 </template>

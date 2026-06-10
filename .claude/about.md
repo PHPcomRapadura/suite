@@ -99,6 +99,7 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - Fuso horário: `formatTime` usa `timeZone: 'UTC'` — horários armazenados como horário local (app timezone = UTC)
 - **Seção "Sobre o evento"**: exibe `events.description`; aparece apenas quando preenchido
 - **Seção CFP**: banner com botão `/cfp`; aparece apenas quando `is_accepting_talks = true`
+- **Seção "Palestrantes"**: grid de palestrantes com palestras aprovadas no evento — avatar (ou iniciais), nome, cidade/estado, ícones de redes sociais (Twitter/X, GitHub, LinkedIn, website); aparece apenas quando há pelo menos um palestrante aprovado; deduplicação por `speaker.id` caso o mesmo palestrante tenha várias palestras aprovadas
 - **Nav sticky**: L1/L2 — nav oculta por padrão, aparece via `IntersectionObserver` no `#hero` quando ele sai da viewport; L3 — header sempre sticky no topo
 - **Scroll spy**: `onScroll` + `getBoundingClientRect().top <= offset` atualiza `activeSection`; link ativo recebe destaque visual e `aria-current="true"`
 - **Skip-to-content link**: `sr-only` por padrão, visível ao receber foco via Tab; aponta para `#conteudo` (`<main id="conteudo">`)
