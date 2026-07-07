@@ -3,77 +3,244 @@
 namespace App\Services;
 
 use App\Models\Event;
+use Closure;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Geometry\Point;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\ImageInterface;
+use Intervention\Image\Typography\FontFactory;
+use Throwable;
 
 class EventSocialAssetService
 {
+    private const SIZES = [
+        'story' => [1080, 1920],
+        'post' => [1080, 1080],
+    ];
+
+    private const PADDING = 70;
+
+    private const OVERLAY_COLOR = 'rgba(0, 0, 0, 0.45)';
+
+    private const LOGO_SIZE = 140;
+
+    // O canvas é rasterizado com GD, que não sabe carregar fontes web (woff/woff2)
+    // usadas pelo restante do app; por isso usamos sempre a Lexend variável embutida,
+    // independente da fonte escolhida em EventSiteConfig::font.
+    private const FONT_PATH = __DIR__.'/../../resources/fonts/Lexend-Variable.ttf';
+
+    private ImageManager $manager;
+
+    public function __construct()
+    {
+        $this->manager = new ImageManager(new Driver);
+    }
+
     public function generate(Event $event, string $format): array
     {
-        $path = $this->buildPath($event, $format);
-        $relativePath = 'events/'.$event->id.'/social/'.$format.'.svg';
+        [$width, $height] = self::SIZES[$format];
 
         $site = $event->site;
-        $primaryColor = $site?->primary_color ?? '#025c98';
-        $secondaryColor = $site?->secondary_color ?? '#f59e0b';
-        $tagline = $site?->hero_tagline ?? 'O evento que sua comunidade precisa';
-        $fontFamily = $site?->font ?? 'Lexend';
+        $primaryColor = $site?->primary_color ?: '#025c98';
+        $secondaryColor = $site?->secondary_color ?: '#f59e0b';
 
-        $content = $this->buildSvg($event, $format, $primaryColor, $secondaryColor, $tagline, $fontFamily);
+        $canvas = $this->buildBackground($event, $width, $height, $primaryColor, $secondaryColor);
+        $this->drawOverlay($canvas, $width, $height);
+        $this->drawLogo($canvas, $event);
+        $this->drawContent($canvas, $event, $format, $width, $height, $site?->hero_tagline, $secondaryColor);
 
-        Storage::disk('public')->put($relativePath, $content);
+        $content = (string) $canvas->toPng();
+        $path = "events/{$event->id}/social/{$format}.png";
+
+        Storage::disk('r2')->put($path, $content, 'public');
 
         return [
             'format' => $format,
-            'asset_url' => Storage::disk('public')->url($relativePath),
-            'path' => $relativePath,
+            'asset_url' => Storage::disk('r2')->url($path),
+            'path' => $path,
         ];
     }
 
-    private function buildPath(Event $event, string $format): string
+    private function buildBackground(Event $event, int $width, int $height, string $primaryColor, string $secondaryColor): ImageInterface
     {
-        return 'events/'.$event->id.'/social/'.$format.'.svg';
+        $cover = $this->fetchImage($event->cover_image);
+
+        if ($cover) {
+            return $cover->cover($width, $height);
+        }
+
+        return $this->buildGradient($width, $height, $primaryColor, $secondaryColor);
     }
 
-    private function buildSvg(Event $event, string $format, string $primaryColor, string $secondaryColor, string $tagline, string $fontFamily): string
+    private function buildGradient(int $width, int $height, string $from, string $to): ImageInterface
     {
-        $width = 1080;
-        $height = $format === 'story' ? 1920 : 1080;
-        $contentWidth = $width - 140;
-        $contentHeight = $height - 140;
-        $circleX = $width - 220;
-        $circleY = $height - 220;
-        $bottomY = $height - 260;
-        $bottomTextY = $height - 200;
-        $title = Str::limit($event->name, 52, '…');
-        $location = $event->location ?: 'Confira a programação';
-        $description = Str::limit($event->description ?: 'Evento imperdível para a comunidade.', 150, '…');
-        $date = $event->starts_at ? $event->starts_at->translatedFormat('d \m\e F \d\e Y') : 'Data em breve';
+        $canvas = $this->manager->create($width, $height);
 
-        return <<<SVG
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="{$width}" height="{$height}" viewBox="0 0 {$width} {$height}">
-  <rect width="{$width}" height="{$height}" fill="{$primaryColor}" />
-  <rect x="0" y="0" width="{$width}" height="{$height}" fill="url(#grad)" />
-  <rect x="70" y="70" width="{$contentWidth}" height="{$contentHeight}" rx="42" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.2)" stroke-width="2" />
-  <circle cx="{$circleX}" cy="180" r="180" fill="{$secondaryColor}" opacity="0.35" />
-  <circle cx="220" cy="{$circleY}" r="260" fill="#ffffff" opacity="0.08" />
-  <text x="110" y="360" fill="#ffffff" font-family="{$fontFamily}" font-size="38" font-weight="600">{$event->name}</text>
-  <text x="110" y="430" fill="#ffffff" font-family="{$fontFamily}" font-size="26" opacity="0.95">{$tagline}</text>
-  <rect x="110" y="500" width="180" height="8" rx="4" fill="{$secondaryColor}" />
-  <text x="110" y="620" fill="#ffffff" font-family="{$fontFamily}" font-size="64" font-weight="700">{$title}</text>
-  <text x="110" y="690" fill="#ffffff" font-family="{$fontFamily}" font-size="32" opacity="0.95">{$date}</text>
-  <text x="110" y="745" fill="#ffffff" font-family="{$fontFamily}" font-size="32" opacity="0.95">{$location}</text>
-  <text x="110" y="810" fill="#ffffff" font-family="{$fontFamily}" font-size="28" opacity="0.9">{$description}</text>
-  <rect x="110" y="{$bottomY}" width="320" height="92" rx="24" fill="#ffffff" opacity="0.2" />
-  <text x="150" y="{$bottomTextY}" fill="#ffffff" font-family="{$fontFamily}" font-size="36" font-weight="700">Garanta sua vaga</text>
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="{$primaryColor}" />
-      <stop offset="100%" stop-color="{$secondaryColor}" />
-    </linearGradient>
-  </defs>
-</svg>
-SVG;
+        [$r1, $g1, $b1] = $this->hexToRgb($from);
+        [$r2, $g2, $b2] = $this->hexToRgb($to);
+
+        $step = 6;
+
+        for ($y = 0; $y < $height; $y += $step) {
+            $t = $y / max(1, $height - 1);
+            $color = sprintf(
+                '#%02x%02x%02x',
+                (int) round($r1 + ($r2 - $r1) * $t),
+                (int) round($g1 + ($g2 - $g1) * $t),
+                (int) round($b1 + ($b2 - $b1) * $t),
+            );
+
+            $canvas->drawRectangle(0, $y, function ($rectangle) use ($width, $step, $color) {
+                $rectangle->size($width, $step);
+                $rectangle->background($color);
+            });
+        }
+
+        return $canvas;
+    }
+
+    private function hexToRgb(string $hex): array
+    {
+        $hex = ltrim($hex, '#');
+
+        return [
+            hexdec(substr($hex, 0, 2)),
+            hexdec(substr($hex, 2, 2)),
+            hexdec(substr($hex, 4, 2)),
+        ];
+    }
+
+    private function drawOverlay(ImageInterface $canvas, int $width, int $height): void
+    {
+        $canvas->drawRectangle(0, 0, function ($rectangle) use ($width, $height) {
+            $rectangle->size($width, $height);
+            $rectangle->background(self::OVERLAY_COLOR);
+        });
+    }
+
+    private function drawLogo(ImageInterface $canvas, Event $event): void
+    {
+        $logo = $this->fetchImage($event->logo);
+
+        if (! $logo) {
+            return;
+        }
+
+        $logo->scaleDown(width: self::LOGO_SIZE, height: self::LOGO_SIZE);
+        $canvas->place($logo, 'top-left', self::PADDING, self::PADDING);
+    }
+
+    private function drawContent(ImageInterface $canvas, Event $event, string $format, int $width, int $height, ?string $tagline, string $secondaryColor): void
+    {
+        $contentWidth = $width - (self::PADDING * 2);
+        $cursorY = (int) round($height * ($format === 'story' ? 0.42 : 0.30));
+        $gap = 30;
+
+        $title = Str::limit($event->name, 70, '…');
+        $cursorY += $this->drawTextBlock($canvas, $title, self::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
+            $font->filename(self::FONT_PATH);
+            $font->size(50);
+            $font->color('#ffffff');
+            $font->lineHeight(1.15);
+            $font->wrap($contentWidth);
+        }) + $gap;
+
+        if ($tagline) {
+            $cursorY += $this->drawTextBlock($canvas, $tagline, self::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
+                $font->filename(self::FONT_PATH);
+                $font->size(26);
+                $font->color('rgba(255, 255, 255, 0.95)');
+                $font->wrap($contentWidth);
+            }) + $gap;
+        }
+
+        $date = $event->starts_at ? $event->starts_at->translatedFormat('d \d\e F \d\e Y') : 'Data em breve';
+        $location = $event->location ?: 'Confira a programação';
+        $cursorY += $this->drawTextBlock($canvas, "{$date} · {$location}", self::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
+            $font->filename(self::FONT_PATH);
+            $font->size(28);
+            $font->color('#ffffff');
+            $font->wrap($contentWidth);
+        }) + $gap;
+
+        if ($event->description) {
+            $description = Str::limit($event->description, 150, '…');
+            $this->drawTextBlock($canvas, $description, self::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
+                $font->filename(self::FONT_PATH);
+                $font->size(24);
+                $font->color('rgba(255, 255, 255, 0.9)');
+                $font->lineHeight(1.3);
+                $font->wrap($contentWidth);
+            });
+        }
+
+        $ctaY = $height - 200;
+        $canvas->drawRectangle(self::PADDING, $ctaY, function ($rectangle) use ($secondaryColor) {
+            $rectangle->size(300, 86);
+            $rectangle->background($secondaryColor);
+        });
+        $canvas->text('Garanta sua vaga', self::PADDING + 28, $ctaY + 28, function (FontFactory $font) {
+            $font->filename(self::FONT_PATH);
+            $font->size(28);
+            $font->color('#ffffff');
+        });
+    }
+
+    /**
+     * Desenha o bloco de texto e devolve a altura real ocupada (incluindo quebras
+     * de linha do wrap), para que o próximo bloco seja posicionado sem sobrepor.
+     */
+    private function drawTextBlock(ImageInterface $canvas, string $text, int $x, int $y, Closure $fontCallback): int
+    {
+        $font = (new FontFactory($fontCallback))();
+
+        $canvas->text($text, $x, $y, $font);
+
+        $processor = $canvas->driver()->fontProcessor();
+        $lineCount = count($processor->textBlock($text, $font, new Point(0, 0))->lines());
+
+        return $processor->leading($font) * ($lineCount - 1) + $processor->capHeight($font);
+    }
+
+    private function fetchImage(?string $url): ?ImageInterface
+    {
+        if (! $url) {
+            return null;
+        }
+
+        try {
+            $content = $this->resolveR2Content($url) ?? $this->fetchRemote($url);
+
+            return $content ? $this->manager->read($content) : null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private function resolveR2Content(string $url): ?string
+    {
+        try {
+            $baseUrl = rtrim(Storage::disk('r2')->url(''), '/');
+        } catch (\RuntimeException) {
+            return null;
+        }
+
+        if (! $baseUrl || ! str_starts_with($url, $baseUrl)) {
+            return null;
+        }
+
+        $path = ltrim(substr($url, strlen($baseUrl)), '/');
+
+        return Storage::disk('r2')->exists($path) ? Storage::disk('r2')->get($path) : null;
+    }
+
+    private function fetchRemote(string $url): ?string
+    {
+        $response = Http::timeout(5)->get($url);
+
+        return $response->successful() ? $response->body() : null;
     }
 }

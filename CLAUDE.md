@@ -524,6 +524,10 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Palestrantes — `SpeakerService` com `withCount` + `orderByRaw` | ✅ Implementado |
 | Palestrantes — Sidebar colapsável (68 px colapsado, 260 px expandido) | ✅ Implementado |
 | Testes Palestrantes (16 casos) | ✅ Implementado |
+| Artes de Divulgação — geração de PNG (Story 1080×1920 / Post 1080×1080) via `intervention/image` | ✅ Implementado |
+| Artes de Divulgação — composição com capa, logo, overlay, tema do site e fallback gradiente | ✅ Implementado |
+| Artes de Divulgação — card no hub + tela de geração (`EventSocialAssets.vue`) | ✅ Implementado |
+| Testes Artes de Divulgação (6 casos) | ✅ Implementado |
 
 ### Segurança
 

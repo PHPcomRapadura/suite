@@ -10,9 +10,7 @@ use Illuminate\Http\JsonResponse;
 
 class EventSocialAssetController extends Controller
 {
-    public function __construct(private readonly EventSocialAssetService $service)
-    {
-    }
+    public function __construct(private readonly EventSocialAssetService $service) {}
 
     public function show(Event $event): JsonResponse
     {

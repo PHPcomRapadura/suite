@@ -1,6 +1,6 @@
 # Spec — Artes de Divulgação para Redes Sociais (MVP)
 
-**Status:** 📝 Proposto
+**Status:** ✅ Implementado
 **Módulo:** Admin → Eventos → Hub → Artes de Divulgação
 **Depende de:** `.claude/specs/admin/events-details.md`, `.claude/specs/admin/event-site-spec.md`
 
@@ -254,16 +254,16 @@ Criar testes de feature para garantir o fluxo básico:
 
 ## 10. Critérios de aceite
 
-- [ ] O card “Artes de divulgação” aparece no hub do evento.
-- [ ] Clicar no card abre a tela de geração de artes.
-- [ ] O usuário consegue gerar uma arte para Story.
-- [ ] O usuário consegue gerar uma arte para Post.
-- [ ] A imagem gerada é salva e exibida em preview.
-- [ ] O usuário consegue baixar a imagem gerada.
-- [ ] A arte usa o nome, data, local e tema do evento.
-- [ ] Se o evento não tiver site configurado, a arte usa um tema padrão.
-- [ ] Se faltar dados como capa ou logo, o sistema usa fallback visual.
-- [ ] A geração não quebra quando os dados do evento forem incompletos.
+- [x] O card “Artes de divulgação” aparece no hub do evento.
+- [x] Clicar no card abre a tela de geração de artes.
+- [x] O usuário consegue gerar uma arte para Story.
+- [x] O usuário consegue gerar uma arte para Post.
+- [x] A imagem gerada é salva e exibida em preview.
+- [x] O usuário consegue baixar a imagem gerada.
+- [x] A arte usa o nome, data, local e tema do evento.
+- [x] Se o evento não tiver site configurado, a arte usa um tema padrão.
+- [x] Se faltar dados como capa ou logo, o sistema usa fallback visual.
+- [x] A geração não quebra quando os dados do evento forem incompletos.
 
 ---
 

@@ -55,7 +55,7 @@ function downloadAsset() {
     if (!assetUrl.value) return
     const link = document.createElement('a')
     link.href = assetUrl.value
-    link.download = `${route.params.id}-${selectedFormat.value}.svg`
+    link.download = `${route.params.id}-${selectedFormat.value}.png`
     link.click()
 }
 
