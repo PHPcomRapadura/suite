@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\EventLotteryController;
 use App\Http\Controllers\Admin\EventParticipantController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\EventSiteController;
+use App\Http\Controllers\Admin\EventSocialAssetController;
 use App\Http\Controllers\Admin\EventSponsorController;
 use App\Http\Controllers\Admin\EventTaskCommentController;
 use App\Http\Controllers\Admin\EventTaskController;
@@ -77,6 +78,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Site do evento
             Route::get('/{event}/site', [EventSiteController::class, 'show'])->name('site.show');
             Route::post('/{event}/site', [EventSiteController::class, 'store'])->name('site.store');
+            // Artes de divulgação
+            Route::get('/{event}/social-assets', [EventSocialAssetController::class, 'show'])->name('social-assets.show');
+            Route::post('/{event}/social-assets/generate', [EventSocialAssetController::class, 'generate'])->name('social-assets.generate');
             Route::put('/{event}/site', [EventSiteController::class, 'update'])->name('site.update');
             Route::patch('/{event}/site/toggle-published', [EventSiteController::class, 'togglePublished'])->name('site.togglePublished');
             // Patrocinadores
@@ -151,6 +155,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/{id}', fn () => view('admin'))->name('events.show');
         Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
         Route::get('/events/{id}/site', fn () => view('admin'))->name('events.site');
+        Route::get('/events/{id}/social-assets', fn () => view('admin'))->name('events.social-assets');
         Route::get('/events/{id}/expenses', fn () => view('admin'))->name('events.expenses');
         Route::get('/events/{id}/tasks', fn () => view('admin'))->name('events.tasks');
         Route::get('/events/{id}/participants', fn () => view('admin'))->name('events.participants');

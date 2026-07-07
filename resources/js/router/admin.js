@@ -49,6 +49,11 @@ const routes = [
                 component: () => import('@/views/admin/EventSite.vue'),
             },
             {
+                path: 'events/:id/social-assets',
+                name: 'admin.events.social-assets',
+                component: () => import('@/views/admin/EventSocialAssets.vue'),
+            },
+            {
                 path: 'events/:id/expenses',
                 name: 'admin.events.expenses',
                 component: () => import('@/views/admin/EventExpenses.vue'),

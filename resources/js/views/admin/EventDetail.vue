@@ -276,6 +276,29 @@ onMounted(() => fetchData())
                     </RouterLink>
                 </div>
 
+                <!-- Card Artes de Divulgação -->
+                <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-(--color-text-muted) shrink-0" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="16" rx="2"/>
+                            <path d="M7 8h10"/>
+                            <path d="M7 12h6"/>
+                            <path d="M7 16h4"/>
+                        </svg>
+                        <span class="font-semibold text-(--color-text)">Artes de Divulgação</span>
+                    </div>
+                    <p class="text-sm text-(--color-text-muted)">Gere Stories e posts para promover seu evento com um template simples.</p>
+                    <RouterLink
+                        :to="{ name: 'admin.events.social-assets', params: { id: event.id } }"
+                        class="mt-auto inline-flex items-center gap-1 text-sm font-medium text-(--color-primary) hover:text-(--color-primary-hover) transition"
+                    >
+                        Gerar artes
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </RouterLink>
+                </div>
+
                 <!-- Card Despesas -->
                 <div class="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 flex flex-col gap-3">
                     <div class="flex items-center gap-2">
