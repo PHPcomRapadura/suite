@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 
@@ -9,13 +9,23 @@ const loading = ref(true)
 const generating = ref(false)
 const event = ref(null)
 const selectedFormat = ref('story')
-const assetUrl = ref('')
+const assets = reactive({ story: null, post: null })
 const error = ref('')
 const success = ref('')
 
 const title = computed(() => {
     if (!event.value) return 'Artes de Divulgação'
     return `Artes para ${event.value.name}`
+})
+
+const currentAsset = computed(() => assets[selectedFormat.value])
+
+const generatedAtLabel = computed(() => {
+    if (!currentAsset.value?.generated_at) return ''
+    return new Date(currentAsset.value.generated_at).toLocaleString('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+    })
 })
 
 async function loadData() {
@@ -25,6 +35,8 @@ async function loadData() {
     try {
         const response = await axios.get(`/admin/api/events/${route.params.id}/social-assets`)
         event.value = response.data.data.event
+        assets.story = response.data.data.assets?.story ?? null
+        assets.post = response.data.data.assets?.post ?? null
     } catch (e) {
         error.value = 'Não foi possível carregar os dados do evento.'
     } finally {
@@ -42,7 +54,7 @@ async function generateAsset() {
             format: selectedFormat.value,
         })
 
-        assetUrl.value = response.data.data.asset_url
+        assets[selectedFormat.value] = response.data.data
         success.value = 'Arte gerada com sucesso.'
     } catch (e) {
         error.value = e?.response?.data?.message || 'Não foi possível gerar a arte neste momento.'
@@ -52,9 +64,9 @@ async function generateAsset() {
 }
 
 function downloadAsset() {
-    if (!assetUrl.value) return
+    if (!currentAsset.value) return
     const link = document.createElement('a')
-    link.href = assetUrl.value
+    link.href = currentAsset.value.asset_url
     link.download = `${route.params.id}-${selectedFormat.value}.png`
     link.click()
 }
@@ -86,6 +98,7 @@ onMounted(() => loadData())
                 <h1 class="text-2xl font-bold text-(--color-text) mb-2">{{ title }}</h1>
                 <p class="text-sm text-(--color-text-muted) mb-6">
                     Gere uma arte simples para Instagram Stories ou post de feed com base nos dados do evento.
+                    Artes geradas ficam salvas e podem ser baixadas quando quiser.
                 </p>
 
                 <div class="flex flex-wrap gap-3 mb-6">
@@ -122,10 +135,10 @@ onMounted(() => loadData())
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
                         </svg>
-                        {{ generating ? 'Gerando...' : 'Gerar arte' }}
+                        {{ generating ? 'Gerando...' : (currentAsset ? 'Gerar novamente' : 'Gerar arte') }}
                     </button>
                     <button
-                        v-if="assetUrl"
+                        v-if="currentAsset"
                         type="button"
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-(--color-border) text-(--color-text) hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                         @click="downloadAsset"
@@ -143,11 +156,14 @@ onMounted(() => loadData())
             </div>
 
             <div class="bg-(--color-surface) border border-(--color-border) rounded-2xl p-6">
-                <h2 class="text-lg font-semibold text-(--color-text) mb-4">Preview</h2>
-                <div class="rounded-2xl border border-(--color-border) bg-gray-100 p-4 min-h-[420px] flex items-center justify-center">
+                <h2 class="text-lg font-semibold text-(--color-text) mb-1">Preview</h2>
+                <p v-if="generatedAtLabel" class="text-xs text-(--color-text-muted) mb-3">
+                    Gerada em {{ generatedAtLabel }}
+                </p>
+                <div class="rounded-2xl border border-(--color-border) bg-gray-100 p-4 min-h-[420px] flex items-center justify-center" :class="{ 'mt-3': !generatedAtLabel }">
                     <img
-                        v-if="assetUrl"
-                        :src="assetUrl"
+                        v-if="currentAsset"
+                        :src="currentAsset.asset_url"
                         :alt="`Arte ${selectedFormat}`"
                         class="w-full max-w-[320px] rounded-xl shadow-lg"
                     />

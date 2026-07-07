@@ -215,9 +215,10 @@ Geração de artes para Instagram Stories e posts de feed a partir dos dados do 
 - **Texto**: nome do evento (título, quebra automática), tagline do site (se configurada), data + local, descrição curta e CTA "Garanta sua vaga" — renderizados com a fonte Lexend (`resources/fonts/Lexend-Variable.ttf`, variável, licença OFL) via GD/FreeType
 - **Origem das imagens**: `EventSocialAssetService` resolve `cover_image`/`logo` primeiro como path no disco `r2` (mesmo padrão de `EventService::deleteImage()`); se a URL não pertencer ao R2, tenta download HTTP; se tudo falhar, aplica fallback silenciosamente
 - **Armazenamento**: PNG salvo em `events/{event_id}/social/{format}.png` no disco `r2` (mesmo disco usado por capa/logo/patrocinadores — nunca o disco `public`, que exigiria `storage:link` e não é usado em nenhum outro lugar do projeto)
-- **Fluxo**: `GET /admin/api/events/{event}/social-assets` (dados do evento) + `POST .../social-assets/generate` (`format: story|post`) → `EventSocialAssetController`
-- **Frontend**: `EventSocialAssets.vue` com seletor de formato, preview e download; card "Artes de Divulgação" no hub do evento
-- 6 testes de feature (story, post, formato inválido, evento inexistente, fallback sem capa/logo, nome com caracteres especiais)
+- **Persistência**: tabela `event_social_assets` (model `EventSocialAsset`) guarda a última arte gerada por evento+formato (`unique(event_id, format)`); gerar de novo faz `updateOrCreate` — sobrescreve o registro e o arquivo no R2 em vez de acumular histórico
+- **Fluxo**: `GET /admin/api/events/{event}/social-assets` (dados do evento + artes já geradas, se existirem) + `POST .../social-assets/generate` (`format: story|post`) → `EventSocialAssetController`
+- **Frontend**: `EventSocialAssets.vue` com seletor de formato, preview e download; ao carregar a tela, mostra a arte já gerada (com data de geração) sem precisar clicar em "Gerar" de novo; card "Artes de Divulgação" no hub do evento
+- 8 testes de feature (story, post, formato inválido, evento inexistente, fallback sem capa/logo, nome com caracteres especiais, regenerar não duplica registro, `show` retorna artes já geradas)
 
 ### Eventos — sub-módulos pendentes
 

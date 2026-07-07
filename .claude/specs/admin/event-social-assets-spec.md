@@ -234,6 +234,9 @@ Criar os seguintes arquivos:
 |--------|--------|
 | `app/Http/Controllers/Admin/EventSocialAssetController.php` | recebe a requisição e orquestra a geração |
 | `app/Services/EventSocialAssetService.php` | monta a imagem e salva o asset |
+| `app/Models/EventSocialAsset.php` | registro persistido (1 por evento+formato) com a URL da última arte gerada |
+
+> **Pós-MVP:** a arte gerada é persistida em `event_social_assets` (`unique(event_id, format)`) para que o organizador possa voltar à tela e baixar a última arte sem precisar gerar de novo. Gerar novamente sobrescreve o registro e o arquivo existentes (sem histórico de versões).
 
 ### 9.2 Frontend
 

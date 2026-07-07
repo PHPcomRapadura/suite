@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Event;
+use App\Models\EventSocialAsset;
 use Closure;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +40,7 @@ class EventSocialAssetService
         $this->manager = new ImageManager(new Driver);
     }
 
-    public function generate(Event $event, string $format): array
+    public function generate(Event $event, string $format): EventSocialAsset
     {
         [$width, $height] = self::SIZES[$format];
 
@@ -57,11 +58,10 @@ class EventSocialAssetService
 
         Storage::disk('r2')->put($path, $content, 'public');
 
-        return [
-            'format' => $format,
-            'asset_url' => Storage::disk('r2')->url($path),
-            'path' => $path,
-        ];
+        return EventSocialAsset::updateOrCreate(
+            ['event_id' => $event->id, 'format' => $format],
+            ['url' => Storage::disk('r2')->url($path), 'path' => $path],
+        );
     }
 
     private function buildBackground(Event $event, int $width, int $height, string $primaryColor, string $secondaryColor): ImageInterface

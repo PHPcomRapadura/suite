@@ -527,7 +527,8 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Artes de Divulgação — geração de PNG (Story 1080×1920 / Post 1080×1080) via `intervention/image` | ✅ Implementado |
 | Artes de Divulgação — composição com capa, logo, overlay, tema do site e fallback gradiente | ✅ Implementado |
 | Artes de Divulgação — card no hub + tela de geração (`EventSocialAssets.vue`) | ✅ Implementado |
-| Testes Artes de Divulgação (6 casos) | ✅ Implementado |
+| Artes de Divulgação — persistência em `event_social_assets` (1 registro por evento+formato, `updateOrCreate`) | ✅ Implementado |
+| Testes Artes de Divulgação (8 casos) | ✅ Implementado |
 
 ### Segurança
 

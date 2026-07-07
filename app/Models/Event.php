@@ -79,6 +79,11 @@ class Event extends Model
         return $this->hasMany(EventLotteryWinner::class)->orderBy('position');
     }
 
+    public function socialAssets(): HasMany
+    {
+        return $this->hasMany(EventSocialAsset::class);
+    }
+
     public function isPublished(): bool
     {
         return $this->status === 'publicado';

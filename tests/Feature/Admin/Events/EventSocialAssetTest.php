@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Event;
+use App\Models\EventSocialAsset;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,6 +26,45 @@ it('admin gera arte de story para o evento', function () {
         ->assertJsonPath('data.asset_url', fn (string $url) => str_contains($url, '.png'));
 
     Storage::disk('r2')->assertExists("events/{$event->id}/social/story.png");
+
+    $this->assertDatabaseHas('event_social_assets', [
+        'event_id' => $event->id,
+        'format' => 'story',
+    ]);
+});
+
+it('gerar novamente atualiza o registro existente em vez de duplicar', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+        'format' => 'story',
+    ])->assertOk();
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+        'format' => 'story',
+    ])->assertOk();
+
+    expect(EventSocialAsset::where('event_id', $event->id)->where('format', 'story')->count())->toBe(1);
+});
+
+it('retorna as artes já geradas ao carregar a tela', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+        'format' => 'story',
+    ])->assertOk();
+
+    $this->actingAs($admin)
+        ->getJson("/admin/api/events/{$event->id}/social-assets")
+        ->assertOk()
+        ->assertJsonPath('data.assets.story.format', 'story')
+        ->assertJsonPath('data.assets.post', null);
 });
 
 it('admin gera arte de post para o evento', function () {
