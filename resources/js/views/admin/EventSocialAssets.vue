@@ -8,6 +8,7 @@ const route = useRoute()
 const TYPES = [
     { value: 'announcement', label: 'Chamada para o evento' },
     { value: 'speaker', label: 'Divulgar palestrante' },
+    { value: 'sponsor', label: 'Divulgar patrocinador' },
 ]
 
 const loading = ref(true)
@@ -16,8 +17,11 @@ const event = ref(null)
 const selectedFormat = ref('story')
 const selectedType = ref('announcement')
 const selectedTalkId = ref(null)
+const selectedSponsorId = ref(null)
 const talks = ref([])
 const loadingTalks = ref(false)
+const sponsors = ref([])
+const loadingSponsors = ref(false)
 const assetsList = ref([])
 const error = ref('')
 const success = ref('')
@@ -31,12 +35,14 @@ const currentAsset = computed(() => {
     return assetsList.value.find((asset) => {
         if (asset.type !== selectedType.value || asset.format !== selectedFormat.value) return false
         if (selectedType.value === 'speaker') return asset.talk_id === selectedTalkId.value
+        if (selectedType.value === 'sponsor') return asset.sponsor_id === selectedSponsorId.value
         return true
     }) ?? null
 })
 
 const canGenerate = computed(() => {
     if (selectedType.value === 'speaker') return !!selectedTalkId.value
+    if (selectedType.value === 'sponsor') return !!selectedSponsorId.value
     return true
 })
 
@@ -78,9 +84,24 @@ async function loadTalks() {
     }
 }
 
+async function loadSponsors() {
+    loadingSponsors.value = true
+
+    try {
+        const response = await axios.get(`/admin/api/events/${route.params.id}/site/sponsors`)
+        sponsors.value = response.data.data
+    } catch (e) {
+        sponsors.value = []
+    } finally {
+        loadingSponsors.value = false
+    }
+}
+
 watch(selectedType, (type) => {
     selectedTalkId.value = null
+    selectedSponsorId.value = null
     if (type === 'speaker' && talks.value.length === 0) loadTalks()
+    if (type === 'sponsor' && sponsors.value.length === 0) loadSponsors()
 })
 
 async function generateAsset() {
@@ -91,6 +112,7 @@ async function generateAsset() {
     try {
         const payload = { format: selectedFormat.value, type: selectedType.value }
         if (selectedType.value === 'speaker') payload.talk_id = selectedTalkId.value
+        if (selectedType.value === 'sponsor') payload.sponsor_id = selectedSponsorId.value
 
         const response = await axios.post(`/admin/api/events/${route.params.id}/social-assets/generate`, payload)
 
@@ -175,6 +197,22 @@ onMounted(() => loadData())
                     </select>
                     <p v-if="!loadingTalks && talks.length === 0" class="text-xs text-(--color-text-muted) mt-2">
                         Nenhuma palestra aprovada neste evento ainda.
+                    </p>
+                </div>
+
+                <div v-if="selectedType === 'sponsor'" class="mb-6">
+                    <label class="block text-sm font-medium text-(--color-text) mb-2">Patrocinador</label>
+                    <select
+                        v-model="selectedSponsorId"
+                        class="w-full px-3 py-2 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
+                    >
+                        <option :value="null" disabled>{{ loadingSponsors ? 'Carregando patrocinadores...' : 'Selecione um patrocinador' }}</option>
+                        <option v-for="sponsor in sponsors" :key="sponsor.id" :value="sponsor.id">
+                            {{ sponsor.name }}
+                        </option>
+                    </select>
+                    <p v-if="!loadingSponsors && sponsors.length === 0" class="text-xs text-(--color-text-muted) mt-2">
+                        Nenhum patrocinador cadastrado neste evento ainda.
                     </p>
                 </div>
 

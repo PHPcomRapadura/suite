@@ -530,7 +530,9 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Artes de Divulgação — persistência em `event_social_assets` (1 registro por evento+tipo+formato+assunto, `updateOrCreate`) | ✅ Implementado |
 | Artes de Divulgação — arquitetura multi-template (`SocialAssetCanvas` + `Templates/*`, ver `.claude/plans/majestic-greeting-donut.md`) | ✅ Implementado (Fase 1/5) |
 | Artes de Divulgação — "Divulgar palestrante" (`SpeakerSpotlightTemplate`, seletor de palestra aprovada) | ✅ Implementado (Fase 2/5) |
-| Testes Artes de Divulgação (15 casos) | ✅ Implementado |
+| Artes de Divulgação — "Divulgar patrocinador" (`SponsorSpotlightTemplate`, logo com `contain()`, selo de nível) | ✅ Implementado (Fase 3/5) |
+| Artes de Divulgação — download real via `Storage::download()` (`GET .../social-assets/{asset}/download`) | ✅ Implementado |
+| Testes Artes de Divulgação (22 casos) | ✅ Implementado |
 
 ### Segurança
 

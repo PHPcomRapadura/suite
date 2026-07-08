@@ -2,6 +2,7 @@
 
 use App\Models\Event;
 use App\Models\EventSocialAsset;
+use App\Models\EventSponsor;
 use App\Models\Talk;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
@@ -299,4 +300,93 @@ it('retorna 404 ao baixar arte que pertence a outro evento', function () {
     $this->actingAs($admin)
         ->get("/admin/api/events/{$outroEvento->id}/social-assets/{$assetId}/download")
         ->assertNotFound();
+});
+
+it('admin gera arte de patrocinador', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $sponsor = EventSponsor::factory()->for($event)->create(['name' => 'Empresa XPTO', 'level' => 'rapadura_com_coco']);
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'sponsor',
+            'sponsor_id' => $sponsor->id,
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.type', 'sponsor')
+        ->assertJsonPath('data.sponsor_id', $sponsor->id);
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/sponsor-story-sponsor{$sponsor->id}.png");
+
+    $this->assertDatabaseHas('event_social_assets', [
+        'event_id' => $event->id,
+        'type' => 'sponsor',
+        'sponsor_id' => $sponsor->id,
+        'subject_key' => "sponsor:{$sponsor->id}",
+    ]);
+});
+
+it('exige sponsor_id ao gerar arte de patrocinador', function () {
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'sponsor',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['sponsor_id']);
+});
+
+it('rejeita gerar arte de patrocinador de outro evento', function () {
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $outroEvento = Event::factory()->create();
+    $sponsor = EventSponsor::factory()->for($outroEvento)->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'sponsor',
+            'sponsor_id' => $sponsor->id,
+        ])
+        ->assertNotFound();
+});
+
+it('gera arte de patrocinador sem logo usando fallback de texto', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $sponsor = EventSponsor::factory()->for($event)->create();
+    expect($sponsor->logo_url)->toBeNull();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'post',
+            'type' => 'sponsor',
+            'sponsor_id' => $sponsor->id,
+        ])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/sponsor-post-sponsor{$sponsor->id}.png");
+});
+
+it('gerar arte de patrocinador novamente para o mesmo patrocinador não duplica registro', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $sponsor = EventSponsor::factory()->for($event)->create();
+
+    $payload = ['format' => 'story', 'type' => 'sponsor', 'sponsor_id' => $sponsor->id];
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+
+    expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'sponsor')->count())->toBe(1);
 });

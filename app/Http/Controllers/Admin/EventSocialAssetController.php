@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EventSocialAsset\GenerateEventSocialAssetRequest;
 use App\Models\Event;
 use App\Models\EventSocialAsset;
+use App\Models\EventSponsor;
 use App\Models\Talk;
 use App\Services\EventSocialAssetService;
 use Illuminate\Http\JsonResponse;
@@ -30,7 +31,7 @@ class EventSocialAssetController extends Controller
                     'starts_at' => $event->starts_at?->toIso8601String(),
                 ],
                 'formats' => ['story', 'post'],
-                'types' => ['announcement', 'speaker'],
+                'types' => ['announcement', 'speaker', 'sponsor'],
                 'assets' => $assets,
             ],
         ]);
@@ -40,6 +41,7 @@ class EventSocialAssetController extends Controller
     {
         $type = $request->type();
         $talk = null;
+        $sponsor = null;
 
         if ($type === 'speaker') {
             $talk = Talk::with('speaker.user')->findOrFail($request->validated('talk_id'));
@@ -47,7 +49,12 @@ class EventSocialAssetController extends Controller
             abort_if($talk->status !== 'aprovada', Response::HTTP_UNPROCESSABLE_ENTITY, 'Só é possível divulgar palestras aprovadas.');
         }
 
-        $asset = $this->service->generate($event, $request->validated('format'), $type, $talk);
+        if ($type === 'sponsor') {
+            $sponsor = EventSponsor::findOrFail($request->validated('sponsor_id'));
+            abort_if($sponsor->event_id !== $event->id, Response::HTTP_NOT_FOUND);
+        }
+
+        $asset = $this->service->generate($event, $request->validated('format'), $type, $talk, $sponsor);
 
         return response()->json(['data' => $this->formatAsset($asset)]);
     }

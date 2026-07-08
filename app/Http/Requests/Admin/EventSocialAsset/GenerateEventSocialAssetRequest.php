@@ -17,6 +17,7 @@ class GenerateEventSocialAssetRequest extends FormRequest
             'format' => ['required', 'string', 'in:story,post'],
             'type' => ['nullable', 'string', 'in:announcement,speaker,sponsor,selling_out,tomorrow'],
             'talk_id' => ['required_if:type,speaker', 'integer', 'exists:talks,id'],
+            'sponsor_id' => ['required_if:type,sponsor', 'integer', 'exists:event_sponsors,id'],
         ];
     }
 
@@ -28,6 +29,8 @@ class GenerateEventSocialAssetRequest extends FormRequest
             'type.in' => 'Tipo de arte inválido.',
             'talk_id.required_if' => 'Selecione uma palestra para divulgar.',
             'talk_id.exists' => 'Palestra não encontrada.',
+            'sponsor_id.required_if' => 'Selecione um patrocinador para divulgar.',
+            'sponsor_id.exists' => 'Patrocinador não encontrado.',
         ];
     }
 
