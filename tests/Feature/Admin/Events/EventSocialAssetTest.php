@@ -390,3 +390,56 @@ it('gerar arte de patrocinador novamente para o mesmo patrocinador não duplica 
 
     expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'sponsor')->count())->toBe(1);
 });
+
+it('admin gera arte de ingressos esgotando', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'selling_out',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.type', 'selling_out');
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/selling_out-story.png");
+
+    $this->assertDatabaseHas('event_social_assets', [
+        'event_id' => $event->id,
+        'type' => 'selling_out',
+        'subject_key' => 'event',
+    ]);
+});
+
+it('gera arte de ingressos esgotando em post sem depender de ticket_url', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'post',
+            'type' => 'selling_out',
+        ])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/selling_out-post.png");
+});
+
+it('gerar arte de ingressos esgotando novamente não duplica registro', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $payload = ['format' => 'story', 'type' => 'selling_out'];
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+
+    expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'selling_out')->count())->toBe(1);
+});

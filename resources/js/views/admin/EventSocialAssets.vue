@@ -9,6 +9,7 @@ const TYPES = [
     { value: 'announcement', label: 'Chamada para o evento' },
     { value: 'speaker', label: 'Divulgar palestrante' },
     { value: 'sponsor', label: 'Divulgar patrocinador' },
+    { value: 'selling_out', label: 'Ingressos esgotando' },
 ]
 
 const loading = ref(true)

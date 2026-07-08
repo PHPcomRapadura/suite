@@ -8,6 +8,7 @@ use App\Models\EventSponsor;
 use App\Models\Talk;
 use App\Services\SocialAssets\SocialAssetCanvas;
 use App\Services\SocialAssets\Templates\AnnouncementTemplate;
+use App\Services\SocialAssets\Templates\SellingOutTemplate;
 use App\Services\SocialAssets\Templates\SocialAssetTemplate;
 use App\Services\SocialAssets\Templates\SpeakerSpotlightTemplate;
 use App\Services\SocialAssets\Templates\SponsorSpotlightTemplate;
@@ -70,6 +71,7 @@ class EventSocialAssetService
             'announcement' => new AnnouncementTemplate,
             'speaker' => new SpeakerSpotlightTemplate,
             'sponsor' => new SponsorSpotlightTemplate,
+            'selling_out' => new SellingOutTemplate,
             default => throw new InvalidArgumentException("Tipo de arte não suportado: {$type}"),
         };
     }

@@ -532,7 +532,8 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Artes de Divulgação — "Divulgar palestrante" (`SpeakerSpotlightTemplate`, seletor de palestra aprovada) | ✅ Implementado (Fase 2/5) |
 | Artes de Divulgação — "Divulgar patrocinador" (`SponsorSpotlightTemplate`, logo com `contain()`, selo de nível) | ✅ Implementado (Fase 3/5) |
 | Artes de Divulgação — download real via `Storage::download()` (`GET .../social-assets/{asset}/download`) | ✅ Implementado |
-| Testes Artes de Divulgação (22 casos) | ✅ Implementado |
+| Artes de Divulgação — "Ingressos esgotando" (`SellingOutTemplate`, mensagem fixa, sem assunto) | ✅ Implementado (Fase 4/5) |
+| Testes Artes de Divulgação (25 casos) | ✅ Implementado |
 
 ### Segurança
 
