@@ -102,6 +102,11 @@ class SocialAssetCanvas
     public function drawTextBlock(ImageInterface $canvas, string $text, int $x, int $y, Closure $fontCallback): int
     {
         $font = (new FontFactory($fontCallback))();
+        // O valign padrão da lib é "bottom" (y = base do texto, que cresce para
+        // cima) — o oposto do que este método promete ("y = topo do bloco,
+        // avança para baixo"). Forçar "top" aqui evita que blocos pequenos
+        // seguidos de blocos com fonte bem maior colidam visualmente.
+        $font->setValignment('top');
 
         $canvas->text($text, $x, $y, $font);
 

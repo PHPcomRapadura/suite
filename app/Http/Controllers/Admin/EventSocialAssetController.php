@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EventSocialAsset\GenerateEventSocialAssetRequest;
 use App\Models\Event;
 use App\Models\EventSocialAsset;
+use App\Models\Talk;
 use App\Services\EventSocialAssetService;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class EventSocialAssetController extends Controller
 {
@@ -26,7 +28,7 @@ class EventSocialAssetController extends Controller
                     'starts_at' => $event->starts_at?->toIso8601String(),
                 ],
                 'formats' => ['story', 'post'],
-                'types' => ['announcement'],
+                'types' => ['announcement', 'speaker'],
                 'assets' => $assets,
             ],
         ]);
@@ -34,7 +36,16 @@ class EventSocialAssetController extends Controller
 
     public function generate(GenerateEventSocialAssetRequest $request, Event $event): JsonResponse
     {
-        $asset = $this->service->generate($event, $request->validated('format'), $request->type());
+        $type = $request->type();
+        $talk = null;
+
+        if ($type === 'speaker') {
+            $talk = Talk::with('speaker.user')->findOrFail($request->validated('talk_id'));
+            abort_if($talk->event_id !== $event->id, Response::HTTP_NOT_FOUND);
+            abort_if($talk->status !== 'aprovada', Response::HTTP_UNPROCESSABLE_ENTITY, 'Só é possível divulgar palestras aprovadas.');
+        }
+
+        $asset = $this->service->generate($event, $request->validated('format'), $type, $talk);
 
         return response()->json(['data' => $this->formatAsset($asset)]);
     }

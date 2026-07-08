@@ -1,18 +1,24 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 
 const route = useRoute()
 
+const TYPES = [
+    { value: 'announcement', label: 'Chamada para o evento' },
+    { value: 'speaker', label: 'Divulgar palestrante' },
+]
+
 const loading = ref(true)
 const generating = ref(false)
 const event = ref(null)
 const selectedFormat = ref('story')
-// Só existe o tipo "announcement" por enquanto — o seletor de tipo chega
-// quando o segundo tipo de arte for implementado.
-const selectedType = 'announcement'
-const assets = reactive({ story: null, post: null })
+const selectedType = ref('announcement')
+const selectedTalkId = ref(null)
+const talks = ref([])
+const loadingTalks = ref(false)
+const assetsList = ref([])
 const error = ref('')
 const success = ref('')
 
@@ -21,7 +27,18 @@ const title = computed(() => {
     return `Artes para ${event.value.name}`
 })
 
-const currentAsset = computed(() => assets[selectedFormat.value])
+const currentAsset = computed(() => {
+    return assetsList.value.find((asset) => {
+        if (asset.type !== selectedType.value || asset.format !== selectedFormat.value) return false
+        if (selectedType.value === 'speaker') return asset.talk_id === selectedTalkId.value
+        return true
+    }) ?? null
+})
+
+const canGenerate = computed(() => {
+    if (selectedType.value === 'speaker') return !!selectedTalkId.value
+    return true
+})
 
 const generatedAtLabel = computed(() => {
     if (!currentAsset.value?.generated_at) return ''
@@ -38,10 +55,7 @@ async function loadData() {
     try {
         const response = await axios.get(`/admin/api/events/${route.params.id}/social-assets`)
         event.value = response.data.data.event
-
-        const list = response.data.data.assets ?? []
-        assets.story = list.find((a) => a.type === selectedType && a.format === 'story') ?? null
-        assets.post = list.find((a) => a.type === selectedType && a.format === 'post') ?? null
+        assetsList.value = response.data.data.assets ?? []
     } catch (e) {
         error.value = 'Não foi possível carregar os dados do evento.'
     } finally {
@@ -49,18 +63,39 @@ async function loadData() {
     }
 }
 
+async function loadTalks() {
+    loadingTalks.value = true
+
+    try {
+        const response = await axios.get(`/admin/api/events/${route.params.id}/talks`, {
+            params: { status: 'aprovada' },
+        })
+        talks.value = response.data.data
+    } catch (e) {
+        talks.value = []
+    } finally {
+        loadingTalks.value = false
+    }
+}
+
+watch(selectedType, (type) => {
+    selectedTalkId.value = null
+    if (type === 'speaker' && talks.value.length === 0) loadTalks()
+})
+
 async function generateAsset() {
     generating.value = true
     error.value = ''
     success.value = ''
 
     try {
-        const response = await axios.post(`/admin/api/events/${route.params.id}/social-assets/generate`, {
-            format: selectedFormat.value,
-            type: selectedType,
-        })
+        const payload = { format: selectedFormat.value, type: selectedType.value }
+        if (selectedType.value === 'speaker') payload.talk_id = selectedTalkId.value
 
-        assets[selectedFormat.value] = response.data.data
+        const response = await axios.post(`/admin/api/events/${route.params.id}/social-assets/generate`, payload)
+
+        assetsList.value = assetsList.value.filter((asset) => asset !== currentAsset.value)
+        assetsList.value.push(response.data.data)
         success.value = 'Arte gerada com sucesso.'
     } catch (e) {
         error.value = e?.response?.data?.message || 'Não foi possível gerar a arte neste momento.'
@@ -73,7 +108,7 @@ function downloadAsset() {
     if (!currentAsset.value) return
     const link = document.createElement('a')
     link.href = currentAsset.value.asset_url
-    link.download = `${route.params.id}-${selectedFormat.value}.png`
+    link.download = `${route.params.id}-${selectedType.value}-${selectedFormat.value}.png`
     link.click()
 }
 
@@ -107,34 +142,71 @@ onMounted(() => loadData())
                     Artes geradas ficam salvas e podem ser baixadas quando quiser.
                 </p>
 
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <button
-                        type="button"
-                        class="px-4 py-2 rounded-lg border transition"
-                        :class="selectedFormat === 'story'
-                            ? 'bg-(--color-primary) text-white border-(--color-primary)'
-                            : 'bg-(--color-surface) text-(--color-text) border-(--color-border) hover:bg-gray-50 dark:hover:bg-gray-800'"
-                        @click="selectedFormat = 'story'"
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-(--color-text) mb-2">Tipo de arte</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button
+                            v-for="typeOption in TYPES"
+                            :key="typeOption.value"
+                            type="button"
+                            class="px-4 py-2 rounded-lg border transition"
+                            :class="selectedType === typeOption.value
+                                ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                                : 'bg-(--color-surface) text-(--color-text) border-(--color-border) hover:bg-gray-50 dark:hover:bg-gray-800'"
+                            @click="selectedType = typeOption.value"
+                        >
+                            {{ typeOption.label }}
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="selectedType === 'speaker'" class="mb-6">
+                    <label class="block text-sm font-medium text-(--color-text) mb-2">Palestra</label>
+                    <select
+                        v-model="selectedTalkId"
+                        class="w-full px-3 py-2 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text) focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
                     >
-                        Story (1080 × 1920)
-                    </button>
-                    <button
-                        type="button"
-                        class="px-4 py-2 rounded-lg border transition"
-                        :class="selectedFormat === 'post'
-                            ? 'bg-(--color-primary) text-white border-(--color-primary)'
-                            : 'bg-(--color-surface) text-(--color-text) border-(--color-border) hover:bg-gray-50 dark:hover:bg-gray-800'"
-                        @click="selectedFormat = 'post'"
-                    >
-                        Post (1080 × 1080)
-                    </button>
+                        <option :value="null" disabled>{{ loadingTalks ? 'Carregando palestras...' : 'Selecione uma palestra aprovada' }}</option>
+                        <option v-for="talk in talks" :key="talk.id" :value="talk.id">
+                            {{ talk.speaker?.user?.name ?? 'Palestrante' }} — {{ talk.title }}
+                        </option>
+                    </select>
+                    <p v-if="!loadingTalks && talks.length === 0" class="text-xs text-(--color-text-muted) mt-2">
+                        Nenhuma palestra aprovada neste evento ainda.
+                    </p>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-(--color-text) mb-2">Formato</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button
+                            type="button"
+                            class="px-4 py-2 rounded-lg border transition"
+                            :class="selectedFormat === 'story'
+                                ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                                : 'bg-(--color-surface) text-(--color-text) border-(--color-border) hover:bg-gray-50 dark:hover:bg-gray-800'"
+                            @click="selectedFormat = 'story'"
+                        >
+                            Story (1080 × 1920)
+                        </button>
+                        <button
+                            type="button"
+                            class="px-4 py-2 rounded-lg border transition"
+                            :class="selectedFormat === 'post'
+                                ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                                : 'bg-(--color-surface) text-(--color-text) border-(--color-border) hover:bg-gray-50 dark:hover:bg-gray-800'"
+                            @click="selectedFormat = 'post'"
+                        >
+                            Post (1080 × 1080)
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex flex-wrap gap-3 mb-6">
                     <button
                         type="button"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-(--color-primary) text-white font-medium hover:bg-(--color-primary-hover) transition"
-                        :disabled="generating"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-(--color-primary) text-white font-medium hover:bg-(--color-primary-hover) transition disabled:opacity-60 disabled:cursor-not-allowed"
+                        :disabled="generating || !canGenerate"
                         @click="generateAsset"
                     >
                         <svg v-if="generating" class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">

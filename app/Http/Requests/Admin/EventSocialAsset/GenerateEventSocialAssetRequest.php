@@ -16,6 +16,7 @@ class GenerateEventSocialAssetRequest extends FormRequest
         return [
             'format' => ['required', 'string', 'in:story,post'],
             'type' => ['nullable', 'string', 'in:announcement,speaker,sponsor,selling_out,tomorrow'],
+            'talk_id' => ['required_if:type,speaker', 'integer', 'exists:talks,id'],
         ];
     }
 
@@ -25,6 +26,8 @@ class GenerateEventSocialAssetRequest extends FormRequest
             'format.required' => 'Selecione um formato para gerar a arte.',
             'format.in' => 'Formato inválido. Escolha story ou post.',
             'type.in' => 'Tipo de arte inválido.',
+            'talk_id.required_if' => 'Selecione uma palestra para divulgar.',
+            'talk_id.exists' => 'Palestra não encontrada.',
         ];
     }
 

@@ -2,6 +2,7 @@
 
 use App\Models\Event;
 use App\Models\EventSocialAsset;
+use App\Models\Talk;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 
@@ -159,4 +160,107 @@ it('gera a arte com nome contendo caracteres especiais sem quebrar', function ()
         ->assertOk();
 
     Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-post.png");
+});
+
+it('admin gera arte de palestrante para uma talk aprovada', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $talk = Talk::factory()->aprovada()->for($event)->create(['title' => 'TDD na prática']);
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'speaker',
+            'talk_id' => $talk->id,
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.type', 'speaker')
+        ->assertJsonPath('data.talk_id', $talk->id);
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/speaker-story-talk{$talk->id}.png");
+
+    $this->assertDatabaseHas('event_social_assets', [
+        'event_id' => $event->id,
+        'type' => 'speaker',
+        'talk_id' => $talk->id,
+        'subject_key' => "talk:{$talk->id}",
+    ]);
+});
+
+it('exige talk_id ao gerar arte de palestrante', function () {
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'speaker',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['talk_id']);
+});
+
+it('rejeita gerar arte de palestrante para talk não aprovada', function () {
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $talk = Talk::factory()->submetida()->for($event)->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'speaker',
+            'talk_id' => $talk->id,
+        ])
+        ->assertUnprocessable();
+});
+
+it('rejeita gerar arte de palestrante para talk de outro evento', function () {
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $outroEvento = Event::factory()->create();
+    $talk = Talk::factory()->aprovada()->for($outroEvento)->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'speaker',
+            'talk_id' => $talk->id,
+        ])
+        ->assertNotFound();
+});
+
+it('gera arte de palestrante sem avatar usando fallback de iniciais', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $talk = Talk::factory()->aprovada()->for($event)->create();
+    expect($talk->speaker->avatar_url)->toBeNull();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'post',
+            'type' => 'speaker',
+            'talk_id' => $talk->id,
+        ])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/speaker-post-talk{$talk->id}.png");
+});
+
+it('gerar arte de palestrante novamente para a mesma talk não duplica registro', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $talk = Talk::factory()->aprovada()->for($event)->create();
+
+    $payload = ['format' => 'story', 'type' => 'speaker', 'talk_id' => $talk->id];
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+
+    expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'speaker')->count())->toBe(1);
 });
