@@ -10,6 +10,7 @@ const TYPES = [
     { value: 'speaker', label: 'Divulgar palestrante' },
     { value: 'sponsor', label: 'Divulgar patrocinador' },
     { value: 'selling_out', label: 'Ingressos esgotando' },
+    { value: 'tomorrow', label: 'É amanhã' },
 ]
 
 const loading = ref(true)

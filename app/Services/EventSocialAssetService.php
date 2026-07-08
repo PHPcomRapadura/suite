@@ -12,6 +12,7 @@ use App\Services\SocialAssets\Templates\SellingOutTemplate;
 use App\Services\SocialAssets\Templates\SocialAssetTemplate;
 use App\Services\SocialAssets\Templates\SpeakerSpotlightTemplate;
 use App\Services\SocialAssets\Templates\SponsorSpotlightTemplate;
+use App\Services\SocialAssets\Templates\TomorrowTemplate;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
@@ -72,6 +73,7 @@ class EventSocialAssetService
             'speaker' => new SpeakerSpotlightTemplate,
             'sponsor' => new SponsorSpotlightTemplate,
             'selling_out' => new SellingOutTemplate,
+            'tomorrow' => new TomorrowTemplate,
             default => throw new InvalidArgumentException("Tipo de arte não suportado: {$type}"),
         };
     }

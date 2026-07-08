@@ -443,3 +443,70 @@ it('gerar arte de ingressos esgotando novamente não duplica registro', function
 
     expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'selling_out')->count())->toBe(1);
 });
+
+it('admin gera arte de é amanhã', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'tomorrow',
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.type', 'tomorrow');
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/tomorrow-story.png");
+
+    $this->assertDatabaseHas('event_social_assets', [
+        'event_id' => $event->id,
+        'type' => 'tomorrow',
+        'subject_key' => 'event',
+    ]);
+});
+
+it('gera arte de é amanhã em post', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'post',
+            'type' => 'tomorrow',
+        ])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/tomorrow-post.png");
+});
+
+it('gera arte de é amanhã mesmo quando o evento não é de fato amanhã', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create(['starts_at' => now()->addMonths(6)]);
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'tomorrow',
+        ])
+        ->assertOk();
+});
+
+it('gerar arte de é amanhã novamente não duplica registro', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $payload = ['format' => 'story', 'type' => 'tomorrow'];
+
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+    $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", $payload)->assertOk();
+
+    expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'tomorrow')->count())->toBe(1);
+});
