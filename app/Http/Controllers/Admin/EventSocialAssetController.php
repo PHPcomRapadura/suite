@@ -9,7 +9,9 @@ use App\Models\EventSocialAsset;
 use App\Models\Talk;
 use App\Services\EventSocialAssetService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EventSocialAssetController extends Controller
 {
@@ -50,9 +52,19 @@ class EventSocialAssetController extends Controller
         return response()->json(['data' => $this->formatAsset($asset)]);
     }
 
+    public function download(Event $event, EventSocialAsset $asset): StreamedResponse
+    {
+        abort_if($asset->event_id !== $event->id, Response::HTTP_NOT_FOUND);
+
+        $filename = "{$event->slug}-{$asset->type}-{$asset->format}.png";
+
+        return Storage::disk('r2')->download($asset->path, $filename);
+    }
+
     private function formatAsset(EventSocialAsset $asset): array
     {
         return [
+            'id' => $asset->id,
             'type' => $asset->type,
             'format' => $asset->format,
             'subject_key' => $asset->subject_key,

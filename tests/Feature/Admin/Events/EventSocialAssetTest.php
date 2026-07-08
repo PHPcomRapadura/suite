@@ -264,3 +264,39 @@ it('gerar arte de palestrante novamente para a mesma talk não duplica registro'
 
     expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'speaker')->count())->toBe(1);
 });
+
+it('baixa a arte gerada forçando download em vez de abrir a imagem', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create(['slug' => 'evento-teste']);
+
+    $generateResponse = $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+        'format' => 'story',
+    ])->assertOk();
+
+    $assetId = $generateResponse->json('data.id');
+
+    $response = $this->actingAs($admin)->get("/admin/api/events/{$event->id}/social-assets/{$assetId}/download");
+
+    $response->assertOk();
+    $response->assertHeader('content-disposition', 'attachment; filename=evento-teste-announcement-story.png');
+});
+
+it('retorna 404 ao baixar arte que pertence a outro evento', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $outroEvento = Event::factory()->create();
+
+    $generateResponse = $this->actingAs($admin)->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+        'format' => 'story',
+    ])->assertOk();
+
+    $assetId = $generateResponse->json('data.id');
+
+    $this->actingAs($admin)
+        ->get("/admin/api/events/{$outroEvento->id}/social-assets/{$assetId}/download")
+        ->assertNotFound();
+});

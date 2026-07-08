@@ -81,6 +81,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             // Artes de divulgação
             Route::get('/{event}/social-assets', [EventSocialAssetController::class, 'show'])->name('social-assets.show');
             Route::post('/{event}/social-assets/generate', [EventSocialAssetController::class, 'generate'])->name('social-assets.generate');
+            Route::get('/{event}/social-assets/{asset}/download', [EventSocialAssetController::class, 'download'])->name('social-assets.download');
             Route::put('/{event}/site', [EventSiteController::class, 'update'])->name('site.update');
             Route::patch('/{event}/site/toggle-published', [EventSiteController::class, 'togglePublished'])->name('site.togglePublished');
             // Patrocinadores

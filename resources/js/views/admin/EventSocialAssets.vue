@@ -106,9 +106,11 @@ async function generateAsset() {
 
 function downloadAsset() {
     if (!currentAsset.value) return
+    // asset_url é do R2 (outra origem), então o atributo "download" do <a> é
+    // ignorado pelo navegador e ele só abre a imagem. Baixamos via um endpoint
+    // do próprio backend, que já responde com Content-Disposition: attachment.
     const link = document.createElement('a')
-    link.href = currentAsset.value.asset_url
-    link.download = `${route.params.id}-${selectedType.value}-${selectedFormat.value}.png`
+    link.href = `/admin/api/events/${route.params.id}/social-assets/${currentAsset.value.id}/download`
     link.click()
 }
 
