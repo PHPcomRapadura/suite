@@ -9,6 +9,9 @@ const loading = ref(true)
 const generating = ref(false)
 const event = ref(null)
 const selectedFormat = ref('story')
+// Só existe o tipo "announcement" por enquanto — o seletor de tipo chega
+// quando o segundo tipo de arte for implementado.
+const selectedType = 'announcement'
 const assets = reactive({ story: null, post: null })
 const error = ref('')
 const success = ref('')
@@ -35,8 +38,10 @@ async function loadData() {
     try {
         const response = await axios.get(`/admin/api/events/${route.params.id}/social-assets`)
         event.value = response.data.data.event
-        assets.story = response.data.data.assets?.story ?? null
-        assets.post = response.data.data.assets?.post ?? null
+
+        const list = response.data.data.assets ?? []
+        assets.story = list.find((a) => a.type === selectedType && a.format === 'story') ?? null
+        assets.post = list.find((a) => a.type === selectedType && a.format === 'post') ?? null
     } catch (e) {
         error.value = 'Não foi possível carregar os dados do evento.'
     } finally {
@@ -52,6 +57,7 @@ async function generateAsset() {
     try {
         const response = await axios.post(`/admin/api/events/${route.params.id}/social-assets/generate`, {
             format: selectedFormat.value,
+            type: selectedType,
         })
 
         assets[selectedFormat.value] = response.data.data

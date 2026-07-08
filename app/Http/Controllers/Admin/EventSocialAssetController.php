@@ -15,9 +15,7 @@ class EventSocialAssetController extends Controller
 
     public function show(Event $event): JsonResponse
     {
-        $assets = $event->socialAssets->mapWithKeys(
-            fn (EventSocialAsset $asset) => [$asset->format => $this->formatAsset($asset)]
-        );
+        $assets = $event->socialAssets->map(fn (EventSocialAsset $asset) => $this->formatAsset($asset))->values();
 
         return response()->json([
             'data' => [
@@ -28,6 +26,7 @@ class EventSocialAssetController extends Controller
                     'starts_at' => $event->starts_at?->toIso8601String(),
                 ],
                 'formats' => ['story', 'post'],
+                'types' => ['announcement'],
                 'assets' => $assets,
             ],
         ]);
@@ -35,7 +34,7 @@ class EventSocialAssetController extends Controller
 
     public function generate(GenerateEventSocialAssetRequest $request, Event $event): JsonResponse
     {
-        $asset = $this->service->generate($event, $request->validated('format'));
+        $asset = $this->service->generate($event, $request->validated('format'), $request->type());
 
         return response()->json(['data' => $this->formatAsset($asset)]);
     }
@@ -43,7 +42,11 @@ class EventSocialAssetController extends Controller
     private function formatAsset(EventSocialAsset $asset): array
     {
         return [
+            'type' => $asset->type,
             'format' => $asset->format,
+            'subject_key' => $asset->subject_key,
+            'talk_id' => $asset->talk_id,
+            'sponsor_id' => $asset->sponsor_id,
             'asset_url' => $asset->url,
             'generated_at' => $asset->updated_at?->toIso8601String(),
         ];

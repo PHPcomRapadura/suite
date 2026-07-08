@@ -15,6 +15,7 @@ class GenerateEventSocialAssetRequest extends FormRequest
     {
         return [
             'format' => ['required', 'string', 'in:story,post'],
+            'type' => ['nullable', 'string', 'in:announcement,speaker,sponsor,selling_out,tomorrow'],
         ];
     }
 
@@ -23,6 +24,12 @@ class GenerateEventSocialAssetRequest extends FormRequest
         return [
             'format.required' => 'Selecione um formato para gerar a arte.',
             'format.in' => 'Formato inválido. Escolha story ou post.',
+            'type.in' => 'Tipo de arte inválido.',
         ];
+    }
+
+    public function type(): string
+    {
+        return $this->validated('type') ?: 'announcement';
     }
 }

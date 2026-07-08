@@ -22,14 +22,17 @@ it('admin gera arte de story para o evento', function () {
             'format' => 'story',
         ])
         ->assertOk()
+        ->assertJsonPath('data.type', 'announcement')
         ->assertJsonPath('data.format', 'story')
         ->assertJsonPath('data.asset_url', fn (string $url) => str_contains($url, '.png'));
 
-    Storage::disk('r2')->assertExists("events/{$event->id}/social/story.png");
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-story.png");
 
     $this->assertDatabaseHas('event_social_assets', [
         'event_id' => $event->id,
+        'type' => 'announcement',
         'format' => 'story',
+        'subject_key' => 'event',
     ]);
 });
 
@@ -60,11 +63,15 @@ it('retorna as artes já geradas ao carregar a tela', function () {
         'format' => 'story',
     ])->assertOk();
 
-    $this->actingAs($admin)
+    $response = $this->actingAs($admin)
         ->getJson("/admin/api/events/{$event->id}/social-assets")
-        ->assertOk()
-        ->assertJsonPath('data.assets.story.format', 'story')
-        ->assertJsonPath('data.assets.post', null);
+        ->assertOk();
+
+    $assets = $response->json('data.assets');
+
+    expect($assets)->toHaveCount(1)
+        ->and($assets[0]['type'])->toBe('announcement')
+        ->and($assets[0]['format'])->toBe('story');
 });
 
 it('admin gera arte de post para o evento', function () {
@@ -80,7 +87,7 @@ it('admin gera arte de post para o evento', function () {
         ->assertOk()
         ->assertJsonPath('data.format', 'post');
 
-    Storage::disk('r2')->assertExists("events/{$event->id}/social/post.png");
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-post.png");
 });
 
 it('retorna 422 para formato inválido', function () {
@@ -93,6 +100,19 @@ it('retorna 422 para formato inválido', function () {
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['format']);
+});
+
+it('retorna 422 para tipo de arte inválido', function () {
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+            'type' => 'invalido',
+        ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['type']);
 });
 
 it('retorna 404 quando o evento não existe', function () {
@@ -121,7 +141,7 @@ it('gera a arte com fallback quando o evento não tem capa nem logo', function (
         ])
         ->assertOk();
 
-    Storage::disk('r2')->assertExists("events/{$event->id}/social/story.png");
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-story.png");
 });
 
 it('gera a arte com nome contendo caracteres especiais sem quebrar', function () {
@@ -138,5 +158,5 @@ it('gera a arte com nome contendo caracteres especiais sem quebrar', function ()
         ])
         ->assertOk();
 
-    Storage::disk('r2')->assertExists("events/{$event->id}/social/post.png");
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-post.png");
 });
