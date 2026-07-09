@@ -32,9 +32,17 @@ Quadro Kanban com 5 colunas (A Fazer, Em Andamento, Em Revisão, Impedimento, Co
 ### ✅ Controle de Participantes por Evento
 Importação via CSV exportado do Sympla (upsert idempotente por ordem de inscrição), visualização em cards ou lista com filtros (busca, tipo de ingresso, estado de pagamento, check-in), painel de stats (total, aprovados, barra de progresso de check-in) e exclusão individual ou total pelo admin.
 
+### ✅ Sorteio Digital por Evento
+Sorteio entre participantes aprovados com animação de contagem regressiva e confete, e-mail ofuscado na exibição pública, lista de sorteados (sem repetição por evento) e reset pelo admin.
+
+### ✅ Palestrantes (Admin)
+Listagem somente-leitura de todos os palestrantes cadastrados via CFP, com filtros por nome, cidade e estado, toggle cards/lista e modal de detalhes (bio, contato, redes sociais e histórico de palestras).
+
+### ✅ Artes de Divulgação por Evento
+Geração de imagens PNG prontas para Instagram (Story 1080×1920 e Post 1080×1080) a partir dos dados do evento, com 5 tipos de arte: chamada para o evento, divulgação de palestrante (avatar circular), divulgação de patrocinador, "ingressos esgotando" e "é amanhã". Composição via `intervention/image` (GD) com a fonte Lexend, capa do evento como fundo, cores do site do evento, rodapé com logos dos patrocinadores e download direto pelo painel. As artes ficam salvas no R2 e podem ser baixadas a qualquer momento.
+
 ### Gestão de Eventos (sub-módulos pendentes)
 - ⬜ Fórum com tópicos por evento
-- ⬜ Sorteio digital por evento
 
 ---
 
@@ -51,6 +59,9 @@ Importação via CSV exportado do Sympla (upsert idempotente por ordem de inscri
 | Build | Vite |
 | Banco de dados | MySQL 8.4 |
 | Cache / Filas / Sessão | Redis |
+| Armazenamento de mídia | Cloudflare R2 (S3-compatible) |
+| Geração de imagens | intervention/image v3 (GD) |
+| E-mail transacional | SMTP2Go |
 | Admin BD | PHPMyAdmin |
 
 ---
@@ -145,11 +156,21 @@ QUEUE_CONNECTION=redis
 ADMIN_EMAIL=admin@phpcomrapadura.org
 ADMIN_PASSWORD=mudar@123
 
-# Cloudflare R2 (upload de imagens de eventos, logos de patrocinadores, avatares)
+# Cloudflare R2 (upload de imagens de eventos, logos de patrocinadores,
+# avatares e artes de divulgação)
 # Obter em: dash.cloudflare.com → R2 → Overview
 CLOUDFLARE_R2_ACCESS_KEY_ID=
 CLOUDFLARE_R2_SECRET_ACCESS_KEY=
 CLOUDFLARE_R2_ACCOUNT_ID=       # ex: abc123def456...
 CLOUDFLARE_R2_BUCKET=phpcomrapadura
 CLOUDFLARE_R2_URL=               # ex: https://assets.phpcomrapadura.org (CDN público)
+
+# E-mail transacional via SMTP2Go (recuperação de senha do CFP)
+MAIL_MAILER=smtp
+MAIL_SCHEME=tls
+MAIL_HOST=mail.smtp2go.com
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS="contato@phpcomrapadura.org"
 ```
