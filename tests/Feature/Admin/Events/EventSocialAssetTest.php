@@ -510,3 +510,36 @@ it('gerar arte de é amanhã novamente não duplica registro', function () {
 
     expect(EventSocialAsset::where('event_id', $event->id)->where('type', 'tomorrow')->count())->toBe(1);
 });
+
+it('gera arte com rodapé de patrocinadores quando o evento tem patrocinadores', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    EventSponsor::factory()->count(3)->create(['event_id' => $event->id]);
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'story',
+        ])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-story.png");
+});
+
+it('gera arte normalmente quando o evento não tem patrocinadores', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+
+    expect($event->sponsors)->toHaveCount(0);
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", [
+            'format' => 'post',
+        ])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-post.png");
+});

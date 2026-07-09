@@ -33,6 +33,8 @@ class EventSocialAssetService
         $primaryColor = $site?->primary_color ?: '#025c98';
         $secondaryColor = $site?->secondary_color ?: '#f59e0b';
 
+        $sponsors = $event->sponsors;
+
         $canvas = $this->canvasTools->buildBackground($event->cover_image, $width, $height, $primaryColor, $secondaryColor);
         $this->canvasTools->drawOverlay($canvas, $width, $height);
         $this->canvasTools->drawLogo($canvas, $event->logo);
@@ -45,9 +47,13 @@ class EventSocialAssetService
             'format' => $format,
             'width' => $width,
             'height' => $height,
-            'tagline' => $site?->hero_tagline,
             'secondary_color' => $secondaryColor,
+            'has_sponsor_footer' => $sponsors->isNotEmpty(),
         ]);
+
+        // Rodapé com logos dos patrocinadores, aplicado após o template para que
+        // todos os tipos de arte ganhem o rodapé sem duplicação.
+        $this->canvasTools->drawSponsorFooter($canvas, $sponsors, $width, $height, $format);
 
         $content = (string) $canvas->toPng();
         $subjectKey = $this->subjectKey($type, $talk, $sponsor);

@@ -534,7 +534,10 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Artes de Divulgação — download real via `Storage::download()` (`GET .../social-assets/{asset}/download`) | ✅ Implementado |
 | Artes de Divulgação — "Ingressos esgotando" (`SellingOutTemplate`, mensagem fixa, sem assunto) | ✅ Implementado (Fase 4/5) |
 | Artes de Divulgação — "É amanhã" (`TomorrowTemplate`, data/hora, sem bloqueio de proximidade) | ✅ Implementado (Fase 5/5 — módulo completo) |
-| Testes Artes de Divulgação (29 casos) | ✅ Implementado |
+| Artes de Divulgação — redesign profissional (Lexend estática em 5 pesos, scrim em gradiente, CTA em pílula, avatar circular com anel, cartão arredondado, meta resumida via `EventMeta`) | ✅ Implementado |
+| Artes de Divulgação — rodapé de patrocínio em todas as artes (`drawSponsorFooter`, chips brancos com logos, condicional) | ✅ Implementado |
+| Artes de Divulgação — fetch de imagens com retry (3×) e cache por geração (logos externos intermitentes) | ✅ Implementado |
+| Testes Artes de Divulgação (31 casos) | ✅ Implementado |
 
 ### Segurança
 

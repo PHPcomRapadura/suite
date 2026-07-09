@@ -3,8 +3,8 @@
 namespace App\Services\SocialAssets\Templates;
 
 use App\Models\Event;
+use App\Services\SocialAssets\EventMeta;
 use App\Services\SocialAssets\SocialAssetCanvas;
-use Illuminate\Support\Str;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\Image\Typography\FontFactory;
 
@@ -17,60 +17,64 @@ class AnnouncementTemplate implements SocialAssetTemplate
         $format = $context['format'];
         $height = $context['height'];
         $width = $context['width'];
-        $tagline = $context['tagline'];
         $secondaryColor = $context['secondary_color'];
 
+        $isStory = $format === 'story';
+        $hasFooter = ! empty($context['has_sponsor_footer']);
+        $left = SocialAssetCanvas::PADDING;
         $contentWidth = $width - (SocialAssetCanvas::PADDING * 2);
-        $cursorY = (int) round($height * ($format === 'story' ? 0.42 : 0.30));
-        $gap = 30;
 
-        $title = Str::limit($event->name, 70, '…');
-        $cursorY += $tools->drawTextBlock($canvas, $title, SocialAssetCanvas::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(50);
+        $tools->drawScrim($canvas, $width, $height, $isStory ? 0.40 : 0.30);
+
+        [$date, $location] = EventMeta::dateAndLocation($event);
+        $titleSize = $isStory ? 104 : 84;
+
+        // Bloco de conteúdo ancorado embaixo (story) / metade inferior (post),
+        // dentro das safe zones do Instagram (~250px topo/rodapé no story).
+        // Quando há rodapé de patrocínio, sobe o bloco para não colidir.
+        $anchor = $isStory ? ($hasFooter ? 0.46 : 0.56) : ($hasFooter ? 0.30 : 0.42);
+        $cursorY = (int) round($height * $anchor);
+
+        // kicker
+        $cursorY += $tools->drawTextBlock($canvas, 'EVENTO', $left, $cursorY, function (FontFactory $font) use ($secondaryColor) {
+            $font->filename(SocialAssetCanvas::FONT_SEMIBOLD);
+            $font->size(30);
+            $font->color($secondaryColor);
+        }) + 24;
+
+        // barra de acento
+        $tools->drawAccentBar($canvas, $left, $cursorY, $secondaryColor);
+        $cursorY += 8 + 34;
+
+        // título-herói em Black
+        $cursorY += $tools->drawTextBlock($canvas, $event->name, $left, $cursorY, function (FontFactory $font) use ($contentWidth, $titleSize) {
+            $font->filename(SocialAssetCanvas::FONT_BLACK);
+            $font->size($titleSize);
             $font->color('#ffffff');
-            $font->lineHeight(1.15);
+            $font->lineHeight(1.05);
             $font->wrap($contentWidth);
-        }) + $gap;
+        }) + 40;
 
-        if ($tagline) {
-            $cursorY += $tools->drawTextBlock($canvas, $tagline, SocialAssetCanvas::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
-                $font->filename(SocialAssetCanvas::FONT_PATH);
-                $font->size(26);
-                $font->color('rgba(255, 255, 255, 0.95)');
-                $font->wrap($contentWidth);
-            }) + $gap;
-        }
-
-        $date = $event->starts_at ? $event->starts_at->translatedFormat('d \d\e F \d\e Y') : 'Data em breve';
-        $location = $event->location ?: 'Confira a programação';
-        $cursorY += $tools->drawTextBlock($canvas, "{$date} · {$location}", SocialAssetCanvas::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(28);
+        // data (SemiBold, linha própria)
+        $cursorY += $tools->drawTextBlock($canvas, $date, $left, $cursorY, function (FontFactory $font) {
+            $font->filename(SocialAssetCanvas::FONT_SEMIBOLD);
+            $font->size(34);
             $font->color('#ffffff');
-            $font->wrap($contentWidth);
-        }) + $gap;
+        }) + 12;
 
-        if ($event->description) {
-            $description = Str::limit($event->description, 150, '…');
-            $tools->drawTextBlock($canvas, $description, SocialAssetCanvas::PADDING, $cursorY, function (FontFactory $font) use ($contentWidth) {
-                $font->filename(SocialAssetCanvas::FONT_PATH);
-                $font->size(24);
-                $font->color('rgba(255, 255, 255, 0.9)');
-                $font->lineHeight(1.3);
+        // local resumido (Regular, linha própria)
+        if ($location) {
+            $cursorY += $tools->drawTextBlock($canvas, $location, $left, $cursorY, function (FontFactory $font) use ($contentWidth) {
+                $font->filename(SocialAssetCanvas::FONT_REGULAR);
+                $font->size(32);
+                $font->color('rgba(255, 255, 255, 0.85)');
                 $font->wrap($contentWidth);
             });
         }
 
-        $ctaY = $height - 200;
-        $canvas->drawRectangle(SocialAssetCanvas::PADDING, $ctaY, function ($rectangle) use ($secondaryColor) {
-            $rectangle->size(300, 86);
-            $rectangle->background($secondaryColor);
-        });
-        $canvas->text('Garanta sua vaga', SocialAssetCanvas::PADDING + 28, $ctaY + 28, function (FontFactory $font) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(28);
-            $font->color('#ffffff');
-        });
+        // CTA logo abaixo do bloco, mas nunca dentro da zona do rodapé de patrocínio.
+        $footerReserve = $hasFooter ? ($isStory ? 320 : 230) : ($isStory ? 200 : 130);
+        $ctaY = min($cursorY + 70, $height - $footerReserve - 100);
+        $tools->drawButton($canvas, 'Garanta sua vaga', (int) ($width / 2), $ctaY, $secondaryColor);
     }
 }

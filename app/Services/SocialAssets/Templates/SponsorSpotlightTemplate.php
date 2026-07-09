@@ -4,8 +4,8 @@ namespace App\Services\SocialAssets\Templates;
 
 use App\Models\Event;
 use App\Models\EventSponsor;
+use App\Services\SocialAssets\EventMeta;
 use App\Services\SocialAssets\SocialAssetCanvas;
-use Illuminate\Support\Str;
 use Intervention\Image\Interfaces\ImageInterface;
 use Intervention\Image\Typography\FontFactory;
 
@@ -17,11 +17,11 @@ class SponsorSpotlightTemplate implements SocialAssetTemplate
         'rapadura_tradicional' => 'Rapadura Tradicional',
     ];
 
-    private const CARD_WIDTH = 780;
+    private const CARD_WIDTH = 800;
 
     private const CARD_HEIGHT = 440;
 
-    private const CARD_TOP = 260;
+    private const CARD_RADIUS = 32;
 
     public function compose(ImageInterface $canvas, SocialAssetCanvas $tools, array $context): void
     {
@@ -29,95 +29,89 @@ class SponsorSpotlightTemplate implements SocialAssetTemplate
         $sponsor = $context['sponsor'];
         /** @var Event $event */
         $event = $context['event'];
+        $format = $context['format'];
         $width = $context['width'];
         $height = $context['height'];
         $secondaryColor = $context['secondary_color'];
 
+        $isStory = $format === 'story';
+        $hasFooter = ! empty($context['has_sponsor_footer']);
         $centerX = (int) ($width / 2);
         $contentWidth = $width - (SocialAssetCanvas::PADDING * 2);
 
-        $badgeLabel = self::LEVEL_LABELS[$sponsor->level] ?? 'Patrocinador';
-        $canvas->text(mb_strtoupper("Patrocinador {$badgeLabel}"), $centerX, self::CARD_TOP - 70, function (FontFactory $font) use ($contentWidth, $secondaryColor) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(24);
+        $tools->drawScrim($canvas, $width, $height, $isStory ? 0.40 : 0.30);
+
+        // Cartão menor no post (espaço curto) para caber CTA + rodapé.
+        $cardWidth = $isStory ? self::CARD_WIDTH : 620;
+        $cardHeight = $isStory ? self::CARD_HEIGHT : 340;
+
+        // kicker
+        $kickerY = (int) round($height * ($isStory ? 0.16 : 0.08));
+        $tools->drawTextBlock($canvas, 'PATROCINADOR OFICIAL', $centerX, $kickerY, function (FontFactory $font) use ($contentWidth, $secondaryColor) {
+            $font->filename(SocialAssetCanvas::FONT_SEMIBOLD);
+            $font->size(30);
             $font->color($secondaryColor);
             $font->align('center');
-            $font->valign('top');
             $font->wrap($contentWidth);
         });
 
-        $this->drawLogoCard($canvas, $tools, $sponsor, $centerX);
+        $cardTop = $kickerY + 60;
+        $this->drawLogoCard($canvas, $tools, $sponsor, $centerX, $cardTop, $cardWidth, $cardHeight);
 
-        $cursorY = self::CARD_TOP + self::CARD_HEIGHT + 50;
-        $gap = 24;
+        // badge de nível sobreposto à borda inferior do cartão
+        $badgeLabel = self::LEVEL_LABELS[$sponsor->level] ?? 'Patrocinador';
+        $badgeY = $cardTop + $cardHeight - 29;
+        $tools->drawPillLabel($canvas, mb_strtoupper($badgeLabel), $centerX, $badgeY, $secondaryColor);
 
-        $name = Str::limit($sponsor->name, 70, '…');
-        $cursorY += $tools->drawTextBlock($canvas, $name, $centerX, $cursorY, function (FontFactory $font) use ($contentWidth) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(44);
+        $cursorY = $cardTop + $cardHeight + ($isStory ? 80 : 60);
+
+        // evento + data (meta)
+        $cursorY += $tools->drawTextBlock($canvas, $event->name, $centerX, $cursorY, function (FontFactory $font) use ($contentWidth, $isStory) {
+            $font->filename(SocialAssetCanvas::FONT_BOLD);
+            $font->size($isStory ? 52 : 44);
             $font->color('#ffffff');
+            $font->lineHeight(1.1);
             $font->align('center');
             $font->wrap($contentWidth);
-        }) + $gap;
+        }) + 14;
 
-        $date = $event->starts_at ? $event->starts_at->translatedFormat('d \d\e F \d\e Y') : 'Data em breve';
-        $tools->drawTextBlock($canvas, "{$event->name} · {$date}", $centerX, $cursorY, function (FontFactory $font) use ($contentWidth) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(28);
-            $font->color('rgba(255, 255, 255, 0.85)');
+        $cursorY += $tools->drawTextBlock($canvas, EventMeta::date($event), $centerX, $cursorY, function (FontFactory $font) use ($contentWidth) {
+            $font->filename(SocialAssetCanvas::FONT_REGULAR);
+            $font->size(30);
+            $font->color('rgba(255, 255, 255, 0.82)');
             $font->align('center');
             $font->wrap($contentWidth);
         });
 
-        $this->drawCta($canvas, $width, $height, $secondaryColor);
+        $footerReserve = $hasFooter ? ($isStory ? 320 : 230) : ($isStory ? 200 : 130);
+        $ctaY = min($cursorY + 50, $height - $footerReserve - 100);
+        $tools->drawButton($canvas, 'Conheça nosso patrocinador', $centerX, $ctaY, $secondaryColor, '#ffffff', 30);
     }
 
-    private function drawLogoCard(ImageInterface $canvas, SocialAssetCanvas $tools, EventSponsor $sponsor, int $centerX): void
+    private function drawLogoCard(ImageInterface $canvas, SocialAssetCanvas $tools, EventSponsor $sponsor, int $centerX, int $cardTop, int $cardWidth, int $cardHeight): void
     {
-        $cardX = $centerX - (int) (self::CARD_WIDTH / 2);
-        $canvas->drawRectangle($cardX, self::CARD_TOP, function ($rectangle) {
-            $rectangle->size(self::CARD_WIDTH, self::CARD_HEIGHT);
-            $rectangle->background('#ffffff');
-        });
+        $cardX = $centerX - (int) ($cardWidth / 2);
+        $tools->drawRoundedCard($canvas, $cardX, $cardTop, $cardWidth, $cardHeight, '#ffffff', self::CARD_RADIUS);
 
         $logo = $tools->fetchImage($sponsor->logo_url);
 
         if ($logo) {
-            $logo->contain(self::CARD_WIDTH - 80, self::CARD_HEIGHT - 80, '#ffffff', 'center');
+            $logo->contain($cardWidth - 120, $cardHeight - 120, '#ffffff', 'center');
             $logoX = $centerX - (int) ($logo->width() / 2);
-            $logoY = self::CARD_TOP + (int) ((self::CARD_HEIGHT - $logo->height()) / 2);
+            $logoY = $cardTop + (int) (($cardHeight - $logo->height()) / 2);
             $canvas->place($logo, 'top-left', $logoX, $logoY);
 
             return;
         }
 
-        $canvas->text($sponsor->name, $centerX, self::CARD_TOP + (int) (self::CARD_HEIGHT / 2), function (FontFactory $font) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(40);
+        // fallback sem logo: nome do patrocinador dentro do cartão
+        $canvas->text($sponsor->name, $centerX, $cardTop + (int) ($cardHeight / 2), function (FontFactory $font) use ($cardWidth) {
+            $font->filename(SocialAssetCanvas::FONT_BOLD);
+            $font->size(48);
             $font->color('#111827');
             $font->align('center');
             $font->valign('middle');
-            $font->wrap(self::CARD_WIDTH - 80);
-        });
-    }
-
-    private function drawCta(ImageInterface $canvas, int $width, int $height, string $secondaryColor): void
-    {
-        $ctaWidth = 420;
-        $ctaHeight = 86;
-        $ctaX = (int) (($width - $ctaWidth) / 2);
-        $ctaY = $height - 200;
-
-        $canvas->drawRectangle($ctaX, $ctaY, function ($rectangle) use ($ctaWidth, $ctaHeight, $secondaryColor) {
-            $rectangle->size($ctaWidth, $ctaHeight);
-            $rectangle->background($secondaryColor);
-        });
-        $canvas->text('Conheça nosso patrocinador', (int) ($width / 2), $ctaY + ($ctaHeight / 2), function (FontFactory $font) {
-            $font->filename(SocialAssetCanvas::FONT_PATH);
-            $font->size(26);
-            $font->color('#ffffff');
-            $font->align('center');
-            $font->valign('middle');
+            $font->wrap($cardWidth - 120);
         });
     }
 }
