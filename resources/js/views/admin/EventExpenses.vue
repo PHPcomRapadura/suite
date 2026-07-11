@@ -397,6 +397,7 @@ const selectClass = 'px-3 py-2 text-sm rounded-lg border border-(--color-border)
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide whitespace-nowrap">Data</th>
                                 <th class="text-right px-4 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Valor</th>
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Status</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide whitespace-nowrap">Lançado por</th>
                                 <th v-if="isAdmin" class="px-4 py-3"/>
                             </tr>
                         </thead>
@@ -440,6 +441,7 @@ const selectClass = 'px-3 py-2 text-sm rounded-lg border border-(--color-border)
                                         {{ expense.is_paid ? 'Pago' : 'Pendente' }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-3 text-(--color-text-muted) whitespace-nowrap">{{ expense.creator?.name || '—' }}</td>
                                 <td v-if="isAdmin" class="px-4 py-3">
                                     <div class="flex items-center gap-3 justify-end">
                                         <button
@@ -460,6 +462,13 @@ const selectClass = 'px-3 py-2 text-sm rounded-lg border border-(--color-border)
                                 </td>
                             </tr>
                         </tbody>
+                        <tfoot class="border-t-2 border-(--color-border) bg-(--color-bg)">
+                            <tr>
+                                <td colspan="3" class="px-4 py-3 text-right text-xs font-semibold text-(--color-text-muted) uppercase tracking-wide">Total</td>
+                                <td class="px-4 py-3 text-right font-bold text-(--color-text) whitespace-nowrap">{{ fmt(summary.total) }}</td>
+                                <td :colspan="isAdmin ? 3 : 2"/>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 

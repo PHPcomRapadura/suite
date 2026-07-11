@@ -491,6 +491,7 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Despesas — `EventExpenseController` CRUD (admin + colaborador) | ✅ Implementado |
 | Despesas — `EventExpenseService` com upload/delete de comprovante no R2 | ✅ Implementado |
 | Despesas — `EventExpenses.vue` com toggle cards/lista e painel de totais | ✅ Implementado |
+| Despesas — modo lista com coluna "Lançado por" (`creator.name`) e rodapé de total (`summary.total`) | ✅ Implementado |
 | Despesas — `ExpenseModal.vue` (criar e editar) | ✅ Implementado |
 | Despesas — card "Despesas" no hub do evento com link ativo | ✅ Implementado |
 | Testes Despesas (22 casos) | ✅ Implementado |
