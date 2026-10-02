@@ -140,7 +140,7 @@ class EventTaskService
             'description' => $task->description,
             'status' => $task->status,
             'priority' => $task->priority,
-            'priority_label' => self::PRIORITY_LABELS[$task->priority] ?? $task->priority,
+            'priority_label' => self::PRIORITY_LABELS[$task->priority],
             'due_date' => $task->due_date?->format('Y-m-d'),
             'is_overdue' => $task->isOverdue(),
             'sort_order' => $task->sort_order,

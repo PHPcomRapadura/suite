@@ -29,7 +29,7 @@ class EventParticipantService
         $rows = array_map(fn ($line) => str_getcsv($line, ';'), $lines);
         $headers = array_shift($rows);
 
-        if ($headers === null) {
+        if ($headers === [null]) {
             throw ValidationException::withMessages(['csv' => 'O arquivo CSV está vazio.']);
         }
 
@@ -163,7 +163,7 @@ class EventParticipantService
             'email' => $participant->email,
             'ticket_type' => $participant->ticket_type,
             'amount' => $participant->amount,
-            'purchased_at' => $participant->purchased_at?->toIso8601String(),
+            'purchased_at' => $participant->purchased_at->toIso8601String(),
             'payment_status' => $participant->payment_status,
             'checked_in' => $participant->checked_in,
             'discount_coupon' => $participant->discount_coupon,

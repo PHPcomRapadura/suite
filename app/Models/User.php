@@ -40,11 +40,13 @@ class User extends Authenticatable
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** @return HasOne<Speaker, $this> */
     public function speaker(): HasOne
     {
         return $this->hasOne(Speaker::class);

@@ -26,11 +26,13 @@ class EventScheduleItem extends Model
         ];
     }
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }
 
+    /** @return BelongsTo<Talk, $this> */
     public function talk(): BelongsTo
     {
         return $this->belongsTo(Talk::class);

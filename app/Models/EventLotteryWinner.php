@@ -16,11 +16,13 @@ class EventLotteryWinner extends Model
         return ['drawn_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }
 
+    /** @return BelongsTo<EventParticipant, $this> */
     public function participant(): BelongsTo
     {
         return $this->belongsTo(EventParticipant::class);

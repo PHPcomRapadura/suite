@@ -12,16 +12,12 @@ class EventMeta
 {
     public static function date(Event $event): string
     {
-        return $event->starts_at
-            ? $event->starts_at->translatedFormat('d \d\e F \d\e Y')
-            : 'Data em breve';
+        return $event->starts_at->translatedFormat('d \d\e F \d\e Y');
     }
 
     public static function dateTime(Event $event): string
     {
-        return $event->starts_at
-            ? $event->starts_at->translatedFormat('d \d\e F \d\e Y \à\s H\hi')
-            : 'Data em breve';
+        return $event->starts_at->translatedFormat('d \d\e F \d\e Y \à\s H\hi');
     }
 
     /**
