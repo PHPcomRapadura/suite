@@ -1,0 +1,47 @@
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SERVER_PRIVATE_KEY }}
+      - name: Configure trusted SSH host
+        env:
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$DEPLOY_KNOWN_HOSTS"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Push deployment to Tevun
+        env:
+          DEPLOY_REMOTE: ${{ vars.DEPLOY_REMOTE }}
+        run: |
+          cp .environment/phpcomrapadura.org/docker-compose.override.yml docker-compose.override.yml
+          rm -rf .git
+          git init --initial-branch=main
+          git config user.name "GitHub Actions"
+          git config user.email "ci@phpcomrapadura.org"
+          git add .
+          git commit -m "build: Deploy $GITHUB_SHA"
+          git remote add production "$DEPLOY_REMOTE"
+          git push production main --force

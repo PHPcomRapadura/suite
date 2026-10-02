@@ -1,0 +1,42 @@
+services:
+  app:
+    ports: !reset []
+    environment:
+      VIRTUAL_HOST: phpcomrapadura.org,www.phpcomrapadura.org,php,phpcomrapadura.devi.tools
+      VIRTUAL_PORT: 80
+      LETSENCRYPT_HOST: phpcomrapadura.org,www.phpcomrapadura.org,phpcomrapadura.devi.tools
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?Set LETSENCRYPT_EMAIL}
+    networks:
+      - reverse-proxy
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mysql:
+    ports: !reset []
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysqladmin ping -h localhost --silent']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  redis:
+    ports: !reset []
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    profiles: [tools]
+    ports: !reset []
+
+networks:
+  reverse-proxy:
+    external: true
