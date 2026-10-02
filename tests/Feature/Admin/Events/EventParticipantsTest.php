@@ -111,7 +111,7 @@ it('filtro checked_in=1 retorna apenas quem fez check-in', function () {
 
 it('admin faz upload de CSV válido e recebe imported e updated', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;William;Marques;Lote 1;R$ 0,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Não;;gratis;;gratis\n";
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -132,7 +132,7 @@ it('upload upsert re-upload atualiza registro existente sem duplicar', function 
         'email' => 'wilcorrea@gmail.com',
     ]);
 
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;William;Marques Atualizado;Lote 2;R$ 50,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Sim;;;;\n";
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -148,7 +148,7 @@ it('upload upsert re-upload atualiza registro existente sem duplicar', function 
 
 it('colaborador tenta upload e recebe 403', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;João;Silva;Lote 1;R$ 0,00;2025-03-13 20:25:38;;joao@example.com;Aprovado;Não;;;;\n";
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
 
@@ -188,8 +188,8 @@ it('upload com coluna obrigatória ausente retorna 422', function () {
 
 it('upload com linha inválida retorna 200 com errors preenchido', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
-           "1;;William;Marques;Lote 1;R$ 0,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Não;;;;\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
+           "1;;William;Marques;Lote 1;R$ 0,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Não;;;;\n".
            "2;;Sem Nome;;;R$ 0,00;2025-03-13 20:25:38;;;Aprovado;Não;;;;\n"; // Email vazio
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -208,7 +208,7 @@ it('upload com linha inválida retorna 200 com errors preenchido', function () {
 
 it('upload parseia valor "R$ 1.500,00" para 1500.00', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;William;Marques;Lote VIP;R$ 1.500,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Não;;;;\n";
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -222,7 +222,7 @@ it('upload parseia valor "R$ 1.500,00" para 1500.00', function () {
 
 it('upload parseia Check-in "Sim" para true', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;William;Marques;Lote 1;R$ 0,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Sim;;;;\n";
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -236,7 +236,7 @@ it('upload parseia Check-in "Sim" para true', function () {
 
 it('upload parseia Check-in "Não" para false', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;William;Marques;Lote 1;R$ 0,00;2025-03-13 20:25:38;;wilcorrea@gmail.com;Aprovado;Não;;;;\n";
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -250,7 +250,7 @@ it('upload parseia Check-in "Não" para false', function () {
 
 it('upload parseia nomes em maiúsculas via mb_strtoupper', function () {
     $event = Event::factory()->create();
-    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csv = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
            "1;;joão;da silva;Lote 1;R$ 0,00;2025-03-13 20:25:38;;joao@example.com;Aprovado;Não;;;;\n";
 
     $file = UploadedFile::fake()->createWithContent('participants.csv', $csv);
@@ -266,7 +266,7 @@ it('upload parseia nomes em maiúsculas via mb_strtoupper', function () {
 
 it('upload com encoding Latin-1 importa corretamente', function () {
     $event = Event::factory()->create();
-    $csvUtf8 = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n" .
+    $csvUtf8 = "Ordem de inscrição;Nº ingresso;Nome;Sobrenome;Tipo de ingresso;Valor;Data compra;Nº pedido;Email;Estado de pagamento;Check-in;Data Check-in (*);Cupom de Desconto;Identificador de Parceiro;Método de pagamento\n".
                "1;;José;Araújo;Lote 1;R$ 0,00;2025-03-13 20:25:38;;jose@example.com;Aprovado;Não;;;;\n";
     $csvLatin1 = mb_convert_encoding($csvUtf8, 'ISO-8859-1', 'UTF-8');
 

@@ -14,15 +14,15 @@ class SpeakerFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'      => User::factory()->palestrante(),
-            'bio'          => fake('pt_BR')->paragraph(),
-            'company'      => fake('pt_BR')->company(),
-            'avatar_url'   => null,
+            'user_id' => User::factory()->palestrante(),
+            'bio' => fake('pt_BR')->paragraph(),
+            'company' => fake('pt_BR')->company(),
+            'avatar_url' => null,
             'phone_number' => null,
-            'website'      => null,
-            'twitter'      => fake()->userName(),
-            'github'       => fake()->userName(),
-            'linkedin'     => null,
+            'website' => null,
+            'twitter' => fake()->userName(),
+            'github' => fake()->userName(),
+            'linkedin' => null,
         ];
     }
 }

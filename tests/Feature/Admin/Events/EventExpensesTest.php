@@ -85,7 +85,7 @@ it('listagem retorna summary com totais corretos', function () {
 });
 
 it('listagem retorna category_label junto com cada despesa', function () {
-    $event   = Event::factory()->create();
+    $event = Event::factory()->create();
     EventExpense::factory()->for($event)->create(['category' => 'transporte']);
 
     $response = $this->actingAs(User::factory()->admin()->create())
@@ -103,11 +103,11 @@ it('admin cria despesa sem comprovante', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/expenses", [
-            'category'    => 'alimentacao',
+            'category' => 'alimentacao',
             'description' => 'Coffee break dia 1',
-            'amount'      => 350.00,
-            'date'        => '2026-06-01',
-            'is_paid'     => true,
+            'amount' => 350.00,
+            'date' => '2026-06-01',
+            'is_paid' => true,
         ])
         ->assertCreated()
         ->assertJsonPath('data.category', 'alimentacao')
@@ -118,15 +118,15 @@ it('admin cria despesa sem comprovante', function () {
 
 it('colaborador cria despesa', function () {
     $colaborador = User::factory()->colaborador()->create();
-    $event       = Event::factory()->create();
+    $event = Event::factory()->create();
 
     $this->actingAs($colaborador)
         ->postJson("/admin/api/events/{$event->id}/expenses", [
-            'category'    => 'transporte',
+            'category' => 'transporte',
             'description' => 'Passagens aéreas',
-            'amount'      => 1200.00,
-            'date'        => '2026-05-20',
-            'is_paid'     => false,
+            'amount' => 1200.00,
+            'date' => '2026-05-20',
+            'is_paid' => false,
         ])
         ->assertCreated();
 });
@@ -138,12 +138,12 @@ it('admin cria despesa com comprovante', function () {
 
     $this->actingAs($admin)
         ->post("/admin/api/events/{$event->id}/expenses", [
-            'category'    => 'equipamentos',
+            'category' => 'equipamentos',
             'description' => 'Projetor alugado',
-            'amount'      => 800.00,
-            'date'        => '2026-06-01',
-            'is_paid'     => true,
-            'receipt'     => UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf'),
+            'amount' => 800.00,
+            'date' => '2026-06-01',
+            'is_paid' => true,
+            'receipt' => UploadedFile::fake()->create('nota.pdf', 100, 'application/pdf'),
         ], ['Accept' => 'application/json'])
         ->assertCreated();
 
@@ -158,10 +158,10 @@ it('criar com amount zero retorna 422', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/expenses", [
-            'category'    => 'outros',
+            'category' => 'outros',
             'description' => 'Teste',
-            'amount'      => 0,
-            'date'        => '2026-06-01',
+            'amount' => 0,
+            'date' => '2026-06-01',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['amount']);
@@ -172,10 +172,10 @@ it('criar com date futura retorna 422', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/expenses", [
-            'category'    => 'outros',
+            'category' => 'outros',
             'description' => 'Teste',
-            'amount'      => 100,
-            'date'        => now()->addDays(5)->format('Y-m-d'),
+            'amount' => 100,
+            'date' => now()->addDays(5)->format('Y-m-d'),
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['date']);
@@ -186,10 +186,10 @@ it('criar com category invalida retorna 422', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/expenses", [
-            'category'    => 'invalida',
+            'category' => 'invalida',
             'description' => 'Teste',
-            'amount'      => 100,
-            'date'        => '2026-06-01',
+            'amount' => 100,
+            'date' => '2026-06-01',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['category']);
@@ -198,17 +198,17 @@ it('criar com category invalida retorna 422', function () {
 // ─── Edição ───────────────────────────────────────────────────────────────────
 
 it('admin edita despesa', function () {
-    $admin   = User::factory()->admin()->create();
-    $event   = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->create(['description' => 'Descrição original', 'amount' => 100]);
 
     $this->actingAs($admin)
         ->putJson("/admin/api/events/{$event->id}/expenses/{$expense->id}", [
-            'category'    => $expense->category,
+            'category' => $expense->category,
             'description' => 'Descrição atualizada',
-            'amount'      => 250.00,
-            'date'        => $expense->date->format('Y-m-d'),
-            'is_paid'     => true,
+            'amount' => 250.00,
+            'date' => $expense->date->format('Y-m-d'),
+            'is_paid' => true,
         ])
         ->assertOk()
         ->assertJsonPath('data.description', 'Descrição atualizada')
@@ -216,34 +216,34 @@ it('admin edita despesa', function () {
 });
 
 it('colaborador tenta editar despesa e recebe 403', function () {
-    $event   = Event::factory()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->create();
 
     $this->actingAs(User::factory()->colaborador()->create())
         ->putJson("/admin/api/events/{$event->id}/expenses/{$expense->id}", [
-            'category'    => $expense->category,
+            'category' => $expense->category,
             'description' => 'Tentativa',
-            'amount'      => 999,
-            'date'        => $expense->date->format('Y-m-d'),
+            'amount' => 999,
+            'date' => $expense->date->format('Y-m-d'),
         ])
         ->assertForbidden();
 });
 
 it('admin edita despesa substituindo comprovante', function () {
     Storage::fake('r2');
-    $admin   = User::factory()->admin()->create();
-    $event   = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->withReceipt()->create();
 
     $this->actingAs($admin)
         ->post("/admin/api/events/{$event->id}/expenses/{$expense->id}", [
-            '_method'     => 'PUT',
-            'category'    => $expense->category,
+            '_method' => 'PUT',
+            'category' => $expense->category,
             'description' => $expense->description,
-            'amount'      => $expense->amount,
-            'date'        => $expense->date->format('Y-m-d'),
-            'is_paid'     => $expense->is_paid ? '1' : '0',
-            'receipt'     => UploadedFile::fake()->create('novo.pdf', 50, 'application/pdf'),
+            'amount' => $expense->amount,
+            'date' => $expense->date->format('Y-m-d'),
+            'is_paid' => $expense->is_paid ? '1' : '0',
+            'receipt' => UploadedFile::fake()->create('novo.pdf', 50, 'application/pdf'),
         ], ['Accept' => 'application/json'])
         ->assertOk();
 
@@ -255,8 +255,8 @@ it('admin edita despesa substituindo comprovante', function () {
 // ─── Exclusão ─────────────────────────────────────────────────────────────────
 
 it('admin exclui despesa sem comprovante', function () {
-    $admin   = User::factory()->admin()->create();
-    $event   = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->create();
 
     $this->actingAs($admin)
@@ -268,8 +268,8 @@ it('admin exclui despesa sem comprovante', function () {
 
 it('admin exclui despesa com comprovante e remove arquivo do R2', function () {
     Storage::fake('r2');
-    $admin   = User::factory()->admin()->create();
-    $event   = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->withReceipt()->create();
 
     $this->actingAs($admin)
@@ -280,7 +280,7 @@ it('admin exclui despesa com comprovante e remove arquivo do R2', function () {
 });
 
 it('colaborador tenta excluir despesa e recebe 403', function () {
-    $event   = Event::factory()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->create();
 
     $this->actingAs(User::factory()->colaborador()->create())
@@ -291,9 +291,9 @@ it('colaborador tenta excluir despesa e recebe 403', function () {
 // ─── Isolamento ───────────────────────────────────────────────────────────────
 
 it('despesa de outro evento retorna 404', function () {
-    $admin   = User::factory()->admin()->create();
-    $event1  = Event::factory()->create();
-    $event2  = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event1 = Event::factory()->create();
+    $event2 = Event::factory()->create();
     $expense = EventExpense::factory()->for($event2)->create();
 
     $this->actingAs($admin)
@@ -302,7 +302,7 @@ it('despesa de outro evento retorna 404', function () {
 });
 
 it('usuario nao autenticado recebe 401', function () {
-    $event   = Event::factory()->create();
+    $event = Event::factory()->create();
     $expense = EventExpense::factory()->for($event)->create();
 
     $this->deleteJson("/admin/api/events/{$event->id}/expenses/{$expense->id}")

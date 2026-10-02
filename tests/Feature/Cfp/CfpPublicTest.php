@@ -30,8 +30,8 @@ it('retorna eventos com CFP aberto', function () {
 it('retorna eventos com CFP aguardando', function () {
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->create([
-        'event_id'  => $event->id,
-        'opens_at'  => now()->addDays(10),
+        'event_id' => $event->id,
+        'opens_at' => now()->addDays(10),
         'closes_at' => now()->addDays(40),
     ]);
 
@@ -90,7 +90,7 @@ it('palestrante realiza login com sucesso', function () {
     $user = User::factory()->palestrante()->create();
 
     $this->postJson('/cfp/login', [
-        'email'    => $user->email,
+        'email' => $user->email,
         'password' => 'password',
     ])
         ->assertOk()
@@ -101,7 +101,7 @@ it('admin também pode fazer login pelo endpoint cfp', function () {
     $admin = User::factory()->admin()->create();
 
     $this->postJson('/cfp/login', [
-        'email'    => $admin->email,
+        'email' => $admin->email,
         'password' => 'password',
     ])
         ->assertOk()
@@ -112,7 +112,7 @@ it('credenciais inválidas retornam 401', function () {
     User::factory()->palestrante()->create(['email' => 'test@example.com']);
 
     $this->postJson('/cfp/login', [
-        'email'    => 'test@example.com',
+        'email' => 'test@example.com',
         'password' => 'senha-errada',
     ])->assertUnauthorized();
 });
@@ -121,7 +121,7 @@ it('usuário inativo recebe 403 ao tentar login', function () {
     $user = User::factory()->palestrante()->create(['is_active' => false]);
 
     $this->postJson('/cfp/login', [
-        'email'    => $user->email,
+        'email' => $user->email,
         'password' => 'password',
     ])->assertForbidden();
 });

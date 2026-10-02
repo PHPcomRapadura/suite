@@ -39,11 +39,11 @@ it('admin cria configuração do site', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 2,
-            'primary_color'   => '#ff0000',
+            'layout' => 2,
+            'primary_color' => '#ff0000',
             'secondary_color' => '#00ff00',
-            'font'            => 'inter',
-            'hero_tagline'    => 'O melhor evento PHP',
+            'font' => 'inter',
+            'hero_tagline' => 'O melhor evento PHP',
         ])
         ->assertCreated()
         ->assertJsonPath('data.layout', 2)
@@ -56,10 +56,10 @@ it('colaborador pode criar configuração do site', function () {
 
     $this->actingAs($colab)
         ->postJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 1,
-            'primary_color'   => '#025c98',
+            'layout' => 1,
+            'primary_color' => '#025c98',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
+            'font' => 'lexend',
         ])
         ->assertCreated();
 });
@@ -71,10 +71,10 @@ it('retorna 422 ao criar segundo site para o mesmo evento', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 1,
-            'primary_color'   => '#025c98',
+            'layout' => 1,
+            'primary_color' => '#025c98',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
+            'font' => 'lexend',
         ])
         ->assertUnprocessable();
 });
@@ -84,10 +84,10 @@ it('retorna 422 com cor primária inválida', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 1,
-            'primary_color'   => 'nao-e-hex',
+            'layout' => 1,
+            'primary_color' => 'nao-e-hex',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
+            'font' => 'lexend',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['primary_color']);
@@ -98,10 +98,10 @@ it('retorna 422 com layout inválido', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 9,
-            'primary_color'   => '#025c98',
+            'layout' => 9,
+            'primary_color' => '#025c98',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
+            'font' => 'lexend',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['layout']);
@@ -112,11 +112,11 @@ it('retorna 422 com URL de ingresso inválida', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 1,
-            'primary_color'   => '#025c98',
+            'layout' => 1,
+            'primary_color' => '#025c98',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
-            'ticket_url'      => 'nao-e-url',
+            'font' => 'lexend',
+            'ticket_url' => 'nao-e-url',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['ticket_url']);
@@ -131,10 +131,10 @@ it('admin atualiza configuração do site', function () {
 
     $this->actingAs($admin)
         ->putJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 3,
-            'primary_color'   => '#111111',
+            'layout' => 3,
+            'primary_color' => '#111111',
             'secondary_color' => '#222222',
-            'font'            => 'poppins',
+            'font' => 'poppins',
             'code_of_conduct' => '## Código de Conduta',
         ])
         ->assertOk()
@@ -155,11 +155,11 @@ it('FAQ é salvo e retornado corretamente como array', function () {
 
     $this->actingAs($admin)
         ->putJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 1,
-            'primary_color'   => '#025c98',
+            'layout' => 1,
+            'primary_color' => '#025c98',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
-            'faq'             => $faq,
+            'font' => 'lexend',
+            'faq' => $faq,
         ])
         ->assertOk()
         ->assertJsonCount(2, 'data.faq')
@@ -171,10 +171,10 @@ it('retorna 404 ao atualizar site inexistente', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->putJson("/admin/api/events/{$event->id}/site", [
-            'layout'          => 1,
-            'primary_color'   => '#025c98',
+            'layout' => 1,
+            'primary_color' => '#025c98',
             'secondary_color' => '#f59e0b',
-            'font'            => 'lexend',
+            'font' => 'lexend',
         ])
         ->assertNotFound();
 });
@@ -232,7 +232,7 @@ it('admin adiciona patrocinador sem logo', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/site/sponsors", [
-            'name'  => 'Empresa X',
+            'name' => 'Empresa X',
             'level' => 'rapadura_com_castanha',
         ])
         ->assertCreated()
@@ -245,7 +245,7 @@ it('admin adiciona patrocinador com upload de logo', function () {
 
     $admin = User::factory()->admin()->create();
     $event = Event::factory()->create();
-    $logo  = UploadedFile::fake()->image('logo.png');
+    $logo = UploadedFile::fake()->image('logo.png');
 
     $this->actingAs($admin)
         ->post(
@@ -265,7 +265,7 @@ it('retorna 422 com nível inválido ao criar patrocinador', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/site/sponsors", [
-            'name'  => 'Empresa Z',
+            'name' => 'Empresa Z',
             'level' => 'nivel_invalido',
         ])
         ->assertUnprocessable()
@@ -275,13 +275,13 @@ it('retorna 422 com nível inválido ao criar patrocinador', function () {
 // ─── Patrocinadores — Update ──────────────────────────────────────────────────
 
 it('admin atualiza patrocinador', function () {
-    $admin   = User::factory()->admin()->create();
-    $event   = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
     $sponsor = EventSponsor::factory()->create(['event_id' => $event->id, 'name' => 'Antigo Nome']);
 
     $this->actingAs($admin)
         ->putJson("/admin/api/events/{$event->id}/site/sponsors/{$sponsor->id}", [
-            'name'  => 'Novo Nome',
+            'name' => 'Novo Nome',
             'level' => 'rapadura_com_coco',
         ])
         ->assertOk()
@@ -291,8 +291,8 @@ it('admin atualiza patrocinador', function () {
 // ─── Patrocinadores — Destroy ─────────────────────────────────────────────────
 
 it('admin remove patrocinador', function () {
-    $admin   = User::factory()->admin()->create();
-    $event   = Event::factory()->create();
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
     $sponsor = EventSponsor::factory()->create(['event_id' => $event->id]);
 
     $this->actingAs($admin)
@@ -307,8 +307,8 @@ it('admin remove patrocinador', function () {
 it('reordenar atualiza sort_order dos patrocinadores', function () {
     $admin = User::factory()->admin()->create();
     $event = Event::factory()->create();
-    $s1    = EventSponsor::factory()->create(['event_id' => $event->id, 'sort_order' => 0]);
-    $s2    = EventSponsor::factory()->create(['event_id' => $event->id, 'sort_order' => 1]);
+    $s1 = EventSponsor::factory()->create(['event_id' => $event->id, 'sort_order' => 0]);
+    $s2 = EventSponsor::factory()->create(['event_id' => $event->id, 'sort_order' => 1]);
 
     $this->actingAs($admin)
         ->patchJson("/admin/api/events/{$event->id}/site/sponsors/reorder", [

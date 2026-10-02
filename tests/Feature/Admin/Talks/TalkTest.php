@@ -33,9 +33,9 @@ it('filtro por status retorna apenas palestras do status informado', function ()
 });
 
 it('retorna 404 ao acessar palestra de outro evento', function () {
-    $event       = Event::factory()->create();
+    $event = Event::factory()->create();
     $outroEvento = Event::factory()->create();
-    $talk        = Talk::factory()->for($outroEvento)->create();
+    $talk = Talk::factory()->for($outroEvento)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->getJson("/admin/api/events/{$event->id}/talks/{$talk->id}")
@@ -46,7 +46,7 @@ it('retorna 404 ao acessar palestra de outro evento', function () {
 
 it('coloca palestra em análise', function () {
     $event = Event::factory()->create();
-    $talk  = Talk::factory()->submetida()->for($event)->create();
+    $talk = Talk::factory()->submetida()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
@@ -58,7 +58,7 @@ it('coloca palestra em análise', function () {
 
 it('aprova palestra em análise', function () {
     $event = Event::factory()->create();
-    $talk  = Talk::factory()->emAnalise()->for($event)->create();
+    $talk = Talk::factory()->emAnalise()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
@@ -70,11 +70,11 @@ it('aprova palestra em análise', function () {
 
 it('rejeita palestra com feedback', function () {
     $event = Event::factory()->create();
-    $talk  = Talk::factory()->emAnalise()->for($event)->create();
+    $talk = Talk::factory()->emAnalise()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
-            'status'   => 'rejeitada',
+            'status' => 'rejeitada',
             'feedback' => 'O tema não está alinhado com o público deste evento.',
         ])
         ->assertOk()
@@ -83,7 +83,7 @@ it('rejeita palestra com feedback', function () {
 
 it('rejeitar sem feedback retorna 422', function () {
     $event = Event::factory()->create();
-    $talk  = Talk::factory()->emAnalise()->for($event)->create();
+    $talk = Talk::factory()->emAnalise()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
@@ -95,7 +95,7 @@ it('rejeitar sem feedback retorna 422', function () {
 
 it('reabre palestra rejeitada para análise', function () {
     $event = Event::factory()->create();
-    $talk  = Talk::factory()->rejeitada()->for($event)->create();
+    $talk = Talk::factory()->rejeitada()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
@@ -107,7 +107,7 @@ it('reabre palestra rejeitada para análise', function () {
 
 it('transição inválida retorna 422', function () {
     $event = Event::factory()->create();
-    $talk  = Talk::factory()->cancelada()->for($event)->create();
+    $talk = Talk::factory()->cancelada()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
@@ -117,9 +117,9 @@ it('transição inválida retorna 422', function () {
 });
 
 it('retorna 404 ao avaliar palestra de outro evento', function () {
-    $event       = Event::factory()->create();
+    $event = Event::factory()->create();
     $outroEvento = Event::factory()->create();
-    $talk        = Talk::factory()->for($outroEvento)->create();
+    $talk = Talk::factory()->for($outroEvento)->create();
 
     $this->actingAs(User::factory()->admin()->create())
         ->patchJson("/admin/api/events/{$event->id}/talks/{$talk->id}/status", [
