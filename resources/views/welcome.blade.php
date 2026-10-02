@@ -614,7 +614,7 @@
 
                 <div class="footer__brand">
                     <a href="#hero" class="footer__logo-link">
-                        <img src="{{ asset('images/phpcomrapadura_branca.svg') }}" alt="PHP com Rapadura" class="footer__logo">
+                        <img src="{{ asset('images/phpcomrapadura_branca.svg') }}" alt="PHP com Rapadura" class="footer__logo" width="300" height="91">
                     </a>
                     <p class="footer__tagline">Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.</p>
                 </div>
