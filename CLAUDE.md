@@ -401,6 +401,22 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 
 ---
 
+## Grafo de conhecimento (graphify)
+
+`graphify-out/` contém o grafo do projeto gerado pelo **graphify** (código via AST + specs/docs via extração semântica):
+
+| Arquivo | Versionado | Conteúdo |
+|---------|-----------|----------|
+| `graph.json` | ✅ | Grafo completo (nós, arestas, comunidades) |
+| `graph.html` | ✅ | Visualização interativa (abrir no navegador) |
+| `GRAPH_REPORT.md` | ✅ | Relatório: god nodes, conexões, comunidades |
+| `.graphify_labels.json` | ✅ | Nomes das comunidades |
+| `cache/`, `manifest.json`, `cost.json`, `.graphify_python`, `.graphify_root` | ❌ (`.gitignore`) | Cache e metadados locais da máquina |
+
+Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<pergunta>"`). Após mudanças relevantes, atualize com `/graphify . --update`.
+
+---
+
 ## Status atual
 
 ### Site institucional
