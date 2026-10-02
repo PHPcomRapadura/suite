@@ -20,6 +20,14 @@ jobs:
     environment: production
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build production assets
+        run: |
+          npm ci
+          npm run build
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SERVER_PRIVATE_KEY }}
@@ -42,6 +50,8 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "ci@phpcomrapadura.org"
           git add .
+          git add -f public/build
+          if [ -f public/fonts-manifest.json ]; then git add -f public/fonts-manifest.json; fi
           git commit -m "build: Deploy $GITHUB_SHA"
           git remote add production "$DEPLOY_REMOTE"
           git push production main --force
