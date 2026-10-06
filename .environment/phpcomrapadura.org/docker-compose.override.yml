@@ -4,9 +4,9 @@ services:
   app:
     ports: !reset []
     environment:
-      VIRTUAL_HOST: phpcomrapadura.org,www.phpcomrapadura.org,php,phpcomrapadura.devi.tools
+      VIRTUAL_HOST: phpcomrapadura.org,www.phpcomrapadura.org,php,phpcomrapadura.devi.tools,phpcomrapadura.dev.br
       VIRTUAL_PORT: 80
-      LETSENCRYPT_HOST: phpcomrapadura.devi.tools
+      LETSENCRYPT_HOST: phpcomrapadura.devi.tools,phpcomrapadura.dev.br
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?Set LETSENCRYPT_EMAIL}
     networks:
       - reverse-proxy
