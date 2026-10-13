@@ -367,7 +367,7 @@ Configuração: `captainhook.json` e `phpstan.neon` na raiz do projeto.
 
 ## CI/CD
 
-`.github/workflows/ci.yaml`: pull requests rodam o job `quality` (Pint, Larastan, Pest, caches do Laravel, migrations em MariaDB 11.4 — o banco de produção). **Todo push em `main` é um deploy em produção** (https://novo.phpcomrapadura.org) depois do mesmo gate, mais o deploy de staging no Tevun. Detalhes e rollback no `README.md` ("Deploy (CI/CD)"). Nunca faça merge com o CI vermelho: migrations em `main` rodam em produção em minutos (há dump antes, mas o rollback do banco é manual).
+`.github/workflows/ci.yaml`: pull requests rodam o job `quality` (Pint, Larastan, Pest, caches do Laravel, migrations em MariaDB 11.4 — o banco de produção). **Todo push em `main` é um deploy em produção** (https://phpcomrapadura.org) depois do mesmo gate, mais o deploy de staging no Tevun. Detalhes e rollback no `README.md` ("Deploy (CI/CD)"). Nunca faça merge com o CI vermelho: migrations em `main` rodam em produção em minutos (há dump antes, mas o rollback do banco é manual).
 
 ---
 

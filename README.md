@@ -185,7 +185,7 @@ Todo push em `main` passa pelo workflow `.github/workflows/ci.yaml`:
 3. **deploy-production** — envia o tarball assinado (HMAC) para o receptor no servidor da comunidade. Lá um script extrai a release, roda as migrations pendentes (com dump antes), troca a release atomicamente e verifica `/up` e `/`. O job espera o resultado e mostra o log do servidor; se algo falhar, a release anterior volta sozinha e o job fica vermelho.
 4. **deploy-staging** — o deploy já existente para o Tevun (`phpcomrapadura.dev.br`).
 
-Produção: https://novo.phpcomrapadura.org (fase 1 da migração do WordPress; o apex vem depois).
+Produção: https://phpcomrapadura.org (o WordPress antigo continua em https://legacy.phpcomrapadura.org até ser desligado; `novo.` e `www.` redirecionam para o apex).
 
 **Rollback:** `git revert` em `main` (passa pelo mesmo pipeline) ou re-executar o job `deploy-production` do último run bom.
 
