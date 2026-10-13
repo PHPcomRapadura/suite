@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Back to top button
     const backToTopBtn = document.getElementById('back-to-top');
     window.addEventListener('scroll', () => {
+        if (!backToTopBtn) return;
         if (window.scrollY > 400) {
             backToTopBtn.classList.add('visible');
             backToTopBtn.setAttribute('aria-hidden', 'false');
@@ -134,7 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
     backToTopBtn?.addEventListener('click', () => {
-        document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' });
+        // Páginas sem #hero (ex.: /blog) voltam ao topo da janela
+        const hero = document.getElementById('hero');
+        if (hero) {
+            hero.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     });
 
     // Smooth scroll indicator

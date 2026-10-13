@@ -10,10 +10,11 @@ Single-page Blade + Tailwind CSS v4 com as seções:
 - **Código de Conduta** — compromisso + regras comportamentais
 - **Contato** — email com botão copiar + 6 redes sociais
 - **Footer** — fundo azul com marca d'água ilustração nordestina, logo branca, nav e copyright
+- **Blog** (`/blog`, página própria) — feed dos posts do WordPress legado lido pela REST API (`BlogService`): cards 1/2/3 cols com imagem (destacada → primeira do conteúdo → placeholder), categoria, data, título, resumo, autor e link "Ler post →" para o texto completo no blog; paginação 9 por página; cache de 1 h por página + última cópia boa por 7 dias como fallback quando a API falha; conteúdo da API tratado como não confiável
 
 Recursos transversais do site:
 - Loader "Perainda!" com favicon girando (`.page-loader` / `.page-loader.hidden`)
-- Header fixo com scroll spy e menu mobile (drawer com focus trap)
+- Header fixo com scroll spy e menu mobile (drawer com focus trap) — partials `site-header` / `site-footer` compartilhados pela home e pelo blog, com item "Blog" no menu
 - Back-to-top button contextual
 - Transições de entrada (fade+slide `translateY(40px)`) via IntersectionObserver (`.section-hidden` + `.section-visible`)
 - SEO completo (OG, Twitter Card, JSON-LD, sitemap, robots.txt)

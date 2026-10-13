@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SpeakerController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\CfpPublicController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Cfp\AccountController;
 use App\Http\Controllers\Cfp\CfpAuthController;
 use App\Http\Controllers\Cfp\CfpPasswordResetController;
@@ -195,6 +196,9 @@ Route::prefix('cfp')->name('cfp.')->group(function () {
     Route::get('/', fn () => view('cfp'))->name('home');
     Route::get('/{any}', fn () => view('cfp'))->where('any', '.*');
 });
+
+// Blog — posts do WordPress legado lidos pela REST API (ver config/blog.php)
+Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 
 Route::get('/sitemap.xml', function () {
     $content = view('sitemap');

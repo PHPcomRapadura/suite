@@ -19,6 +19,12 @@
         <priority>0.9</priority>
     </url>
     <url>
+        <loc>{{ url('/blog') }}</loc>
+        <lastmod>{{ now()->toDateString() }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>{{ url('/') }}#codigo-de-conduta</loc>
         <lastmod>2026-06-02</lastmod>
         <changefreq>yearly</changefreq>

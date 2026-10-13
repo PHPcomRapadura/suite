@@ -115,89 +115,12 @@
 <body class="bg-(--color-bg) text-(--color-text) antialiased">
 
     {{-- ===================== LOADER ===================== --}}
-    {{-- Skip to main content (acessibilidade + SEO) --}}
-    <a href="#hero" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:bg-(--color-primary) focus:text-white focus:px-4 focus:py-2 focus:rounded focus:text-sm focus:font-medium">
-        Pular para o conteúdo principal
-    </a>
-    {{-- Região live para anúncios de leitores de tela --}}
-    <div id="a11y-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
-
     <div id="page-loader" class="page-loader">
         <img src="{{ asset('images/favicon.png') }}" alt="" class="page-loader__icon" aria-hidden="true">
         <p class="page-loader__text">Perainda!</p>
     </div>
 
-    {{-- ===================== HEADER ===================== --}}
-    <header class="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b border-(--color-border)">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
-
-            {{-- Logo --}}
-            <a href="#hero" class="flex items-center rounded focus-visible:outline-2 focus-visible:outline-(--color-primary) focus-visible:outline-offset-4">
-                <img src="{{ asset('images/PHPcomRapadura_color.svg') }}" alt="PHP com Rapadura" class="h-9">
-            </a>
-
-            {{-- Desktop nav --}}
-            <nav class="hidden md:flex items-center gap-8" aria-label="Navegação principal">
-                <a href="#hero"              class="nav-link active">Início</a>
-                <a href="#sobre"             class="nav-link">Sobre</a>
-                <a href="#eventos"           class="nav-link">Eventos</a>
-                <a href="#codigo-de-conduta" class="nav-link">Código de conduta</a>
-                <a href="#contato"           class="nav-link">Contato</a>
-            </nav>
-
-            {{-- Hamburger button --}}
-            <button
-                id="menu-btn"
-                aria-label="Abrir menu"
-                aria-expanded="false"
-                aria-controls="mobile-menu"
-                class="md:hidden p-2 -mr-2 text-(--color-text-muted) hover:text-(--color-primary) transition-colors rounded focus-visible:outline-2 focus-visible:outline-(--color-primary)"
-            >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                    <line x1="3"  y1="6"  x2="21" y2="6"/>
-                    <line x1="3"  y1="12" x2="21" y2="12"/>
-                    <line x1="3"  y1="18" x2="21" y2="18"/>
-                </svg>
-            </button>
-
-        </div>
-    </header>
-
-    {{-- ===================== MOBILE MENU ===================== --}}
-    <div id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu de navegação" class="fixed inset-0 z-40 md:hidden">
-
-        {{-- Backdrop --}}
-        <div id="menu-backdrop" class="absolute inset-0 bg-black/40"></div>
-
-        {{-- Drawer panel --}}
-        <nav class="drawer-panel absolute top-0 right-0 bottom-0 w-72 bg-white shadow-xl flex flex-col" aria-label="Menu mobile">
-
-            {{-- Panel header --}}
-            <div class="flex items-center justify-between px-6 h-16 border-b border-(--color-border) flex-shrink-0">
-                <img src="{{ asset('images/PHPcomRapadura_color.svg') }}" alt="PHP com Rapadura" class="h-8">
-                <button
-                    id="menu-close"
-                    aria-label="Fechar menu"
-                    class="p-2 -mr-2 text-(--color-text-muted) hover:text-(--color-primary) transition-colors rounded focus-visible:outline-2 focus-visible:outline-(--color-primary)"
-                >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                        <line x1="18" y1="6"  x2="6"  y2="18"/>
-                        <line x1="6"  y1="6"  x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
-
-            {{-- Links --}}
-            <div class="flex flex-col px-6 py-2">
-                <a href="#hero"              class="mobile-nav-link active">Início</a>
-                <a href="#sobre"             class="mobile-nav-link">Sobre</a>
-                <a href="#eventos"           class="mobile-nav-link">Eventos</a>
-                <a href="#codigo-de-conduta" class="mobile-nav-link">Código de conduta</a>
-                <a href="#contato"           class="mobile-nav-link" style="border-bottom: none">Contato</a>
-            </div>
-
-        </nav>
-    </div>
+    @include('partials.site-header')
 
     <main id="main-content">
 
@@ -598,50 +521,7 @@
 
     </main>{{-- fim do conteúdo principal --}}
 
-    {{-- ===================== FOOTER ===================== --}}
-    <footer class="footer" style="background-image: url('{{ asset('images/footer.jpg') }}')">
-        <div class="footer__content">
-
-            {{-- Linha superior: nav + logo --}}
-            <div class="footer__top">
-                <nav aria-label="Rodapé — navegação" class="footer__nav">
-                    <a href="#hero"              class="footer__nav-link">Início</a>
-                    <a href="#sobre"             class="footer__nav-link">Sobre</a>
-                    <a href="#eventos"           class="footer__nav-link">Eventos</a>
-                    <a href="#codigo-de-conduta" class="footer__nav-link">Código de conduta</a>
-                    <a href="#contato"           class="footer__nav-link">Contato</a>
-                </nav>
-
-                <div class="footer__brand">
-                    <a href="#hero" class="footer__logo-link">
-                        <img src="{{ asset('images/phpcomrapadura_branca.svg') }}" alt="PHP com Rapadura" class="footer__logo" width="300" height="91">
-                    </a>
-                    <p class="footer__tagline">Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.</p>
-                </div>
-            </div>
-
-            {{-- Separador --}}
-            <div class="footer__divider"></div>
-
-            {{-- Copyright --}}
-            <p class="footer__copyright">
-                © 2014–2026 PHP com Rapadura. Todos os direitos reservados.
-            </p>
-
-        </div>
-    </footer>
-
-    {{-- Botão voltar ao topo --}}
-    <button
-        id="back-to-top"
-        aria-label="Voltar ao topo"
-        aria-hidden="true"
-        class="back-to-top"
-    >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="18 15 12 9 6 15"/>
-        </svg>
-    </button>
+    @include('partials.site-footer')
 
 </body>
 </html>

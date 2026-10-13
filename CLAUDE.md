@@ -28,7 +28,7 @@ Checklist rápido pré-commit:
 
 Suite de aplicações da comunidade **PHP com Rapadura**, composta por três módulos:
 
-1. **Site institucional** *(implementado)* — Blade + Tailwind CSS v4, single-page com âncoras
+1. **Site institucional** *(implementado)* — Blade + Tailwind CSS v4, single-page com âncoras + página `/blog` (posts do WordPress legado)
 2. **Call for Papers (CFP)** *(implementado)* — submissão de propostas de palestras
 3. **Gestão de Eventos** *(a implementar)* — painel administrativo para organizadores
 
@@ -40,22 +40,33 @@ Stack: **Laravel 13 + PHP 8.4 | Blade (site) + Vue.js 3 SPA (admin) | Tailwind C
 
 ### Site institucional (Blade)
 
-O site é uma **single-page Blade** com seções âncora. Não usa Vue.js.
+O site é uma **single-page Blade** com seções âncora, mais a página `/blog`. Não usa Vue.js.
 
 ```
-resources/views/welcome.blade.php   # página principal
-resources/css/app.css               # Tailwind v4 + design tokens + CSS customizado
-resources/js/app.js                 # Vanilla JS (scroll spy, menu, animações)
-public/images/                      # Imagens e SVGs estáticos
+resources/views/welcome.blade.php            # página principal
+resources/views/blog.blade.php               # /blog — feed dos posts do WordPress legado
+resources/views/partials/site-header.blade.php  # skip link, header fixo, nav desktop e drawer mobile (home + blog)
+resources/views/partials/site-footer.blade.php  # footer + botão voltar ao topo (home + blog)
+app/Http/Controllers/BlogController.php      # paginação, 404s, JSON-LD da página do blog
+app/Services/BlogService.php                 # REST API do WordPress → arrays normalizados, cache + fallback
+config/blog.php                              # BLOG_URL, BLOG_PER_PAGE, BLOG_CACHE_TTL, BLOG_STALE_TTL, BLOG_TIMEOUT
+resources/css/app.css                        # Tailwind v4 + design tokens + CSS customizado
+resources/js/app.js                          # Vanilla JS (scroll spy, menu, animações)
+public/images/                               # Imagens e SVGs estáticos
 ```
 
 Rota principal e adicionais:
 ```
 GET /              → view('welcome', compact('events'))  — events = publicado, starts_at DESC
+GET /blog          → BlogController@index — posts do WordPress legado via REST API (cache 1 h + última cópia boa 7 dias); ?page=N, 404 fora do intervalo
 GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
 GET /{slug}        → EventSitePublicController@show (última rota — 404 se não publicado)
 ```
+
+> **Header/footer compartilhados:** os partials recebem `$homePrefix` (`''` na home, `url('/')` nas outras páginas, para as âncoras `#sobre` etc. continuarem funcionando), `$navActive` (`'hero'` na home, `'blog'` no blog) e `$skipTarget`. O scroll spy do `app.js` marca o item ativo pelo `href === '#id'` de cada `section[id]`; uma página que quer um item fixo como ativo (caso do `/blog`) **não pode ter `section[id]`**, senão o observer desmarca o item. Spec: `.claude/specs/site/blog-spec.md`.
+
+> **Blog:** nada do WordPress vai para o banco. Conteúdo da API é tratado como não confiável (texto puro, links só dentro de `BLOG_URL`, imagens só `https://`). Com a API fora, o site serve a última cópia em cache; sem cache, mostra um aviso com link para o blog. Só escalares vão para o cache (a data fica como string e vira Carbon depois): os stores `file`/`redis` restringem `allowed_classes` no unserialize e objetos Carbon quebram em produção, embora o store `array` dos testes aceite. `Http::fake` + `Http::preventStrayRequests()` nos testes.
 
 > **`@` em Blade (armadilha):** o compilador Blade interpreta `@php`, `@if`, etc. como diretivas. Strings como `@phpcomrapadura` ou `contato@phpcomrapadura.org` podem ser compiladas erroneamente. A solução correta é definir variáveis PHP no topo do template (`@php $contactEmail = '...' @endphp`) e usar `{{ $var }}` — dentro de expressões `{{ }}` o `@` nunca é processado como diretiva. Evitar `@@` como escape genérico: ele só funciona quando o segundo `@` inicia um diretivo reconhecido pelo Blade.
 
@@ -436,6 +447,8 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Código de Conduta | ✅ Implementado |
 | Contato | ✅ Implementado |
 | Footer | ✅ Implementado |
+| Blog (`/blog`) — feed dos posts do WordPress legado via REST API, cache + fallback, item "Blog" no menu/footer | ✅ Implementado |
+| Testes Blog (20 casos) | ✅ Implementado |
 | SEO | ✅ 9.5/10 |
 | Acessibilidade | ✅ 8.5/10 |
 | Mobile Friendly | ✅ 8.5/10 |

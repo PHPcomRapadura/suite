@@ -5,7 +5,7 @@ Suite de aplicações de uso da comunidade PHP com Rapadura.
 ## Módulos
 
 ### ✅ Site Institucional
-Single-page com as seções: Hero, Sobre, Eventos, Código de Conduta, Contato e Footer.
+Single-page com as seções: Hero, Sobre, Eventos, Código de Conduta, Contato e Footer, mais a página `/blog` com o feed dos posts do WordPress legado (REST API, cache de 1 h e fallback para a última cópia boa).
 Inclui loader "Perainda!", scroll spy, animações de entrada via IntersectionObserver e SEO completo.
 
 ### ✅ Admin — Autenticação
@@ -163,6 +163,11 @@ CLOUDFLARE_R2_SECRET_ACCESS_KEY=
 CLOUDFLARE_R2_ACCOUNT_ID=       # ex: abc123def456...
 CLOUDFLARE_R2_BUCKET=phpcomrapadura
 CLOUDFLARE_R2_URL=               # ex: https://assets.phpcomrapadura.org (CDN público)
+
+# Blog — /blog lista os posts do WordPress legado pela REST API
+# (vazio usa https://legacy.phpcomrapadura.org; cache por página em segundos)
+BLOG_URL=
+BLOG_CACHE_TTL=3600
 
 # E-mail transacional via SMTP2Go (recuperação de senha do CFP)
 MAIL_MAILER=smtp
