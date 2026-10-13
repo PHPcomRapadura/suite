@@ -145,21 +145,32 @@ public function hasAdminAccess(): bool
 Arquivo: `database/seeders/AdminUserSeeder.php`
 
 ```php
+// config/app.php
+'admin' => [
+    'email'    => env('ADMIN_EMAIL', 'admin@phpcomrapadura.org'),
+    'password' => env('ADMIN_PASSWORD'),
+],
+
+// AdminUserSeeder
+$email    = config('app.admin.email') ?: 'admin@phpcomrapadura.org';
+$password = config('app.admin.password'); // vazio: aborta em produção, gera aleatória em dev
+
 User::create([
     'name'       => 'Administrador',
-    'email'      => env('ADMIN_EMAIL', 'admin@phpcomrapadura.org'),
-    'password'   => env('ADMIN_PASSWORD', 'mudar@123'),
+    'email'      => $email,
+    'password'   => $password,
     'role'       => 'admin',
     'is_active'  => true,
     'created_by' => null,
 ]);
 ```
 
-- Credenciais via `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`) — nunca hardcodar em produção
+- Credenciais via `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`), expostas em `config('app.admin')` — nunca hardcodar em produção
 - Adicionar ao `DatabaseSeeder`: `$this->call(AdminUserSeeder::class)`
 - Executar: `php artisan db:seed --class=AdminUserSeeder`
+- Testes: `tests/Feature/Database/AdminUserSeederTest.php`
 
-> **Armadilha:** se `ADMIN_PASSWORD=` existir no `.env` com valor vazio, `env('ADMIN_PASSWORD', 'mudar@123')` retorna `''` (string vazia) — **não** usa o default. O admin fica com senha vazia e o login falha. Sempre defina um valor explícito antes de rodar a seed.
+> **Armadilha:** a seed deve ler `config()`, nunca `env()` direto. Em produção a config fica em cache (`php artisan config:cache`) e `env()` retorna `null` fora dos arquivos de config — a seed abortava com "ADMIN_PASSWORD não definido" mesmo com o valor no `.env`. Nos arquivos de config, `env('ADMIN_EMAIL', default)` retorna `''` quando a chave existe vazia, por isso a seed aplica o padrão com `?:`.
 
 Adicionar ao `.env.example`:
 ```dotenv

@@ -150,9 +150,8 @@ SESSION_DRIVER=redis
 CACHE_STORE=redis
 QUEUE_CONNECTION=redis
 
-# Primeiro admin (gerado via seed)
-# ATENÇÃO: valor vazio faz env() retornar '' em vez de usar o default da seed.
-# Sempre defina um valor antes de rodar php artisan db:seed.
+# Primeiro admin (gerado via seed; lido de config('app.admin'), funciona com a config em cache)
+# ADMIN_EMAIL vazio usa admin@phpcomrapadura.org. ADMIN_PASSWORD é obrigatório em produção.
 ADMIN_EMAIL=admin@phpcomrapadura.org
 ADMIN_PASSWORD=mudar@123
 

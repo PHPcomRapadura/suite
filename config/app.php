@@ -107,6 +107,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Primeiro administrador (seed)
+    |--------------------------------------------------------------------------
+    |
+    | Lidos pela AdminUserSeeder via config(), nunca env(): depois de
+    | `php artisan config:cache` o env() retorna null fora dos arquivos de config.
+    |
+    */
+
+    'admin' => [
+        'email' => env('ADMIN_EMAIL', 'admin@phpcomrapadura.org'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
