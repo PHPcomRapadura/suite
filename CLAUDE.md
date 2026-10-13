@@ -488,7 +488,7 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | CFP — API `GET /cfp/api/my-talks` retornando propostas + stats | ✅ Implementado |
 | CFP — recuperação de senha (`ForgotPassword.vue` + `ResetPassword.vue`) | ✅ Implementado |
 | CFP — `CfpPasswordResetController` + `CfpResetPasswordMail` + template HTML | ✅ Implementado |
-| Configuração de e-mail via SMTP2Go (`mail.smtp2go.com:587`, TLS) | ✅ Implementado |
+| Configuração de e-mail via SMTP2Go (`mail.smtp2go.com:587`, STARTTLS — `MAIL_SCHEME=smtp`; `tls` não é aceito pelo Symfony Mailer) | ✅ Implementado |
 | Site do evento — seção "Sobre o evento" (exibe `events.description`) | ✅ Implementado |
 | Site do evento — seção CFP com banner e botão `/cfp` (quando `is_accepting_talks`) | ✅ Implementado |
 | Site do evento — configuração admin (`/admin/events/{id}/site`) | ✅ Implementado |

@@ -166,7 +166,7 @@ CLOUDFLARE_R2_URL=               # ex: https://assets.phpcomrapadura.org (CDN p�
 
 # E-mail transacional via SMTP2Go (recuperação de senha do CFP)
 MAIL_MAILER=smtp
-MAIL_SCHEME=tls
+MAIL_SCHEME=smtp
 MAIL_HOST=mail.smtp2go.com
 MAIL_PORT=587
 MAIL_USERNAME=
