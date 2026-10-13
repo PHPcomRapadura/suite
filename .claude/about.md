@@ -25,11 +25,11 @@ Recursos transversais do site:
 - Login/logout com sessão + cookie HttpOnly
 - Roles: `admin`, `colaborador`, `palestrante`
 - Middleware `EnsureAdminRole` protege todas as rotas `/admin/*`
-- Seed do primeiro admin via `ADMIN_EMAIL` / `ADMIN_PASSWORD` no `.env`
+- Seed do primeiro admin via `ADMIN_EMAIL` / `ADMIN_PASSWORD` no `.env`, lidos por `config('app.admin')` (funciona com `config:cache`)
 - 20 testes de feature cobrindo todos os cenários de autenticação
 - Página de login com dark mode correto
 
-> **Atenção com `ADMIN_PASSWORD` no `.env`:** se a chave existir com valor vazio (`ADMIN_PASSWORD=`), o PHP retorna `''` e o default do `env()` não é usado. Sempre preencha o valor antes de rodar a seed em um novo ambiente.
+> **`ADMIN_PASSWORD` no `.env`:** obrigatório em produção (a seed aborta se vazio); em dev, vazio gera uma senha aleatória exibida uma vez. `ADMIN_EMAIL` vazio usa `admin@phpcomrapadura.org`. A seed lê `config('app.admin')` — nunca `env()` direto, que retorna `null` quando a config está em cache.
 
 ### ✅ Admin — CRUD de Eventos (implementado)
 

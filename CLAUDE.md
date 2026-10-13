@@ -169,7 +169,7 @@ PUT  /admin/api/events/{id}/site/schedule/{item}        → EventScheduleControl
 DELETE /admin/api/events/{id}/site/schedule/{item}      → EventScheduleController@destroy  [auth]
 ```
 
-> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
+> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`. O nome dessas rotas de página não pode repetir o de uma rota de API (`admin.events.show` é a API; a página é `admin.events.page`): nomes duplicados quebram `php artisan route:cache`, e `optimize` esconde o erro. `tests/Feature/RouteNamesTest.php` garante a unicidade.
 
 ### Upload de imagens — Cloudflare R2
 
@@ -565,7 +565,7 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Rate limiting — `throttle:auth` (5/min por IP+e-mail) em login/registro/forgot/reset; limiter `api` (60/min) | ✅ Implementado |
 | `TrustProxies` configurável via `TRUSTED_PROXIES` (CDN/LB) | ✅ Implementado |
 | Security headers — middleware `SecurityHeaders` (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS em HTTPS, CSP em produção) | ✅ Implementado |
-| Seed admin — senha previsível removida; aborta em produção sem `ADMIN_PASSWORD`, gera aleatória em dev | ✅ Implementado |
+| Seed admin — senha previsível removida; aborta em produção sem `ADMIN_PASSWORD`, gera aleatória em dev; lê `config('app.admin')` (não `env()`, que retorna null com `config:cache`) | ✅ Implementado |
 | Lockout — `UserService::isLastActiveAdmin` impede rebaixar/desativar o último admin ativo | ✅ Implementado |
 | Import CSV — limite de 10.000 linhas (anti-DoS) | ✅ Implementado |
 | `.env.example` — `SESSION_SECURE_COOKIE`, `TRUSTED_PROXIES` e avisos de produção | ✅ Implementado |
