@@ -169,7 +169,7 @@ PUT  /admin/api/events/{id}/site/schedule/{item}        → EventScheduleControl
 DELETE /admin/api/events/{id}/site/schedule/{item}      → EventScheduleController@destroy  [auth]
 ```
 
-> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
+> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`. O nome dessas rotas de página não pode repetir o de uma rota de API (`admin.events.show` é a API; a página é `admin.events.page`): nomes duplicados quebram `php artisan route:cache`, e `optimize` esconde o erro. `tests/Feature/RouteNamesTest.php` garante a unicidade.
 
 ### Upload de imagens — Cloudflare R2
 
