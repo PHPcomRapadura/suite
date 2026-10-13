@@ -161,7 +161,7 @@ jobs:
     timeout-minutes: 20
     environment:
       name: production
-      url: https://novo.phpcomrapadura.org
+      url: https://phpcomrapadura.org
     concurrency:
       group: deploy-production
       cancel-in-progress: false
