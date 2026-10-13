@@ -173,3 +173,20 @@ MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_FROM_ADDRESS="contato@phpcomrapadura.org"
 ```
+
+---
+
+## Deploy (CI/CD)
+
+Todo push em `main` passa pelo workflow `.github/workflows/ci.yaml`:
+
+1. **quality** — Pint, Larastan, Pest, caches do Laravel (`config`, `event`, `view`, `route`) e as migrations em MariaDB 11.4 (o banco de produção). Pull requests rodam só este job.
+2. **build** — `composer install --no-dev`, `npm run build` e um tarball da release (artifact `suite-<sha>`, guardado 30 dias).
+3. **deploy-production** — envia o tarball assinado (HMAC) para o receptor no servidor da comunidade. Lá um script extrai a release, roda as migrations pendentes (com dump antes), troca a release atomicamente e verifica `/up` e `/`. O job espera o resultado e mostra o log do servidor; se algo falhar, a release anterior volta sozinha e o job fica vermelho.
+4. **deploy-staging** — o deploy já existente para o Tevun (`phpcomrapadura.dev.br`).
+
+Produção: https://novo.phpcomrapadura.org (fase 1 da migração do WordPress; o apex vem depois).
+
+**Rollback:** `git revert` em `main` (passa pelo mesmo pipeline) ou re-executar o job `deploy-production` do último run bom.
+
+Os segredos (`DEPLOY_HOOK_SECRET`, `DEPLOY_URL`) ficam no environment `production` do GitHub, restrito à branch `main`. Um push em `main` chega em produção em cerca de 6 minutos — não faça merge com o CI vermelho.
