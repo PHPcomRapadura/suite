@@ -617,6 +617,11 @@
                         <img src="{{ asset('images/phpcomrapadura_branca.svg') }}" alt="PHP com Rapadura" class="footer__logo" width="300" height="91">
                     </a>
                     <p class="footer__tagline">Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.</p>
+                    {{-- Selo da rede --}}
+                    <a class="rpd-badge rpd-badge--dark" href="https://rapadura.net" target="_blank" rel="noopener">
+                        <svg class="rpd-badge__mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="15" fill="#e8884a"/><path d="M23 48V18M23 30c0-9 7-12 18-12" fill="none" stroke="#2b1a10" stroke-width="10" stroke-linecap="round"/></svg>
+                        <span class="rpd-badge__text"><span class="rpd-badge__eyebrow">Powered by</span><span class="rpd-badge__name">Rapadura Network</span></span>
+                    </a>
                 </div>
             </div>
 

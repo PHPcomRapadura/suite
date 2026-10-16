@@ -228,6 +228,10 @@ A sintaxe `(--color-X)` gera `background-color: var(--color-bg)` (correto).
 }
 ```
 
+### Selo "Powered by Rapadura Network"
+
+Todo rodapé público (site institucional, `/cfp`, os 3 layouts do site do evento) termina com o selo da rede: `.rpd-badge` em `app.css` (tom `--dark` em fundo escuro, `--light` em fundo claro) e o componente `RapaduraBadge.vue` (`tone="dark"|"light"`). O mesmo selo está em todos os hotsites e no WordPress legado; não altere o visual só aqui. `tests/Feature/NetworkBadgeTest.php` cobre a home.
+
 ### Regras de UI
 
 - Mobile-first: telas funcionam a partir de 360px
