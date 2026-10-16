@@ -670,6 +670,28 @@ html {
     }
 }
 
+.footer__brand .rpd-badge {
+    margin-top: 14px;
+}
+
+/* ---------- Selo "Powered by Rapadura Network" ----------
+   The same lockup every site on the network carries (see RapaduraBadge.vue
+   for the Vue pages). Its own type stack and colours, so it reads the same
+   everywhere; only the tone follows the footer behind it. */
+.rpd-badge{display:inline-flex;align-items:center;gap:.7rem;padding:.55rem 1.05rem .55rem .6rem;border:1px solid;border-radius:14px;line-height:1.15;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-weight:400;text-decoration:none;text-transform:none;letter-spacing:0;white-space:nowrap;vertical-align:middle;transition:background-color .2s ease,border-color .2s ease}
+.rpd-badge:hover,.rpd-badge:focus{text-decoration:none}
+.rpd-badge:focus-visible{outline:2px solid #e8884a;outline-offset:3px}
+.rpd-badge__mark{width:30px;height:30px;flex:none;display:block}
+.rpd-badge__text{display:flex;flex-direction:column;gap:.18rem;text-align:left}
+.rpd-badge__eyebrow{font-size:.64rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;opacity:.68}
+.rpd-badge__name{font-size:.92rem;font-weight:600;letter-spacing:-.005em}
+.rpd-badge--dark,.rpd-badge--dark:hover,.rpd-badge--dark:focus{color:#fff}
+.rpd-badge--dark{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
+.rpd-badge--dark:hover{border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.11)}
+.rpd-badge--light,.rpd-badge--light:hover,.rpd-badge--light:focus{color:#2b1a10}
+.rpd-badge--light{border-color:rgba(43,26,16,.14);background:rgba(43,26,16,.035)}
+.rpd-badge--light:hover{border-color:rgba(43,26,16,.3);background:rgba(43,26,16,.06)}
+
 /* Back to top button */
 .back-to-top {
     position: fixed;

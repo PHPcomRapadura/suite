@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import RapaduraBadge from '@/components/RapaduraBadge.vue'
 
 const props = defineProps({
     event:    { type: Object, required: true },
@@ -419,8 +420,9 @@ onUnmounted(() => {
         </main>
 
         <!-- Footer -->
-        <footer class="text-center text-sm text-(--color-text-muted) py-8 border-t border-(--color-border)">
-            {{ event.name }} · PHP com Rapadura
+        <footer class="text-center text-sm text-(--color-text-muted) py-8 border-t border-(--color-border) flex flex-col items-center gap-4">
+            <span>{{ event.name }} · PHP com Rapadura</span>
+            <RapaduraBadge />
         </footer>
 
         <!-- Back to top -->
