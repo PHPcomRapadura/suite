@@ -564,7 +564,7 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Artes de Divulgação — redesign profissional (Lexend estática em 5 pesos, scrim em gradiente, CTA em pílula, avatar circular com anel, cartão arredondado, meta resumida via `EventMeta`) | ✅ Implementado |
 | Artes de Divulgação — rodapé de patrocínio em todas as artes (`drawSponsorFooter`, chips brancos com logos, condicional) | ✅ Implementado |
 | Artes de Divulgação — fetch de imagens com retry (3×) e cache por geração (logos externos intermitentes) | ✅ Implementado |
-| Testes Artes de Divulgação (31 casos) | ✅ Implementado |
+| Testes Artes de Divulgação (33 casos) | ✅ Implementado |
 
 ### Segurança
 

@@ -26,6 +26,10 @@ class SocialAssetCanvas
 
     private const LOGO_SIZE = 140;
 
+    // Acima desta razão (proporção da capa ÷ proporção do canvas), cover()
+    // cortaria mais de ~30% da largura; a capa passa a entrar inteira.
+    private const COVER_CROP_LIMIT = 1.4;
+
     // O canvas é rasterizado com GD, que não sabe carregar fontes web (woff/woff2).
     // A Lexend variável renderiza apenas a instância padrão no GD (não há bold real),
     // então usamos instâncias estáticas: cada peso é um TTF próprio.
@@ -66,11 +70,79 @@ class SocialAssetCanvas
     {
         $cover = $this->fetchImage($coverImageUrl);
 
-        if ($cover) {
+        if (! $cover) {
+            return $this->buildGradient($width, $height, $primaryColor, $secondaryColor);
+        }
+
+        // Capa bem mais larga que o canvas (ex.: capa quadrada num story 9:16):
+        // cover() cortaria boa parte das laterais (logo e ilustração da arte).
+        // Nesse caso a capa entra inteira, ajustada à largura, sobre um fundo
+        // em degradê com as cores das bordas dela, esfumando as emendas.
+        $coverRatio = $cover->width() / $cover->height();
+        if ($coverRatio / ($width / $height) < self::COVER_CROP_LIMIT) {
             return $cover->cover($width, $height);
         }
 
-        return $this->buildGradient($width, $height, $primaryColor, $secondaryColor);
+        return $this->buildLetterboxedCover($cover, $width, $height);
+    }
+
+    private function buildLetterboxedCover(ImageInterface $cover, int $width, int $height): ImageInterface
+    {
+        $foreground = (clone $cover)->scale(width: $width);
+        $foregroundHeight = $foreground->height();
+        $topColor = $this->edgeColor($foreground, 'top');
+        $bottomColor = $this->edgeColor($foreground, 'bottom');
+
+        $top = min((int) round($height * 0.08), max(0, $height - $foregroundHeight));
+        $canvas = $this->manager->create($width, $height)->fill($bottomColor);
+        if ($top > 0) {
+            $canvas->drawRectangle(0, 0, function ($rectangle) use ($width, $top, $topColor) {
+                $rectangle->size($width, $top);
+                $rectangle->background($topColor);
+            });
+        }
+        $canvas->place($foreground, 'top-left', 0, $top);
+
+        $fade = (int) round($foregroundHeight * 0.18);
+        $this->fadeEdge($canvas, $width, $top, $fade, $topColor, fadeOut: false);
+        $this->fadeEdge($canvas, $width, $top + $foregroundHeight - $fade, $fade, $bottomColor, fadeOut: true);
+
+        return $canvas;
+    }
+
+    /**
+     * Cor média de uma faixa da borda (topo/base) da imagem, em hex.
+     */
+    private function edgeColor(ImageInterface $image, string $edge): string
+    {
+        $stripHeight = max(1, (int) round($image->height() * 0.05));
+        $y = $edge === 'top' ? 0 : $image->height() - $stripHeight;
+
+        return (clone $image)
+            ->crop($image->width(), $stripHeight, 0, $y)
+            ->resize(1, 1)
+            ->pickColor(0, 0)
+            ->toHex('#');
+    }
+
+    /**
+     * Esfuma uma faixa horizontal em direção a uma cor sólida: fadeOut=true
+     * vai de transparente (topo da faixa) a opaco (base); false, o inverso.
+     */
+    private function fadeEdge(ImageInterface $canvas, int $width, int $y, int $fadeHeight, string $color, bool $fadeOut): void
+    {
+        [$r, $g, $b] = $this->hexToRgb($color);
+        $step = 4;
+
+        for ($offset = 0; $offset < $fadeHeight; $offset += $step) {
+            $progress = $offset / $fadeHeight;
+            $alpha = round($fadeOut ? $progress : 1 - $progress, 3);
+
+            $canvas->drawRectangle(0, $y + $offset, function ($rectangle) use ($width, $step, $r, $g, $b, $alpha) {
+                $rectangle->size($width, $step);
+                $rectangle->background("rgba({$r}, {$g}, {$b}, {$alpha})");
+            });
+        }
     }
 
     public function buildGradient(int $width, int $height, string $from, string $to): ImageInterface

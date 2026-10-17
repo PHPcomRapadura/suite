@@ -5,6 +5,7 @@ use App\Models\EventSocialAsset;
 use App\Models\EventSponsor;
 use App\Models\Talk;
 use App\Models\User;
+use App\Services\SocialAssets\SocialAssetCanvas;
 use Illuminate\Support\Facades\Storage;
 
 it('admin gera arte de story para o evento', function () {
@@ -542,4 +543,42 @@ it('gera arte normalmente quando o evento não tem patrocinadores', function () 
         ->assertOk();
 
     Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-post.png");
+});
+
+it('story com capa quadrada mantém a capa inteira em vez de cortar as laterais', function () {
+    Storage::fake('r2');
+
+    // Capa 400×400 com faixas vermelhas nas bordas laterais: cover() num story
+    // 9:16 cortaria essas faixas; o enquadramento por largura as preserva.
+    $cover = imagecreatetruecolor(400, 400);
+    imagefill($cover, 0, 0, imagecolorallocate($cover, 0, 0, 255));
+    $red = imagecolorallocate($cover, 255, 0, 0);
+    imagefilledrectangle($cover, 0, 0, 19, 399, $red);
+    imagefilledrectangle($cover, 380, 0, 399, 399, $red);
+    ob_start();
+    imagepng($cover);
+    Storage::disk('r2')->put('events/1/cover.png', ob_get_clean());
+
+    $tools = new SocialAssetCanvas;
+    $canvas = $tools->buildBackground(Storage::disk('r2')->url('events/1/cover.png'), 1080, 1920, '#025c98', '#f59e0b');
+
+    expect($canvas->width())->toBe(1080)
+        ->and($canvas->height())->toBe(1920)
+        ->and($canvas->pickColor(5, 960)->toHex())->toBe('ff0000')
+        ->and($canvas->pickColor(1074, 960)->toHex())->toBe('ff0000');
+});
+
+it('post com capa quadrada continua preenchendo o canvas inteiro', function () {
+    Storage::fake('r2');
+
+    $cover = imagecreatetruecolor(400, 400);
+    imagefill($cover, 0, 0, imagecolorallocate($cover, 0, 0, 255));
+    ob_start();
+    imagepng($cover);
+    Storage::disk('r2')->put('events/1/cover.png', ob_get_clean());
+
+    $canvas = (new SocialAssetCanvas)->buildBackground(Storage::disk('r2')->url('events/1/cover.png'), 1080, 1080, '#025c98', '#f59e0b');
+
+    expect($canvas->pickColor(0, 0)->toHex())->toBe('0000ff')
+        ->and($canvas->pickColor(1079, 1079)->toHex())->toBe('0000ff');
 });

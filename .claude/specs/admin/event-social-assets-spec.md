@@ -91,7 +91,7 @@ A tela deve ser leve e direta, sem muita configuração no primeiro momento.
 
 O template inicial deve seguir uma estética limpa e profissional, com:
 
-- fundo com imagem de capa do evento ou um gradiente de fallback;
+- fundo com imagem de capa do evento ou um gradiente de fallback; capa muito mais larga que o formato (ex.: quadrada no story) entra inteira, ajustada à largura, com as bordas esfumadas em vez de cortada;
 - overlay escuro para garantir legibilidade;
 - nome do evento em destaque;
 - data e local do evento;
