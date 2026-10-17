@@ -77,7 +77,9 @@ class EventSocialAssetController extends Controller
             'subject_key' => $asset->subject_key,
             'talk_id' => $asset->talk_id,
             'sponsor_id' => $asset->sponsor_id,
-            'asset_url' => $asset->url,
+            // O PNG é sobrescrito no mesmo path a cada geração; a versão na query
+            // impede que navegador/CDN sirvam a arte anterior no preview.
+            'asset_url' => $asset->updated_at ? "{$asset->url}?v={$asset->updated_at->timestamp}" : $asset->url,
             'generated_at' => $asset->updated_at?->toIso8601String(),
         ];
     }

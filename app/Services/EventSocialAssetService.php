@@ -66,10 +66,18 @@ class EventSocialAssetService
 
         Storage::disk('r2')->put($path, $content, 'public');
 
-        return EventSocialAsset::updateOrCreate(
+        $asset = EventSocialAsset::updateOrCreate(
             ['event_id' => $event->id, 'type' => $type, 'format' => $format, 'subject_key' => $subjectKey],
             ['url' => Storage::disk('r2')->url($path), 'path' => $path, 'talk_id' => $talk?->id, 'sponsor_id' => $sponsor?->id],
         );
+
+        // Ao regerar, url/path são os mesmos e o updateOrCreate não grava nada:
+        // o touch() garante que updated_at (a "versão" da arte) avance.
+        if (! $asset->wasRecentlyCreated && ! $asset->wasChanged()) {
+            $asset->touch();
+        }
+
+        return $asset;
     }
 
     private function resolveTemplate(string $type): SocialAssetTemplate

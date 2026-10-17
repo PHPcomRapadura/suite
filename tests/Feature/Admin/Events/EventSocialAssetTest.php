@@ -56,6 +56,24 @@ it('gerar novamente atualiza o registro existente em vez de duplicar', function 
     expect(EventSocialAsset::where('event_id', $event->id)->where('format', 'story')->count())->toBe(1);
 });
 
+it('gerar novamente muda a asset_url e o generated_at para o preview recarregar', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create();
+    $url = "/admin/api/events/{$event->id}/social-assets/generate";
+
+    $first = $this->actingAs($admin)->postJson($url, ['format' => 'story'])->assertOk()->json('data');
+
+    $this->travel(5)->minutes();
+
+    $second = $this->actingAs($admin)->postJson($url, ['format' => 'story'])->assertOk()->json('data');
+
+    expect($second['asset_url'])->not->toBe($first['asset_url'])
+        ->and($second['asset_url'])->toContain('.png?v=')
+        ->and($second['generated_at'])->not->toBe($first['generated_at']);
+});
+
 it('retorna as artes já geradas ao carregar a tela', function () {
     Storage::fake('r2');
 
