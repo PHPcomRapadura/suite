@@ -213,19 +213,42 @@ class {Model}Service
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class {Model} extends Model
 {
     protected $fillable = [
+        'event_id',
         'name',
         'is_active',
     ];
 
-    protected $casts = [
-        'is_active' => 'boolean',
+    // Espelhe aqui os defaults da migration usados logo após o create()
+    protected $attributes = [
+        'is_active' => true,
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
+    /** @return BelongsTo<Event, $this> */
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
+    }
 }
 ```
+
+Regras (exigidas pelo Larastan no pre-commit):
+
+- **Todo relacionamento tem `@return` genérico:** `BelongsTo<Related, $this>`, `HasMany<Related, $this>`, `HasOne<Related, $this>`. Sem isso, `$model->relacao->campo` vira `Model::$campo` indefinido.
+- **Casts no método `casts()`:** o `phpstan.neon` ativa `parseModelCastsMethod: true`, então `datetime` é inferido como `Carbon`.
+- **Nullsafe (`?->`) só em colunas `nullable()`:** o Larastan lê as migrations e acusa `?->` em coluna `NOT NULL`.
+- **Defaults do banco não existem em memória:** após `create()` sem o campo, o atributo é `null` até um `refresh()`. Se o código usa o valor logo em seguida, declare-o em `$attributes`.
 
 ---
 

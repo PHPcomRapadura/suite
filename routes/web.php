@@ -153,7 +153,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/speakers', fn () => view('admin'))->name('speakers');
         Route::get('/users', fn () => view('admin'))->name('users');
         Route::get('/events', fn () => view('admin'))->name('events');
-        Route::get('/events/{id}', fn () => view('admin'))->name('events.show');
+        // Nomes das rotas de página não podem repetir os da API acima
+        // (admin.events.show é a API): nomes duplicados quebram o route:cache.
+        Route::get('/events/{id}', fn () => view('admin'))->name('events.page');
         Route::get('/events/{id}/cfp', fn () => view('admin'))->name('events.cfp');
         Route::get('/events/{id}/site', fn () => view('admin'))->name('events.site');
         Route::get('/events/{id}/social-assets', fn () => view('admin'))->name('events.social-assets');

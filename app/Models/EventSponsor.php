@@ -14,6 +14,7 @@ class EventSponsor extends Model
         'event_id', 'name', 'logo_url', 'website_url', 'level', 'sort_order',
     ];
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);

@@ -13,13 +13,13 @@ it('guest recebe 401 ao acessar o sorteio', function () {
 });
 
 it('admin visualiza sorteio com winners e stats', function () {
-    $event       = Event::factory()->create();
+    $event = Event::factory()->create();
     $participant = EventParticipant::factory()->checkedIn()->for($event)->create();
     EventLotteryWinner::create([
-        'event_id'       => $event->id,
+        'event_id' => $event->id,
         'participant_id' => $participant->id,
-        'position'       => 1,
-        'drawn_at'       => now(),
+        'position' => 1,
+        'drawn_at' => now(),
     ]);
 
     $this->actingAs(User::factory()->admin()->create())
@@ -55,9 +55,9 @@ it('stats retornam total_pool, total_drawn e remaining corretamente', function (
         ->getJson("/admin/api/events/{$event->id}/lottery")
         ->assertOk()
         ->assertJson(['stats' => [
-            'total_pool'  => 2,
+            'total_pool' => 2,
             'total_drawn' => 1,
-            'remaining'   => 1,
+            'remaining' => 1,
         ]]);
 });
 
@@ -76,7 +76,7 @@ it('pool considera somente participantes com check-in', function () {
 // ─── Draw ─────────────────────────────────────────────────────────────────────
 
 it('admin sorteia participante do pool e recebe winner', function () {
-    $event       = Event::factory()->create();
+    $event = Event::factory()->create();
     EventParticipant::factory()->checkedIn()->for($event)->create();
 
     $this->actingAs(User::factory()->admin()->create())
@@ -87,8 +87,8 @@ it('admin sorteia participante do pool e recebe winner', function () {
 
 it('sorteado não retorna mais no pool após ser sorteado', function () {
     $event = Event::factory()->create();
-    $p1    = EventParticipant::factory()->checkedIn()->for($event)->create();
-    $p2    = EventParticipant::factory()->checkedIn()->for($event)->create();
+    $p1 = EventParticipant::factory()->checkedIn()->for($event)->create();
+    $p2 = EventParticipant::factory()->checkedIn()->for($event)->create();
 
     $admin = User::factory()->admin()->create();
 
@@ -152,7 +152,7 @@ it('sortear quando não há participantes com check-in retorna 422', function ()
 // ─── Reset ────────────────────────────────────────────────────────────────────
 
 it('admin reseta o sorteio com sucesso', function () {
-    $event       = Event::factory()->create();
+    $event = Event::factory()->create();
     $participant = EventParticipant::factory()->checkedIn()->for($event)->create();
     EventLotteryWinner::create([
         'event_id' => $event->id, 'participant_id' => $participant->id, 'position' => 1, 'drawn_at' => now(),
@@ -166,7 +166,7 @@ it('admin reseta o sorteio com sucesso', function () {
 
 it('após reset pool volta ao total de check-ins e winners fica vazio', function () {
     $event = Event::factory()->create();
-    $p     = EventParticipant::factory()->checkedIn()->for($event)->create();
+    $p = EventParticipant::factory()->checkedIn()->for($event)->create();
     EventLotteryWinner::create([
         'event_id' => $event->id, 'participant_id' => $p->id, 'position' => 1, 'drawn_at' => now(),
     ]);

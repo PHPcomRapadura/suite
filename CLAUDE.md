@@ -169,7 +169,7 @@ PUT  /admin/api/events/{id}/site/schedule/{item}        → EventScheduleControl
 DELETE /admin/api/events/{id}/site/schedule/{item}      → EventScheduleController@destroy  [auth]
 ```
 
-> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`.
+> **Importante:** Toda rota Vue acessível diretamente pela URL precisa de rota correspondente em `routes/web.php` retornando `view('admin')`. O nome dessas rotas de página não pode repetir o de uma rota de API (`admin.events.show` é a API; a página é `admin.events.page`): nomes duplicados quebram `php artisan route:cache`, e `optimize` esconde o erro. `tests/Feature/RouteNamesTest.php` garante a unicidade.
 
 ### Upload de imagens — Cloudflare R2
 
@@ -227,6 +227,10 @@ A sintaxe `(--color-X)` gera `background-color: var(--color-bg)` (correto).
     --color-danger: #dc2626;
 }
 ```
+
+### Selo "Powered by Rapadura Network"
+
+Todo rodapé público (site institucional, `/cfp`, os 3 layouts do site do evento) termina com o selo da rede: `.rpd-badge` em `app.css` (tom `--dark` em fundo escuro, `--light` em fundo claro) e o componente `RapaduraBadge.vue` (`tone="dark"|"light"`). O mesmo selo está em todos os hotsites e no WordPress legado; não altere o visual só aqui. `tests/Feature/NetworkBadgeTest.php` cobre a home.
 
 ### Regras de UI
 
@@ -365,6 +369,12 @@ Configuração: `captainhook.json` e `phpstan.neon` na raiz do projeto.
 
 ---
 
+## CI/CD
+
+`.github/workflows/ci.yaml`: pull requests rodam o job `quality` (Pint, Larastan, Pest, caches do Laravel, migrations em MariaDB 11.4 — o banco de produção). **Todo push em `main` é um deploy em produção** (https://phpcomrapadura.org) depois do mesmo gate, mais o deploy de staging no Tevun. Detalhes e rollback no `README.md` ("Deploy (CI/CD)"). Nunca faça merge com o CI vermelho: migrations em `main` rodam em produção em minutos (há dump antes, mas o rollback do banco é manual).
+
+---
+
 ## Testes
 
 ```bash
@@ -398,6 +408,22 @@ npx playwright install chromium
 ```
 
 Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer containers no ar).
+
+---
+
+## Grafo de conhecimento (graphify)
+
+`graphify-out/` contém o grafo do projeto gerado pelo **graphify** (código via AST + specs/docs via extração semântica):
+
+| Arquivo | Versionado | Conteúdo |
+|---------|-----------|----------|
+| `graph.json` | ✅ | Grafo completo (nós, arestas, comunidades) |
+| `graph.html` | ✅ | Visualização interativa (abrir no navegador) |
+| `GRAPH_REPORT.md` | ✅ | Relatório: god nodes, conexões, comunidades |
+| `.graphify_labels.json` | ✅ | Nomes das comunidades |
+| `cache/`, `manifest.json`, `cost.json`, `.graphify_python`, `.graphify_root` | ❌ (`.gitignore`) | Cache e metadados locais da máquina |
+
+Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<pergunta>"`). Após mudanças relevantes, atualize com `/graphify . --update`.
 
 ---
 
@@ -466,7 +492,7 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | CFP — API `GET /cfp/api/my-talks` retornando propostas + stats | ✅ Implementado |
 | CFP — recuperação de senha (`ForgotPassword.vue` + `ResetPassword.vue`) | ✅ Implementado |
 | CFP — `CfpPasswordResetController` + `CfpResetPasswordMail` + template HTML | ✅ Implementado |
-| Configuração de e-mail via SMTP2Go (`mail.smtp2go.com:587`, TLS) | ✅ Implementado |
+| Configuração de e-mail via SMTP2Go (`mail.smtp2go.com:587`, STARTTLS — `MAIL_SCHEME=smtp`; `tls` não é aceito pelo Symfony Mailer) | ✅ Implementado |
 | Site do evento — seção "Sobre o evento" (exibe `events.description`) | ✅ Implementado |
 | Site do evento — seção CFP com banner e botão `/cfp` (quando `is_accepting_talks`) | ✅ Implementado |
 | Site do evento — configuração admin (`/admin/events/{id}/site`) | ✅ Implementado |
@@ -550,7 +576,7 @@ Testes e2e ficam em `tests/e2e/` e rodam contra `http://localhost:8000` (requer 
 | Rate limiting — `throttle:auth` (5/min por IP+e-mail) em login/registro/forgot/reset; limiter `api` (60/min) | ✅ Implementado |
 | `TrustProxies` configurável via `TRUSTED_PROXIES` (CDN/LB) | ✅ Implementado |
 | Security headers — middleware `SecurityHeaders` (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS em HTTPS, CSP em produção) | ✅ Implementado |
-| Seed admin — senha previsível removida; aborta em produção sem `ADMIN_PASSWORD`, gera aleatória em dev | ✅ Implementado |
+| Seed admin — senha previsível removida; aborta em produção sem `ADMIN_PASSWORD`, gera aleatória em dev; lê `config('app.admin')` (não `env()`, que retorna null com `config:cache`) | ✅ Implementado |
 | Lockout — `UserService::isLastActiveAdmin` impede rebaixar/desativar o último admin ativo | ✅ Implementado |
 | Import CSV — limite de 10.000 linhas (anti-DoS) | ✅ Implementado |
 | `.env.example` — `SESSION_SECURE_COOKIE`, `TRUSTED_PROXIES` e avisos de produção | ✅ Implementado |

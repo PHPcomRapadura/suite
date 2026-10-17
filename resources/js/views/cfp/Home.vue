@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useCfpAuth } from '@/composables/useCfpAuth'
+import RapaduraBadge from '@/components/RapaduraBadge.vue'
 
 const router = useRouter()
 const { user, fetchUser } = useCfpAuth()
@@ -10,7 +11,7 @@ const { user, fetchUser } = useCfpAuth()
 const events = ref([])
 const loading = ref(true)
 
-const logoSrc = `${import.meta.env.APP_URL}images/PHPcomRapadura_color.svg`
+const logoSrc = '/images/PHPcomRapadura_color.svg'
 
 onMounted(async () => {
     await fetchUser()
@@ -241,10 +242,11 @@ function formatDateShort(iso) {
         </main>
 
         <!-- Footer -->
-        <footer class="border-t border-(--color-border) mt-16 py-6">
+        <footer class="border-t border-(--color-border) mt-16 py-6 flex flex-col items-center gap-4">
             <p class="text-center text-sm text-(--color-text-muted)">
                 PHP com Rapadura &copy; {{ new Date().getFullYear() }}
             </p>
+            <RapaduraBadge />
         </footer>
     </div>
 </template>

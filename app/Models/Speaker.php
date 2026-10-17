@@ -19,11 +19,13 @@ class Speaker extends Model
         'website', 'twitter', 'github', 'linkedin',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return HasMany<Talk, $this> */
     public function talks(): HasMany
     {
         return $this->hasMany(Talk::class);

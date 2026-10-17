@@ -26,11 +26,13 @@ class EventCfp extends Model
         ];
     }
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }
 
+    /** @return HasMany<Talk, $this> */
     public function talks(): HasMany
     {
         return $this->hasMany(Talk::class, 'event_id', 'event_id');

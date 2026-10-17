@@ -57,7 +57,7 @@ it('palestrante atualiza perfil com sucesso', function () {
 
     $this->actingAs($user)
         ->patchJson('/cfp/api/speaker/profile', [
-            'bio'     => 'Desenvolvedor PHP há 10 anos com foco em arquitetura.',
+            'bio' => 'Desenvolvedor PHP há 10 anos com foco em arquitetura.',
             'company' => 'Nova Empresa',
         ])
         ->assertOk()
@@ -82,8 +82,8 @@ it('palestrante atualiza nome e email', function () {
 
     $this->actingAs($user)
         ->patchJson('/cfp/api/account', [
-            'name'             => 'Novo Nome',
-            'email'            => $user->email,
+            'name' => 'Novo Nome',
+            'email' => $user->email,
             'current_password' => 'password',
         ])
         ->assertOk();
@@ -96,8 +96,8 @@ it('retorna 422 quando senha atual está errada', function () {
 
     $this->actingAs($user)
         ->patchJson('/cfp/api/account', [
-            'name'             => $user->name,
-            'email'            => $user->email,
+            'name' => $user->name,
+            'email' => $user->email,
             'current_password' => 'senha-errada',
         ])
         ->assertUnprocessable()
@@ -110,8 +110,8 @@ it('retorna 422 quando e-mail já está em uso', function () {
 
     $this->actingAs($user)
         ->patchJson('/cfp/api/account', [
-            'name'             => $user->name,
-            'email'            => 'outro@exemplo.com',
+            'name' => $user->name,
+            'email' => 'outro@exemplo.com',
             'current_password' => 'password',
         ])
         ->assertUnprocessable()
@@ -133,16 +133,16 @@ it('admin recebe 403 ao submeter palestra', function () {
 });
 
 it('palestrante submete palestra com sucesso', function () {
-    $user  = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
 
     $this->actingAs($user)
         ->postJson("/cfp/api/events/{$event->id}/talks", [
-            'title'    => 'Arquitetura Hexagonal em PHP',
+            'title' => 'Arquitetura Hexagonal em PHP',
             'abstract' => str_repeat('a', 100),
             'duration' => '50',
-            'level'    => 'intermediario',
+            'level' => 'intermediario',
         ])
         ->assertCreated()
         ->assertJsonPath('status', 'submetida');
@@ -151,16 +151,16 @@ it('palestrante submete palestra com sucesso', function () {
 });
 
 it('submeter palestra cria perfil de speaker automaticamente', function () {
-    $user  = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
 
     $this->actingAs($user)
         ->postJson("/cfp/api/events/{$event->id}/talks", [
-            'title'    => 'Minha Palestra',
+            'title' => 'Minha Palestra',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertCreated();
 
@@ -168,66 +168,66 @@ it('submeter palestra cria perfil de speaker automaticamente', function () {
 });
 
 it('retorna 422 quando CFP não está aberto', function () {
-    $user  = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->encerrado()->create(['event_id' => $event->id]);
 
     $this->actingAs($user)
         ->postJson("/cfp/api/events/{$event->id}/talks", [
-            'title'    => 'Palestra',
+            'title' => 'Palestra',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertUnprocessable()
         ->assertJsonPath('message', 'O período de submissão não está aberto.');
 });
 
 it('retorna 422 quando limite de propostas foi atingido', function () {
-    $user    = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $speaker = Speaker::factory()->create(['user_id' => $user->id]);
-    $event   = Event::factory()->publicado()->create();
+    $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id, 'max_talks_per_speaker' => 1]);
     Talk::factory()->submetida()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
 
     $this->actingAs($user)
         ->postJson("/cfp/api/events/{$event->id}/talks", [
-            'title'    => 'Segunda Palestra',
+            'title' => 'Segunda Palestra',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertUnprocessable();
 });
 
 it('proposta cancelada não conta no limite', function () {
-    $user    = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $speaker = Speaker::factory()->create(['user_id' => $user->id]);
-    $event   = Event::factory()->publicado()->create();
+    $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id, 'max_talks_per_speaker' => 1]);
     Talk::factory()->cancelada()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
 
     $this->actingAs($user)
         ->postJson("/cfp/api/events/{$event->id}/talks", [
-            'title'    => 'Nova Palestra',
+            'title' => 'Nova Palestra',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertCreated();
 });
 
 it('retorna 422 quando resumo tem menos de 100 caracteres', function () {
-    $user  = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
 
     $this->actingAs($user)
         ->postJson("/cfp/api/events/{$event->id}/talks", [
-            'title'    => 'Palestra',
+            'title' => 'Palestra',
             'abstract' => 'Curto demais.',
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['abstract']);
@@ -236,53 +236,53 @@ it('retorna 422 quando resumo tem menos de 100 caracteres', function () {
 // ─── PUT /cfp/api/talks/{talk} ────────────────────────────────────────────────
 
 it('palestrante edita própria proposta submetida', function () {
-    $user    = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $speaker = Speaker::factory()->create(['user_id' => $user->id]);
-    $event   = Event::factory()->publicado()->create();
+    $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
-    $talk    = Talk::factory()->submetida()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
+    $talk = Talk::factory()->submetida()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
 
     $this->actingAs($user)
         ->putJson("/cfp/api/talks/{$talk->id}", [
-            'title'    => 'Título Atualizado',
+            'title' => 'Título Atualizado',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertOk()
         ->assertJsonPath('title', 'Título Atualizado');
 });
 
 it('palestrante não pode editar proposta de outro', function () {
-    $user  = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $other = Speaker::factory()->create();
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
-    $talk  = Talk::factory()->submetida()->create(['event_id' => $event->id, 'speaker_id' => $other->id]);
+    $talk = Talk::factory()->submetida()->create(['event_id' => $event->id, 'speaker_id' => $other->id]);
 
     $this->actingAs($user)
         ->putJson("/cfp/api/talks/{$talk->id}", [
-            'title'    => 'Tentativa',
+            'title' => 'Tentativa',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertForbidden();
 });
 
 it('não permite editar proposta aprovada', function () {
-    $user    = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $speaker = Speaker::factory()->create(['user_id' => $user->id]);
-    $event   = Event::factory()->publicado()->create();
+    $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
-    $talk    = Talk::factory()->aprovada()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
+    $talk = Talk::factory()->aprovada()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
 
     $this->actingAs($user)
         ->putJson("/cfp/api/talks/{$talk->id}", [
-            'title'    => 'Tentativa',
+            'title' => 'Tentativa',
             'abstract' => str_repeat('a', 100),
             'duration' => '25',
-            'level'    => 'iniciante',
+            'level' => 'iniciante',
         ])
         ->assertUnprocessable();
 });
@@ -290,9 +290,9 @@ it('não permite editar proposta aprovada', function () {
 // ─── GET /cfp/api/events/{event}/my-talks ─────────────────────────────────────
 
 it('retorna propostas do palestrante para o evento', function () {
-    $user    = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $speaker = Speaker::factory()->create(['user_id' => $user->id]);
-    $event   = Event::factory()->publicado()->create();
+    $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
     Talk::factory()->count(2)->submetida()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
 
@@ -304,7 +304,7 @@ it('retorna propostas do palestrante para o evento', function () {
 });
 
 it('não retorna propostas de outros palestrantes', function () {
-    $user  = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $other = Speaker::factory()->create();
     $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
@@ -319,9 +319,9 @@ it('não retorna propostas de outros palestrantes', function () {
 // ─── GET /cfp/api/events/{event}/my-talks/count ───────────────────────────────
 
 it('retorna contagem de propostas excluindo canceladas', function () {
-    $user    = User::factory()->palestrante()->create();
+    $user = User::factory()->palestrante()->create();
     $speaker = Speaker::factory()->create(['user_id' => $user->id]);
-    $event   = Event::factory()->publicado()->create();
+    $event = Event::factory()->publicado()->create();
     EventCfp::factory()->aberto()->create(['event_id' => $event->id]);
     Talk::factory()->count(2)->submetida()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);
     Talk::factory()->cancelada()->create(['event_id' => $event->id, 'speaker_id' => $speaker->id]);

@@ -14,12 +14,12 @@ class EventSponsorFactory extends Factory
     public function definition(): array
     {
         return [
-            'event_id'    => Event::factory(),
-            'name'        => $this->faker->company(),
-            'logo_url'    => null,
+            'event_id' => Event::factory(),
+            'name' => $this->faker->company(),
+            'logo_url' => null,
             'website_url' => $this->faker->url(),
-            'level'       => 'rapadura_tradicional',
-            'sort_order'  => 0,
+            'level' => 'rapadura_tradicional',
+            'sort_order' => 0,
         ];
     }
 }

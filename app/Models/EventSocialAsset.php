@@ -11,16 +11,19 @@ class EventSocialAsset extends Model
         'event_id', 'type', 'talk_id', 'sponsor_id', 'subject_key', 'format', 'url', 'path',
     ];
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }
 
+    /** @return BelongsTo<Talk, $this> */
     public function talk(): BelongsTo
     {
         return $this->belongsTo(Talk::class);
     }
 
+    /** @return BelongsTo<EventSponsor, $this> */
     public function sponsor(): BelongsTo
     {
         return $this->belongsTo(EventSponsor::class);

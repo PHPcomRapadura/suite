@@ -28,7 +28,7 @@ class EventSocialAssetController extends Controller
                     'id' => $event->id,
                     'name' => $event->name,
                     'location' => $event->location,
-                    'starts_at' => $event->starts_at?->toIso8601String(),
+                    'starts_at' => $event->starts_at->toIso8601String(),
                 ],
                 'formats' => ['story', 'post'],
                 'types' => ['announcement', 'speaker', 'sponsor', 'selling_out', 'tomorrow'],

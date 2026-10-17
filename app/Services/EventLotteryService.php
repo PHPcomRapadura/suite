@@ -64,7 +64,7 @@ class EventLotteryService
     {
         return [
             'position' => $winner->position,
-            'drawn_at' => $winner->drawn_at?->toIso8601String(),
+            'drawn_at' => $winner->drawn_at->toIso8601String(),
             'participant' => [
                 'id' => $winner->participant->id,
                 'full_name' => $winner->participant->full_name,
@@ -78,6 +78,7 @@ class EventLotteryService
         return (EventLotteryWinner::where('event_id', $event->id)->max('position') ?? 0) + 1;
     }
 
+    /** @return Builder<EventParticipant> */
     private function eligiblePool(Event $event): Builder
     {
         return EventParticipant::where('event_id', $event->id)

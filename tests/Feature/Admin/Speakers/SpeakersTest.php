@@ -48,8 +48,8 @@ it('colaborador visualiza lista de palestrantes', function () {
 it('retorna campos corretos no resumo do palestrante', function () {
     $speaker = Speaker::factory()->create([
         'company' => 'Acme Corp',
-        'city'    => 'Fortaleza',
-        'state'   => 'CE',
+        'city' => 'Fortaleza',
+        'state' => 'CE',
     ]);
 
     $this->actingAs(User::factory()->admin()->create())
@@ -144,10 +144,10 @@ it('busca sem resultados retorna lista vazia', function () {
 
 it('admin visualiza detalhes completos do palestrante', function () {
     $speaker = Speaker::factory()->create([
-        'bio'     => 'Desenvolvedor PHP',
+        'bio' => 'Desenvolvedor PHP',
         'website' => 'https://exemplo.com',
         'twitter' => 'alice',
-        'github'  => 'alice-dev',
+        'github' => 'alice-dev',
     ]);
 
     $this->actingAs(User::factory()->admin()->create())

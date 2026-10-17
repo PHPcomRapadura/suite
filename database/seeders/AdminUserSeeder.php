@@ -10,13 +10,16 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        if (User::where('email', env('ADMIN_EMAIL', 'admin@phpcomrapadura.org'))->exists()) {
+        // Via config(), não env(): com a config em cache (produção), env() retorna null.
+        // ADMIN_EMAIL vazio no .env cai no padrão.
+        $email = config('app.admin.email') ?: 'admin@phpcomrapadura.org';
+        $password = config('app.admin.password');
+
+        if (User::where('email', $email)->exists()) {
             $this->command->info('Admin já existe, seed ignorada.');
 
             return;
         }
-
-        $password = env('ADMIN_PASSWORD');
 
         // Nunca usar senha fixa previsível. Sem ADMIN_PASSWORD definido:
         // em produção, aborta; fora dela, gera uma senha aleatória e a exibe uma única vez.
@@ -34,7 +37,7 @@ class AdminUserSeeder extends Seeder
 
         User::create([
             'name' => 'Administrador',
-            'email' => env('ADMIN_EMAIL', 'admin@phpcomrapadura.org'),
+            'email' => $email,
             'password' => $password,
             'role' => 'admin',
             'is_active' => true,

@@ -33,8 +33,8 @@ it('retorna itens da grade de programação', function () {
     $event = Event::factory()->create();
     EventScheduleItem::factory()->create([
         'event_id' => $event->id,
-        'title'    => 'Abertura do Evento',
-        'type'     => 'abertura',
+        'title' => 'Abertura do Evento',
+        'type' => 'abertura',
     ]);
 
     $this->actingAs($admin)
@@ -53,10 +53,10 @@ it('admin cria item na grade', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/site/schedule", [
-            'title'      => 'Palestra sobre Laravel',
-            'starts_at'  => '2025-10-15 09:00:00',
-            'type'       => 'palestra',
-            'duration'   => 50,
+            'title' => 'Palestra sobre Laravel',
+            'starts_at' => '2025-10-15 09:00:00',
+            'type' => 'palestra',
+            'duration' => 50,
         ])
         ->assertCreated()
         ->assertJsonPath('data.title', 'Palestra sobre Laravel')
@@ -65,7 +65,7 @@ it('admin cria item na grade', function () {
 
     $this->assertDatabaseHas('event_schedule_items', [
         'event_id' => $event->id,
-        'title'    => 'Palestra sobre Laravel',
+        'title' => 'Palestra sobre Laravel',
     ]);
 });
 
@@ -75,9 +75,9 @@ it('colaborador pode criar item na grade', function () {
 
     $this->actingAs($colab)
         ->postJson("/admin/api/events/{$event->id}/site/schedule", [
-            'title'     => 'Intervalo',
+            'title' => 'Intervalo',
             'starts_at' => '2025-10-15 12:00:00',
-            'type'      => 'intervalo',
+            'type' => 'intervalo',
         ])
         ->assertCreated()
         ->assertJsonPath('data.type', 'intervalo');
@@ -90,7 +90,7 @@ it('falha ao criar item sem starts_at', function () {
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/site/schedule", [
             'title' => 'Palestra',
-            'type'  => 'palestra',
+            'type' => 'palestra',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['starts_at']);
@@ -102,9 +102,9 @@ it('falha ao criar item com tipo inválido', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/site/schedule", [
-            'title'     => 'Palestra',
+            'title' => 'Palestra',
             'starts_at' => '2025-10-15 09:00:00',
-            'type'      => 'tipo_invalido',
+            'type' => 'tipo_invalido',
         ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['type']);
@@ -115,13 +115,13 @@ it('falha ao criar item com tipo inválido', function () {
 it('admin edita item da grade', function () {
     $admin = User::factory()->admin()->create();
     $event = Event::factory()->create();
-    $item  = EventScheduleItem::factory()->create(['event_id' => $event->id, 'type' => 'palestra']);
+    $item = EventScheduleItem::factory()->create(['event_id' => $event->id, 'type' => 'palestra']);
 
     $this->actingAs($admin)
         ->putJson("/admin/api/events/{$event->id}/site/schedule/{$item->id}", [
-            'title'     => 'Título Atualizado',
+            'title' => 'Título Atualizado',
             'starts_at' => '2025-10-15 14:00:00',
-            'type'      => 'encerramento',
+            'type' => 'encerramento',
         ])
         ->assertOk()
         ->assertJsonPath('data.title', 'Título Atualizado')
@@ -133,7 +133,7 @@ it('admin edita item da grade', function () {
 it('admin remove item da grade', function () {
     $admin = User::factory()->admin()->create();
     $event = Event::factory()->create();
-    $item  = EventScheduleItem::factory()->create(['event_id' => $event->id]);
+    $item = EventScheduleItem::factory()->create(['event_id' => $event->id]);
 
     $this->actingAs($admin)
         ->deleteJson("/admin/api/events/{$event->id}/site/schedule/{$item->id}")
@@ -144,7 +144,7 @@ it('admin remove item da grade', function () {
 
 it('guest recebe 401 ao tentar remover item', function () {
     $event = Event::factory()->create();
-    $item  = EventScheduleItem::factory()->create(['event_id' => $event->id]);
+    $item = EventScheduleItem::factory()->create(['event_id' => $event->id]);
 
     $this->deleteJson("/admin/api/events/{$event->id}/site/schedule/{$item->id}")
         ->assertUnauthorized();

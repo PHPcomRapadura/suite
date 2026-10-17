@@ -132,7 +132,7 @@ class EventExpenseService
     public function formatExpense(EventExpense $expense): array
     {
         $data = $expense->toArray();
-        $data['category_label'] = self::CATEGORY_LABELS[$expense->category] ?? $expense->category;
+        $data['category_label'] = self::CATEGORY_LABELS[$expense->category];
 
         return $data;
     }

@@ -66,7 +66,7 @@ class SpeakerService
                 'status' => $t->status,
                 'level' => $t->level,
                 'duration' => $t->duration,
-                'submitted_at' => $t->submitted_at?->toIso8601String(),
+                'submitted_at' => $t->submitted_at->toIso8601String(),
             ])->values()->all(),
         ]);
     }

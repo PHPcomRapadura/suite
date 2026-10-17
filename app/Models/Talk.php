@@ -23,11 +23,13 @@ class Talk extends Model
         return ['submitted_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }
 
+    /** @return BelongsTo<Speaker, $this> */
     public function speaker(): BelongsTo
     {
         return $this->belongsTo(Speaker::class);

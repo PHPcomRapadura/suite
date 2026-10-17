@@ -29,56 +29,67 @@ class Event extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** @return HasOne<EventCfp, $this> */
     public function cfp(): HasOne
     {
         return $this->hasOne(EventCfp::class);
     }
 
+    /** @return HasMany<Talk, $this> */
     public function talks(): HasMany
     {
         return $this->hasMany(Talk::class);
     }
 
+    /** @return HasOne<EventSiteConfig, $this> */
     public function site(): HasOne
     {
         return $this->hasOne(EventSiteConfig::class);
     }
 
+    /** @return HasMany<EventSponsor, $this> */
     public function sponsors(): HasMany
     {
         return $this->hasMany(EventSponsor::class)->orderBy('sort_order');
     }
 
+    /** @return HasMany<EventScheduleItem, $this> */
     public function schedule(): HasMany
     {
         return $this->hasMany(EventScheduleItem::class)->orderBy('starts_at')->orderBy('sort_order');
     }
 
+    /** @return HasMany<EventExpense, $this> */
     public function expenses(): HasMany
     {
         return $this->hasMany(EventExpense::class)->orderBy('date', 'desc');
     }
 
+    /** @return HasMany<EventTask, $this> */
     public function tasks(): HasMany
     {
         return $this->hasMany(EventTask::class)->orderBy('sort_order');
     }
 
+    /** @return HasMany<EventParticipant, $this> */
     public function participants(): HasMany
     {
         return $this->hasMany(EventParticipant::class)->orderBy('registration_order');
     }
 
+    /** @return HasMany<EventLotteryWinner, $this> */
     public function lotteryWinners(): HasMany
     {
         return $this->hasMany(EventLotteryWinner::class)->orderBy('position');
     }
 
+    /** @return HasMany<EventSocialAsset, $this> */
     public function socialAssets(): HasMany
     {
         return $this->hasMany(EventSocialAsset::class);

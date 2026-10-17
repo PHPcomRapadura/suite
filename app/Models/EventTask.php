@@ -17,6 +17,12 @@ class EventTask extends Model
         'assigned_to', 'due_date', 'sort_order', 'created_by',
     ];
 
+    // Espelha os defaults da migration para que o model recém-criado já os tenha em memória
+    protected $attributes = [
+        'status' => 'a_fazer',
+        'priority' => 'media',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -24,21 +30,25 @@ class EventTask extends Model
         ];
     }
 
+    /** @return BelongsTo<Event, $this> */
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }
 
+    /** @return BelongsTo<User, $this> */
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    /** @return BelongsTo<User, $this> */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /** @return HasMany<EventTaskComment, $this> */
     public function comments(): HasMany
     {
         return $this->hasMany(EventTaskComment::class)->orderBy('created_at', 'asc');

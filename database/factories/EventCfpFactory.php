@@ -15,19 +15,19 @@ class EventCfpFactory extends Factory
     public function definition(): array
     {
         return [
-            'event_id'              => Event::factory(),
-            'opens_at'              => now()->addDays(7),
-            'closes_at'             => now()->addDays(37),
-            'speaker_guide'         => null,
+            'event_id' => Event::factory(),
+            'opens_at' => now()->addDays(7),
+            'closes_at' => now()->addDays(37),
+            'speaker_guide' => null,
             'max_talks_per_speaker' => null,
-            'created_by'            => User::factory()->admin(),
+            'created_by' => User::factory()->admin(),
         ];
     }
 
     public function aberto(): static
     {
         return $this->state([
-            'opens_at'  => now()->subDay(),
+            'opens_at' => now()->subDay(),
             'closes_at' => now()->addDays(30),
         ]);
     }
@@ -35,7 +35,7 @@ class EventCfpFactory extends Factory
     public function encerrado(): static
     {
         return $this->state([
-            'opens_at'  => now()->subDays(60),
+            'opens_at' => now()->subDays(60),
             'closes_at' => now()->subDays(30),
         ]);
     }

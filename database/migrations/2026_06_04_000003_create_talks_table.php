@@ -17,7 +17,7 @@ return new class extends Migration
             $table->enum('duration', ['25', '50']);
             $table->enum('level', ['iniciante', 'intermediario', 'avancado']);
             $table->enum('status', ['submetida', 'em_analise', 'aprovada', 'rejeitada', 'cancelada'])
-                  ->default('submetida');
+                ->default('submetida');
             $table->text('feedback')->nullable();
             $table->datetime('submitted_at');
             $table->timestamps();

@@ -47,7 +47,7 @@ it('admin cria CFP para um evento', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/cfp", [
-            'opens_at'  => '2026-06-15 09:00:00',
+            'opens_at' => '2026-06-15 09:00:00',
             'closes_at' => '2026-07-31 23:59:59',
         ])
         ->assertCreated()
@@ -61,7 +61,7 @@ it('retorna 422 ao criar segundo CFP para o mesmo evento', function () {
 
     $this->actingAs($admin)
         ->postJson("/admin/api/events/{$event->id}/cfp", [
-            'opens_at'  => '2026-08-01 09:00:00',
+            'opens_at' => '2026-08-01 09:00:00',
             'closes_at' => '2026-08-31 23:59:59',
         ])
         ->assertUnprocessable();
@@ -72,7 +72,7 @@ it('retorna 422 quando closes_at é anterior a opens_at', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->postJson("/admin/api/events/{$event->id}/cfp", [
-            'opens_at'  => '2026-07-31 09:00:00',
+            'opens_at' => '2026-07-31 09:00:00',
             'closes_at' => '2026-06-15 09:00:00',
         ])
         ->assertUnprocessable()
@@ -84,12 +84,12 @@ it('retorna 422 quando closes_at é anterior a opens_at', function () {
 it('admin edita CFP existente', function () {
     $admin = User::factory()->admin()->create();
     $event = Event::factory()->create();
-    $cfp   = EventCfp::factory()->create(['event_id' => $event->id]);
+    $cfp = EventCfp::factory()->create(['event_id' => $event->id]);
 
     $this->actingAs($admin)
         ->putJson("/admin/api/events/{$event->id}/cfp", [
-            'opens_at'      => $cfp->opens_at->toDateTimeString(),
-            'closes_at'     => $cfp->closes_at->toDateTimeString(),
+            'opens_at' => $cfp->opens_at->toDateTimeString(),
+            'closes_at' => $cfp->closes_at->toDateTimeString(),
             'speaker_guide' => '## Guia para palestrantes',
         ])
         ->assertOk()
@@ -101,7 +101,7 @@ it('retorna 404 ao editar CFP inexistente', function () {
 
     $this->actingAs(User::factory()->admin()->create())
         ->putJson("/admin/api/events/{$event->id}/cfp", [
-            'opens_at'  => '2026-06-15 09:00:00',
+            'opens_at' => '2026-06-15 09:00:00',
             'closes_at' => '2026-07-31 23:59:59',
         ])
         ->assertNotFound();
