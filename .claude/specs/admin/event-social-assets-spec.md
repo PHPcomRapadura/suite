@@ -97,7 +97,7 @@ O template inicial deve seguir uma estética limpa e profissional, com:
 - data e local do evento;
 - slogan/tagline do site do evento, se existir;
 - logo do evento, se existir;
-- CTA simples, como “Garanta sua vaga” ou “Veja mais”.
+- sem botão de CTA na chamada do evento (a arte é estática; a chamada vai na legenda).
 
 ### 5.1 Fonte e tema
 

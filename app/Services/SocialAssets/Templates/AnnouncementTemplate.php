@@ -64,17 +64,12 @@ class AnnouncementTemplate implements SocialAssetTemplate
 
         // local resumido (Regular, linha própria)
         if ($location) {
-            $cursorY += $tools->drawTextBlock($canvas, $location, $left, $cursorY, function (FontFactory $font) use ($contentWidth) {
+            $tools->drawTextBlock($canvas, $location, $left, $cursorY, function (FontFactory $font) use ($contentWidth) {
                 $font->filename(SocialAssetCanvas::FONT_REGULAR);
                 $font->size(32);
                 $font->color('rgba(255, 255, 255, 0.85)');
                 $font->wrap($contentWidth);
             });
         }
-
-        // CTA logo abaixo do bloco, mas nunca dentro da zona do rodapé de patrocínio.
-        $footerReserve = $hasFooter ? ($isStory ? 320 : 230) : ($isStory ? 200 : 130);
-        $ctaY = min($cursorY + 70, $height - $footerReserve - 100);
-        $tools->drawButton($canvas, 'Garanta sua vaga', (int) ($width / 2), $ctaY, $secondaryColor);
     }
 }
