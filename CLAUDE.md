@@ -468,7 +468,7 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Upload de imagens para Cloudflare R2 | ✅ Implementado |
 | Transições de status de eventos | ✅ Implementado |
 | Toggle CFP (is_accepting_talks) | ✅ Implementado |
-| Testes CRUD de eventos (34 casos) | ✅ Implementado |
+| Testes CRUD de eventos (36 casos) | ✅ Implementado |
 | Página de detalhe do evento (hub) | ✅ Implementado |
 | Botão "Ver detalhes" nos cards de eventos | ✅ Implementado |
 | Módulo CFP — models, migrations, services, controllers | ✅ Implementado |

@@ -151,6 +151,28 @@ it('retorna 422 quando ends_at é anterior a starts_at', function () {
         ->assertJsonValidationErrors(['ends_at']);
 });
 
+it('permite ends_at no mesmo dia de starts_at', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson('/admin/api/events', [
+            'name' => 'Evento de Um Dia',
+            'starts_at' => '2026-06-15 09:00:00',
+            'ends_at' => '2026-06-15 18:00:00',
+            'is_online' => false,
+        ])
+        ->assertCreated();
+});
+
+it('permite ends_at igual a starts_at', function () {
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson('/admin/api/events', [
+            'name' => 'Evento Mesmo Horário',
+            'starts_at' => '2026-06-15 09:00:00',
+            'ends_at' => '2026-06-15 09:00:00',
+            'is_online' => false,
+        ])
+        ->assertCreated();
+});
+
 it('colaborador pode criar evento', function () {
     $this->actingAs(User::factory()->colaborador()->create())
         ->postJson('/admin/api/events', [
