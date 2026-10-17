@@ -685,12 +685,11 @@ html {
 .rpd-badge__text{display:flex;flex-direction:column;gap:.18rem;text-align:left}
 .rpd-badge__eyebrow{font-size:.64rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;opacity:.68}
 .rpd-badge__name{font-size:.92rem;font-weight:600;letter-spacing:-.005em}
-.rpd-badge--dark,.rpd-badge--dark:hover,.rpd-badge--dark:focus{color:#fff}
-.rpd-badge--dark{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
-.rpd-badge--dark:hover{border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.11)}
-.rpd-badge--light,.rpd-badge--light:hover,.rpd-badge--light:focus{color:#2b1a10}
-.rpd-badge--light{border-color:rgba(43,26,16,.14);background:rgba(43,26,16,.035)}
-.rpd-badge--light:hover{border-color:rgba(43,26,16,.3);background:rgba(43,26,16,.06)}
+.rpd-badge--light,.rpd-badge--auto{--rpd-text:#2b1a10;--rpd-border:rgba(43,26,16,.14);--rpd-bg:rgba(43,26,16,.035);--rpd-hover-border:rgba(43,26,16,.3);--rpd-hover-bg:rgba(43,26,16,.06)}
+.rpd-badge--dark,html.dark .rpd-badge--auto{--rpd-text:#fff;--rpd-border:rgba(255,255,255,.16);--rpd-bg:rgba(255,255,255,.06);--rpd-hover-border:rgba(255,255,255,.34);--rpd-hover-bg:rgba(255,255,255,.11)}
+.rpd-badge,.rpd-badge:hover,.rpd-badge:focus{color:var(--rpd-text)}
+.rpd-badge{border-color:var(--rpd-border);background:var(--rpd-bg)}
+.rpd-badge:hover{border-color:var(--rpd-hover-border);background:var(--rpd-hover-bg)}
 
 /* Back to top button */
 .back-to-top {
