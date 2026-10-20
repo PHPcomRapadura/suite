@@ -40,7 +40,7 @@ class EventService
             ->paginate(9);
     }
 
-    public function create(array $data, ?UploadedFile $coverImage, ?UploadedFile $logo, int $createdBy): Event
+    public function create(array $data, ?UploadedFile $coverImage, ?UploadedFile $socialBaseImage, ?UploadedFile $logo, int $createdBy): Event
     {
         if (empty($data['slug'])) {
             $data['slug'] = $this->generateSlug($data['name']);
@@ -56,6 +56,10 @@ class EventService
             $event->update(['cover_image' => $this->uploadImage($coverImage, "events/{$event->id}/cover.{$coverImage->extension()}")]);
         }
 
+        if ($socialBaseImage) {
+            $event->update(['social_base_image' => $this->uploadImage($socialBaseImage, "events/{$event->id}/social-base.{$socialBaseImage->extension()}")]);
+        }
+
         if ($logo) {
             $event->update(['logo' => $this->uploadImage($logo, "events/{$event->id}/logo.{$logo->extension()}")]);
         }
@@ -63,7 +67,7 @@ class EventService
         return $event->fresh();
     }
 
-    public function update(Event $event, array $data, ?UploadedFile $coverImage, ?UploadedFile $logo): Event
+    public function update(Event $event, array $data, ?UploadedFile $coverImage, ?UploadedFile $socialBaseImage, ?UploadedFile $logo, bool $removeSocialBase = false): Event
     {
         if ($event->isFinished()) {
             throw new InvalidArgumentException('Eventos encerrados ou cancelados não podem ser editados.');
@@ -78,6 +82,14 @@ class EventService
         if ($coverImage) {
             $this->deleteImage($event->cover_image);
             $event->update(['cover_image' => $this->uploadImage($coverImage, "events/{$event->id}/cover.{$coverImage->extension()}")]);
+        }
+
+        if ($removeSocialBase) {
+            $this->deleteImage($event->social_base_image);
+            $event->update(['social_base_image' => null]);
+        } elseif ($socialBaseImage) {
+            $this->deleteImage($event->social_base_image);
+            $event->update(['social_base_image' => $this->uploadImage($socialBaseImage, "events/{$event->id}/social-base.{$socialBaseImage->extension()}")]);
         }
 
         if ($logo) {

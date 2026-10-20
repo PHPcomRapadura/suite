@@ -25,6 +25,7 @@
     },
     "require-dev": {
         "captainhook/captainhook": "^5.29",
+        "deptrac/deptrac": "^4.0",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.12",
         "laravel/pail": "^1.2.5",

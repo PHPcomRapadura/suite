@@ -16,7 +16,7 @@ class Event extends Model
         'name', 'slug', 'edition', 'description',
         'starts_at', 'ends_at', 'location', 'is_online',
         'status', 'is_accepting_talks', 'max_attendees',
-        'cover_image', 'logo', 'created_by',
+        'cover_image', 'social_base_image', 'logo', 'created_by',
     ];
 
     protected function casts(): array

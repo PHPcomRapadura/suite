@@ -31,6 +31,7 @@ class EventFactory extends Factory
             'is_accepting_talks' => false,
             'max_attendees' => fake()->randomElement([null, 100, 200, 300, 500]),
             'cover_image' => null,
+            'social_base_image' => null,
             'logo' => null,
             'created_by' => User::factory(),
         ];

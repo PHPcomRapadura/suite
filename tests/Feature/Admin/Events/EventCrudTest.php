@@ -379,6 +379,24 @@ it('cria evento com logo e persiste a URL no banco', function () {
     Storage::disk('r2')->assertExists("events/{$response->json('id')}/logo.png");
 });
 
+it('cria evento com imagem base das redes sociais e persiste a URL no banco', function () {
+    Storage::fake('r2');
+    $admin = User::factory()->admin()->create();
+    $file = UploadedFile::fake()->image('imagem-de-capa.png', 1920, 1080)->size(500);
+
+    $response = $this->actingAs($admin)
+        ->post('/admin/api/events', [
+            'name' => 'PHPinga 2026',
+            'starts_at' => '2026-10-20 09:00:00',
+            'is_online' => false,
+            'social_base_image' => $file,
+        ])
+        ->assertCreated();
+
+    expect($response->json('social_base_image'))->not->toBeNull();
+    Storage::disk('r2')->assertExists("events/{$response->json('id')}/social-base.png");
+});
+
 it('cria evento sem imagens com cover_image e logo nulos', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->postJson('/admin/api/events', [

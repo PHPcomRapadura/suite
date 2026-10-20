@@ -35,7 +35,15 @@ class EventSocialAssetService
 
         $sponsors = $event->sponsors;
 
-        $canvas = $this->canvasTools->buildBackground($event->cover_image, $width, $height, $primaryColor, $secondaryColor);
+        // A imagem dedicada evita que a composição da capa do site seja
+        // recortada de forma inadequada nos formatos story e post.
+        $canvas = $this->canvasTools->buildBackground(
+            $event->social_base_image ?: $event->cover_image,
+            $width,
+            $height,
+            $primaryColor,
+            $secondaryColor,
+        );
         $this->canvasTools->drawOverlay($canvas, $width, $height);
         $this->canvasTools->drawLogo($canvas, $event->logo);
 

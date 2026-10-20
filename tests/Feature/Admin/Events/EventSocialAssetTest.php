@@ -39,6 +39,22 @@ it('admin gera arte de story para o evento', function () {
     ]);
 });
 
+it('usa a imagem base das redes sociais na geração e mantém a capa independente', function () {
+    Storage::fake('r2');
+
+    $admin = User::factory()->admin()->create();
+    $event = Event::factory()->create([
+        'cover_image' => 'https://cdn.test/capa.png',
+        'social_base_image' => 'https://cdn.test/imagem-de-capa.png',
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson("/admin/api/events/{$event->id}/social-assets/generate", ['format' => 'post'])
+        ->assertOk();
+
+    Storage::disk('r2')->assertExists("events/{$event->id}/social/announcement-post.png");
+});
+
 it('gerar novamente atualiza o registro existente em vez de duplicar', function () {
     Storage::fake('r2');
 

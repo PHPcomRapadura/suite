@@ -345,6 +345,7 @@ Pre-commit hooks gerenciados pelo **CaptainHook** com a seguinte stack:
 | `pre-commit` | PHP Lint | Sintaxe PHP |
 | `pre-commit` | **Pint** | Code style PSR-12 (Laravel preset) |
 | `pre-commit` | **Larastan** | Análise estática nível 5 |
+| `pre-commit` | **Deptrac** | Regras de dependência entre camadas da aplicação |
 | `pre-commit` | **Pest** | Testes de feature |
 | `pre-push` | **Composer audit** | CVEs em dependências PHP de produção (`--no-dev`) |
 | `pre-push` | **NPM audit** | CVEs no bundle de produção (`--omit=dev --audit-level=high`) |
@@ -357,6 +358,7 @@ Pre-commit hooks gerenciados pelo **CaptainHook** com a seguinte stack:
 # Rodar manualmente antes de commitar
 docker compose exec app ./vendor/bin/pint              # corrige code style
 docker compose exec app ./vendor/bin/phpstan analyse   # análise estática
+docker compose exec app ./vendor/bin/deptrac analyse --config-file=deptrac.php
 docker compose exec app ./vendor/bin/pest --parallel   # testes
 
 # Auditoria de dependências
@@ -365,7 +367,7 @@ npm audit --omit=dev --audit-level=high                # CVEs do bundle (produç
 npm audit                                              # auditoria completa (inclui dev)
 ```
 
-Configuração: `captainhook.json` e `phpstan.neon` na raiz do projeto.
+Configuração: `captainhook.json`, `deptrac.php` e `phpstan.neon` na raiz do projeto.
 
 ---
 

@@ -29,11 +29,14 @@ const loading       = ref(false)
 const slugManual    = ref(false)
 
 const coverFile     = ref(null)
+const socialBaseFile = ref(null)
 const logoFile      = ref(null)
 const coverPreview  = ref(null)
+const socialBasePreview = ref(null)
 const logoPreview   = ref(null)
 const removeCover   = ref(false)
 const removeLogo    = ref(false)
+const removeSocialBase = ref(false)
 
 function toLocalDatetime(iso) {
     if (!iso) return ''
@@ -46,11 +49,14 @@ watch(() => props.show, (val) => {
     if (!val) return
     errors.value      = {}
     coverFile.value   = null
+    socialBaseFile.value = null
     logoFile.value    = null
     coverPreview.value = null
+    socialBasePreview.value = null
     logoPreview.value  = null
     removeCover.value = false
     removeLogo.value  = false
+    removeSocialBase.value = false
     slugManual.value  = false
 
     if (props.event) {
@@ -101,6 +107,13 @@ function onLogoChange(e) {
     logoPreview.value = URL.createObjectURL(file)
 }
 
+function onSocialBaseChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    socialBaseFile.value = file
+    socialBasePreview.value = URL.createObjectURL(file)
+}
+
 function clearCover() {
     coverFile.value    = null
     coverPreview.value = null
@@ -113,11 +126,17 @@ function clearLogo() {
     removeLogo.value  = true
 }
 
+function clearSocialBase() {
+    socialBaseFile.value = null
+    socialBasePreview.value = null
+    removeSocialBase.value = true
+}
+
 async function submit() {
     loading.value = true
     errors.value  = {}
 
-    const hasFiles = coverFile.value || logoFile.value
+    const hasFiles = coverFile.value || socialBaseFile.value || logoFile.value
 
     try {
         if (isEditing.value) {
@@ -129,6 +148,8 @@ async function submit() {
             if (form.value.is_online === false) fd.set('is_online', '0')
             if (form.value.is_online === true)  fd.set('is_online', '1')
             if (coverFile.value)   fd.append('cover_image', coverFile.value)
+            if (socialBaseFile.value) fd.append('social_base_image', socialBaseFile.value)
+            if (removeSocialBase.value) fd.append('remove_social_base', '1')
             if (removeCover.value) fd.append('remove_cover', '1')
             if (logoFile.value)    fd.append('logo', logoFile.value)
             if (removeLogo.value)  fd.append('remove_logo', '1')
@@ -144,6 +165,7 @@ async function submit() {
             if (form.value.is_online === false) fd.set('is_online', '0')
             if (form.value.is_online === true)  fd.set('is_online', '1')
             if (coverFile.value) fd.append('cover_image', coverFile.value)
+            if (socialBaseFile.value) fd.append('social_base_image', socialBaseFile.value)
             if (logoFile.value)  fd.append('logo', logoFile.value)
 
             await axios.post('/admin/api/events', fd, {
@@ -351,6 +373,40 @@ const inputClass = (field) => [
                                 @change="onCoverChange"
                             >
                             <p v-if="errors.cover_image" class="mt-1 text-xs text-(--color-danger)">{{ errors.cover_image[0] }}</p>
+                        </div>
+
+                        <!-- Imagem base das redes sociais -->
+                        <div>
+                            <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+                                Imagem base das redes sociais
+                                <span class="text-(--color-text-muted) font-normal ml-1">usada nas artes, jpg/jpeg/png/webp, máx. 5 MB</span>
+                            </label>
+
+                            <div v-if="socialBasePreview || (isEditing && event?.social_base_image)" class="mb-2 relative inline-block">
+                                <img
+                                    :src="socialBasePreview ?? event?.social_base_image"
+                                    alt="Preview da imagem base das redes sociais"
+                                    class="h-24 max-w-full rounded-lg object-cover border border-(--color-border)"
+                                >
+                                <button
+                                    type="button"
+                                    @click="clearSocialBase"
+                                    class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition"
+                                    aria-label="Remover imagem base das redes sociais"
+                                >✕</button>
+                            </div>
+
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                :disabled="loading"
+                                class="block w-full text-sm text-(--color-text-muted) file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0
+                                       file:text-sm file:font-medium file:bg-(--color-primary) file:text-white
+                                       hover:file:bg-(--color-primary-hover) file:cursor-pointer file:transition disabled:opacity-60"
+                                @change="onSocialBaseChange"
+                            >
+                            <p class="mt-1 text-xs text-(--color-text-muted)">Se não for informada, a capa será usada como fallback.</p>
+                            <p v-if="errors.social_base_image" class="mt-1 text-xs text-(--color-danger)">{{ errors.social_base_image[0] }}</p>
                         </div>
 
                         <!-- Logo -->

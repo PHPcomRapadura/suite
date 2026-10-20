@@ -28,6 +28,10 @@
                 "label": "Larastan (static analysis)"
             },
             {
+                "action": "docker compose exec -T app php ./vendor/bin/deptrac analyse --config-file=deptrac.php --no-cache",
+                "label": "Deptrac (architecture)"
+            },
+            {
                 "action": "docker compose exec -T app php ./vendor/bin/pest --parallel",
                 "label": "Pest (tests)"
             }

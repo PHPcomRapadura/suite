@@ -40,8 +40,9 @@ class EventController extends Controller
     public function store(StoreEventRequest $request): JsonResponse
     {
         $event = $this->eventService->create(
-            $request->safe()->except(['cover_image', 'logo']),
+            $request->safe()->except(['cover_image', 'social_base_image', 'logo']),
             $request->file('cover_image'),
+            $request->file('social_base_image'),
             $request->file('logo'),
             Auth::id(),
         );
@@ -59,9 +60,11 @@ class EventController extends Controller
         try {
             $updated = $this->eventService->update(
                 $event,
-                $request->safe()->except(['cover_image', 'logo']),
+                $request->safe()->except(['cover_image', 'social_base_image', 'logo']),
                 $request->file('cover_image'),
+                $request->file('social_base_image'),
                 $request->file('logo'),
+                $request->boolean('remove_social_base'),
             );
         } catch (InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
