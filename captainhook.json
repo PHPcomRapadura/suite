@@ -49,7 +49,7 @@
                 "label": "NPM audit (CVEs no bundle de produção)"
             },
             {
-                "action": "docker compose exec -T app php ./vendor/bin/pest --parallel --coverage --min=80",
+                "action": "docker compose -f docker-compose.yml -f docker-compose.coverage.yml exec -T app php ./vendor/bin/pest --parallel --coverage --min=80",
                 "label": "Pest (coverage ≥ 80%)"
             }
         ]
