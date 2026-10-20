@@ -41,6 +41,7 @@ class LogController
                     'message' => $match['message'],
                     'details' => '',
                 ];
+
                 continue;
             }
 
