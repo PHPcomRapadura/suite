@@ -1,5 +1,8 @@
 services:
   app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
     image: webdevops/php-nginx:8.4
     container_name: phpcomrapadura_app
     restart: unless-stopped
