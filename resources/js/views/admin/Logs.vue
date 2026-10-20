@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import axios from 'axios'
 
 const entries = ref([])
@@ -8,13 +8,22 @@ const error = ref('')
 const autoRefresh = ref(true)
 const levelFilter = ref('ALL')
 const search = ref('')
+const page = ref(1)
+const lastPage = ref(1)
+const total = ref(0)
 let refreshTimer
+let searchTimer
 
 async function load() {
     error.value = ''
     try {
-        const response = await axios.get('/admin/api/logs', { params: { lines: 300 } })
+        const response = await axios.get('/admin/api/logs', {
+            params: { page: page.value, per_page: 50, level: levelFilter.value, search: search.value },
+        })
         entries.value = response.data.entries ?? []
+        page.value = response.data.current_page ?? 1
+        lastPage.value = response.data.last_page ?? 1
+        total.value = response.data.total ?? 0
     } catch (exception) {
         error.value = exception.response?.data?.message ?? 'Não foi possível carregar os logs.'
     } finally {
@@ -33,7 +42,20 @@ onMounted(() => {
 })
 onUnmounted(() => clearInterval(refreshTimer))
 
-const levels = ['ALL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
+watch(levelFilter, () => {
+    page.value = 1
+    load()
+})
+
+watch(search, () => {
+    clearTimeout(searchTimer)
+    searchTimer = setTimeout(() => {
+        page.value = 1
+        load()
+    }, 300)
+})
+
+const levels = ['ALL', 'EMERGENCY', 'ALERT', 'CRITICAL', 'ERROR', 'WARNING', 'NOTICE', 'INFO', 'DEBUG']
 
 function levelClass(level) {
     return {
@@ -48,12 +70,13 @@ function levelClass(level) {
     }[level] ?? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
 }
 
-const filteredEntries = computed(() => entries.value.filter(entry => {
-    const matchesLevel = levelFilter.value === 'ALL' || entry.level === levelFilter.value
-    const query = search.value.trim().toLowerCase()
-    const matchesSearch = !query || `${entry.message} ${entry.details}`.toLowerCase().includes(query)
-    return matchesLevel && matchesSearch
-}))
+const filteredEntries = computed(() => entries.value)
+
+function goToPage(nextPage) {
+    if (nextPage < 1 || nextPage > lastPage.value || nextPage === page.value) return
+    page.value = nextPage
+    load()
+}
 </script>
 
 <template>
@@ -102,6 +125,15 @@ const filteredEntries = computed(() => entries.value.filter(entry => {
                         <pre class="whitespace-pre-wrap text-xs leading-5 text-slate-300">{{ entry.details }}</pre>
                     </div>
                 </details>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-(--color-text-muted)">
+            <span>{{ total }} ocorrência{{ total === 1 ? '' : 's' }} encontrada{{ total === 1 ? '' : 's' }}</span>
+            <div class="flex items-center gap-2">
+                <button class="rounded-lg border border-(--color-border) px-3 py-2 disabled:cursor-not-allowed disabled:opacity-40" :disabled="page <= 1 || loading" @click="goToPage(page - 1)">Anterior</button>
+                <span>Página {{ page }} de {{ lastPage }}</span>
+                <button class="rounded-lg border border-(--color-border) px-3 py-2 disabled:cursor-not-allowed disabled:opacity-40" :disabled="page >= lastPage || loading" @click="goToPage(page + 1)">Próxima</button>
             </div>
         </div>
     </main>
