@@ -14,6 +14,14 @@
             }
         })()
     </script>
+    @if (app()->environment('local'))
+        <script>
+            window.__ADMIN_LOGIN_DEFAULTS__ = @json([
+                'email' => config('app.admin.email'),
+                'password' => config('app.admin.password'),
+            ]);
+        </script>
+    @endif
     @fonts
     @vite(['resources/css/app.css', 'resources/js/admin.js'])
 </head>

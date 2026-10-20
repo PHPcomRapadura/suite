@@ -4,7 +4,12 @@ import axios from 'axios'
 
 const logoSrc = '/images/PHPcomRapadura_color.svg'
 
-const form = ref({ email: '', password: '', remember: false })
+const loginDefaults = window.__ADMIN_LOGIN_DEFAULTS__ ?? {}
+const form = ref({
+    email: loginDefaults.email ?? '',
+    password: loginDefaults.password ?? '',
+    remember: false,
+})
 const loading = ref(false)
 const error = ref('')
 const showPassword = ref(false)
