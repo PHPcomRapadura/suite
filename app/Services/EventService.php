@@ -84,12 +84,12 @@ class EventService
             $event->update(['cover_image' => $this->uploadImage($coverImage, "events/{$event->id}/cover.{$coverImage->extension()}")]);
         }
 
-        if ($removeSocialBase) {
-            $this->deleteImage($event->social_base_image);
-            $event->update(['social_base_image' => null]);
-        } elseif ($socialBaseImage) {
+        if ($socialBaseImage) {
             $this->deleteImage($event->social_base_image);
             $event->update(['social_base_image' => $this->uploadImage($socialBaseImage, "events/{$event->id}/social-base.{$socialBaseImage->extension()}")]);
+        } elseif ($removeSocialBase) {
+            $this->deleteImage($event->social_base_image);
+            $event->update(['social_base_image' => null]);
         }
 
         if ($logo) {

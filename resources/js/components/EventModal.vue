@@ -46,12 +46,17 @@ function toLocalDatetime(iso) {
 }
 
 watch(() => props.show, (val) => {
-    if (!val) return
+    if (!val) {
+        if (socialBasePreview.value) URL.revokeObjectURL(socialBasePreview.value)
+        socialBasePreview.value = null
+        return
+    }
     errors.value      = {}
     coverFile.value   = null
     socialBaseFile.value = null
     logoFile.value    = null
     coverPreview.value = null
+    if (socialBasePreview.value) URL.revokeObjectURL(socialBasePreview.value)
     socialBasePreview.value = null
     logoPreview.value  = null
     removeCover.value = false
@@ -110,7 +115,9 @@ function onLogoChange(e) {
 function onSocialBaseChange(e) {
     const file = e.target.files[0]
     if (!file) return
+    if (socialBasePreview.value) URL.revokeObjectURL(socialBasePreview.value)
     socialBaseFile.value = file
+    removeSocialBase.value = false
     socialBasePreview.value = URL.createObjectURL(file)
 }
 
@@ -127,6 +134,7 @@ function clearLogo() {
 }
 
 function clearSocialBase() {
+    if (socialBasePreview.value) URL.revokeObjectURL(socialBasePreview.value)
     socialBaseFile.value = null
     socialBasePreview.value = null
     removeSocialBase.value = true
@@ -215,7 +223,7 @@ const inputClass = (field) => [
 
                         <!-- Nome -->
                         <div>
-                            <label class="block text-sm font-medium text-(--color-text) mb-1.5">
+                            <label for="social-base-image" class="block text-sm font-medium text-(--color-text) mb-1.5">
                                 Nome do evento <span class="text-(--color-danger)">*</span>
                             </label>
                             <input
@@ -382,7 +390,7 @@ const inputClass = (field) => [
                                 <span class="text-(--color-text-muted) font-normal ml-1">usada nas artes, jpg/jpeg/png/webp, máx. 5 MB</span>
                             </label>
 
-                            <div v-if="socialBasePreview || (isEditing && event?.social_base_image)" class="mb-2 relative inline-block">
+                            <div v-if="socialBasePreview || (isEditing && event?.social_base_image && !removeSocialBase)" class="mb-2 relative inline-block">
                                 <img
                                     :src="socialBasePreview ?? event?.social_base_image"
                                     alt="Preview da imagem base das redes sociais"
@@ -397,6 +405,7 @@ const inputClass = (field) => [
                             </div>
 
                             <input
+                                id="social-base-image"
                                 type="file"
                                 accept="image/jpeg,image/png,image/webp"
                                 :disabled="loading"

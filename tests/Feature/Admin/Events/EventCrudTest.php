@@ -442,6 +442,38 @@ it('atualizar cover_image deleta a anterior do R2 e persiste nova URL', function
     Storage::disk('r2')->assertExists("events/{$event['id']}/cover.png");
 });
 
+it('prioriza nova imagem base quando remoção e upload são enviados juntos', function () {
+    Storage::fake('r2');
+    $admin = User::factory()->admin()->create();
+    $oldFile = UploadedFile::fake()->image('base-antiga.jpg')->size(100);
+    $newFile = UploadedFile::fake()->image('base-nova.png')->size(100);
+
+    $event = $this->actingAs($admin)
+        ->post('/admin/api/events', [
+            'name' => 'Evento Troca Base Social',
+            'starts_at' => '2026-09-01 09:00:00',
+            'is_online' => false,
+            'social_base_image' => $oldFile,
+        ])
+        ->assertCreated()
+        ->json();
+
+    $this->actingAs($admin)
+        ->post("/admin/api/events/{$event['id']}", [
+            '_method' => 'PUT',
+            'name' => $event['name'],
+            'starts_at' => $event['starts_at'],
+            'is_online' => false,
+            'social_base_image' => $newFile,
+            'remove_social_base' => '1',
+        ])
+        ->assertOk()
+        ->assertJsonPath('social_base_image', fn (string $url) => str_contains($url, 'social-base.png'));
+
+    Storage::disk('r2')->assertMissing("events/{$event['id']}/social-base.jpg");
+    Storage::disk('r2')->assertExists("events/{$event['id']}/social-base.png");
+});
+
 it('retorna 422 ao enviar cover_image com formato inválido', function () {
     $admin = User::factory()->admin()->create();
     $file = UploadedFile::fake()->create('documento.pdf', 100, 'application/pdf');
