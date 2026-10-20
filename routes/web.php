@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\EventSocialAssetController;
 use App\Http\Controllers\Admin\EventSponsorController;
 use App\Http\Controllers\Admin\EventTaskCommentController;
 use App\Http\Controllers\Admin\EventTaskController;
+use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\SpeakerController;
 use App\Http\Controllers\Admin\TalkController;
 use App\Http\Controllers\Admin\UserController;
@@ -55,6 +56,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/api/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
         Route::get('/api/dashboard/next-event', [DashboardController::class, 'nextEvent'])->name('dashboard.nextEvent');
         Route::get('/api/dashboard/activity', [DashboardController::class, 'activity'])->name('dashboard.activity');
+        Route::get('/api/logs', [LogController::class, 'index'])->name('logs.index')->middleware('role:admin');
 
         // API — Palestrantes (somente leitura)
         Route::prefix('api/speakers')->name('speakers.')->group(function () {
@@ -152,6 +154,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', fn () => view('admin'))->name('dashboard');
         Route::get('/speakers', fn () => view('admin'))->name('speakers');
         Route::get('/users', fn () => view('admin'))->name('users');
+        Route::get('/logs', fn () => view('admin'))->name('logs');
         Route::get('/events', fn () => view('admin'))->name('events');
         // Nomes das rotas de página não podem repetir os da API acima
         // (admin.events.show é a API): nomes duplicados quebram o route:cache.

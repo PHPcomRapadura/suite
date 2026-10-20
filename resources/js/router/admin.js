@@ -29,6 +29,11 @@ const routes = [
                 component: () => import('@/views/admin/Users.vue'),
             },
             {
+                path: 'logs',
+                name: 'admin.logs',
+                component: () => import('@/views/admin/Logs.vue'),
+            },
+            {
                 path: 'events',
                 name: 'admin.events',
                 component: () => import('@/views/admin/Events.vue'),

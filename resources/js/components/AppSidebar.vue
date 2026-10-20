@@ -27,6 +27,7 @@ const navItems = computed(() => [
     { name: 'admin.events',    label: 'Eventos',      icon: 'calendar', roles: ['admin', 'colaborador'] },
     { name: 'admin.speakers',  label: 'Palestrantes', icon: 'mic',      roles: ['admin', 'colaborador'] },
     { name: 'admin.users',     label: 'Usuários',     icon: 'users',    roles: ['admin'] },
+    { name: 'admin.logs',      label: 'Logs',         icon: 'terminal', roles: ['admin'] },
 ].filter(item => !user.value || item.roles.includes(user.value.role)))
 
 const roleLabel = { admin: 'Administrador', colaborador: 'Colaborador', palestrante: 'Palestrante' }
@@ -143,6 +144,11 @@ function initials(name) {
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                     <circle cx="9" cy="7" r="4"/>
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <!-- Ícone terminal (Logs) -->
+                <svg v-else-if="item.icon === 'terminal'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="4 17 10 11 4 5"/>
+                    <line x1="12" y1="19" x2="20" y2="19"/>
                 </svg>
 
                 <span v-if="!collapsed" class="truncate">{{ item.label }}</span>

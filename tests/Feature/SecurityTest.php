@@ -143,3 +143,10 @@ it('palestrante não vê palestras de outro palestrante', function () {
 
     expect($response->json('data'))->toHaveCount(0);
 });
+
+it('restringe os logs da aplicação ao administrador', function () {
+    $this->getJson('/admin/api/logs')->assertUnauthorized();
+
+    $collaborator = User::factory()->colaborador()->create();
+    $this->actingAs($collaborator)->getJson('/admin/api/logs')->assertForbidden();
+});
