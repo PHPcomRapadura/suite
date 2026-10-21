@@ -26,7 +26,8 @@ class AnnouncementTemplate implements SocialAssetTemplate
 
         $tools->drawScrim($canvas, $width, $height, $isStory ? 0.40 : 0.30);
 
-        [$date, $location] = EventMeta::dateAndLocation($event);
+        $date = EventMeta::dateTime($event);
+        $location = EventMeta::fullLocation($event);
         $titleSize = $isStory ? 104 : 84;
 
         // Bloco de conteúdo ancorado embaixo (story) / metade inferior (post),
@@ -62,7 +63,7 @@ class AnnouncementTemplate implements SocialAssetTemplate
             $font->color('#ffffff');
         }) + 12;
 
-        // local resumido (Regular, linha própria)
+        // endereço completo (Regular, linha própria)
         if ($location) {
             $tools->drawTextBlock($canvas, $location, $left, $cursorY, function (FontFactory $font) use ($contentWidth) {
                 $font->filename(SocialAssetCanvas::FONT_REGULAR);

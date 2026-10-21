@@ -231,7 +231,16 @@ class SocialAssetCanvas
         $x = $width - self::PADDING - $logo->width();
         $y = $height - $bottomReserve - $logo->height();
 
-        $canvas->place($logo, 'top-left', max(self::PADDING, $x), max(self::PADDING, $y));
+        $x = max(self::PADDING, $x);
+        $y = max(self::PADDING, $y);
+
+        // Sombra mínima para separar a logo do fundo sem criar um cartão claro.
+        $canvas->drawRectangle($x + 6, $y + 6, function ($rectangle) use ($logo) {
+            $rectangle->size($logo->width(), $logo->height());
+            $rectangle->background('rgba(0, 0, 0, 0.12)');
+        });
+
+        $canvas->place($logo, 'top-left', $x, $y);
     }
 
     /**

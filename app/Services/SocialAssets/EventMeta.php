@@ -6,7 +6,6 @@ use App\Models\Event;
 
 /**
  * Helpers de formatação de metadados de evento para as artes de divulgação.
- * Mantém os textos curtos: nada de endereço completo nas artes.
  */
 class EventMeta
 {
@@ -53,6 +52,16 @@ class EventMeta
         }
 
         return "{$venue} · {$last}";
+    }
+
+    /**
+     * Endereço original cadastrado no evento, sem reduzir os segmentos.
+     */
+    public static function fullLocation(Event $event): ?string
+    {
+        $location = trim((string) $event->location);
+
+        return $location !== '' ? $location : null;
     }
 
     /**
