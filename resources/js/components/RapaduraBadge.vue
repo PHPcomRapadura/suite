@@ -1,8 +1,6 @@
 <script setup>
-// "Powered by Rapadura Network" badge, the same lockup every site on the
-// network carries. Styles live in resources/css/app.css (.rpd-badge).
 defineProps({
-    tone: { type: String, default: 'light' }, // 'light' on light footers, 'dark' on dark ones
+    tone: { type: String, default: 'auto' },
 })
 </script>
 
