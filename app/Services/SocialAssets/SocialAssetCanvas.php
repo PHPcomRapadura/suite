@@ -24,7 +24,9 @@ class SocialAssetCanvas
 
     private const OVERLAY_COLOR = 'rgba(0, 0, 0, 0.25)';
 
-    private const LOGO_SIZE = 140;
+    private const LOGO_MAX_WIDTH = 250;
+
+    private const LOGO_MAX_HEIGHT = 160;
 
     // Acima desta razão (proporção da capa ÷ proporção do canvas), cover()
     // cortaria mais de ~30% da largura; a capa passa a entrar inteira.
@@ -173,8 +175,8 @@ class SocialAssetCanvas
     }
 
     /**
-     * Overlay base leve sobre a imagem inteira, para manter o logo do topo
-     * legível sobre capas claras.
+     * Overlay base leve sobre a imagem inteira, para equilibrar contraste
+     * entre a ilustração de fundo e os elementos da composição.
      */
     public function drawOverlay(ImageInterface $canvas, int $width, int $height): void
     {
@@ -213,7 +215,7 @@ class SocialAssetCanvas
         }
     }
 
-    public function drawLogo(ImageInterface $canvas, ?string $logoUrl): void
+    public function drawLogo(ImageInterface $canvas, ?string $logoUrl, int $width, int $height, string $format, bool $hasSponsorFooter = false): void
     {
         $logo = $this->fetchImage($logoUrl);
 
@@ -221,8 +223,15 @@ class SocialAssetCanvas
             return;
         }
 
-        $logo->scaleDown(width: self::LOGO_SIZE, height: self::LOGO_SIZE);
-        $canvas->place($logo, 'top-left', self::PADDING, self::PADDING);
+        $logo->scaleDown(width: self::LOGO_MAX_WIDTH, height: self::LOGO_MAX_HEIGHT);
+
+        $bottomReserve = $hasSponsorFooter
+            ? ($format === 'story' ? 280 : 220)
+            : ($format === 'story' ? 90 : 70);
+        $x = $width - self::PADDING - $logo->width();
+        $y = $height - $bottomReserve - $logo->height();
+
+        $canvas->place($logo, 'top-left', max(self::PADDING, $x), max(self::PADDING, $y));
     }
 
     /**

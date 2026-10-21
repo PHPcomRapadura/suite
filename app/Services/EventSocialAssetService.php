@@ -45,7 +45,6 @@ class EventSocialAssetService
             $secondaryColor,
         );
         $this->canvasTools->drawOverlay($canvas, $width, $height);
-        $this->canvasTools->drawLogo($canvas, $event->logo);
 
         $template = $this->resolveTemplate($type);
         $template->compose($canvas, $this->canvasTools, [
@@ -58,6 +57,10 @@ class EventSocialAssetService
             'secondary_color' => $secondaryColor,
             'has_sponsor_footer' => $sponsors->isNotEmpty(),
         ]);
+
+        // Assinatura do evento no canto inferior direito, depois do conteúdo
+        // principal para permanecer nítida e não ser coberta pelo scrim.
+        $this->canvasTools->drawLogo($canvas, $event->logo, $width, $height, $format, $sponsors->isNotEmpty());
 
         // Rodapé com logos dos patrocinadores, aplicado após o template para que
         // todos os tipos de arte ganhem o rodapé sem duplicação.
