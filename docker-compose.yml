@@ -1,6 +1,9 @@
 services:
   app:
-    image: webdevops/php-nginx:8.4
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: phpcomrapadura/app:8.4.27
     container_name: phpcomrapadura_app
     restart: unless-stopped
     working_dir: /var/www/app

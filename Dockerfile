@@ -1,4 +1,4 @@
-FROM php:8.4-fpm
+FROM php:8.4.27-fpm
 
 WORKDIR /var/www/html
 
@@ -28,9 +28,11 @@ RUN apt-get update && apt-get install -y \
         xml \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Redis + PCOV (code coverage)
-RUN pecl install redis pcov \
-    && docker-php-ext-enable redis pcov
+# Redis + PCOV (code coverage), installed with the official PHP Installer for
+# Extensions instead of the deprecated PECL installer.
+COPY --from=ghcr.io/php/pie:1.5.0-bin /pie /usr/local/bin/pie
+
+RUN pie install phpredis/phpredis:6.2.0 pecl/pcov:1.0.12
 
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
