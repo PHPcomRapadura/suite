@@ -269,13 +269,35 @@
 
         </div>
 
-        {{-- Imagem parallax --}}
-        <div
-            class="about-parallax"
-            role="img"
-            aria-label="Comunidade PHP com Rapadura reunida"
-            style="background-image: url('{{ asset('images/sobre-php-com-rapadura.jpg') }}')"
-        ></div>
+        {{-- A história da comunidade dá lugar ao convite para o próximo encontro. --}}
+        <div class="about-parallax">
+            <div class="about-parallax__photo">
+                <img
+                    class="about-parallax__image"
+                    src="{{ asset('images/comunidade-php-com-rapadura.jpg') }}"
+                    alt="Participantes da PHP com Rapadura reunidos em um auditório"
+                    width="4110" height="2044"
+                    loading="lazy" decoding="async"
+                >
+            </div>
+            <div class="about-parallax__content">
+                <h2 class="about-parallax__title">O próximo encontro também pode ter você.</h2>
+                <a class="about-parallax__link" href="#eventos">
+                    Veja os próximos eventos
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 4v16m-6-6 6 6 6-6" />
+                    </svg>
+                </a>
+            </div>
+            <svg class="about-parallax__edge" width="100%" height="10" aria-hidden="true" focusable="false">
+                <defs>
+                    <pattern id="about-cordel-edge" width="32" height="10" patternUnits="userSpaceOnUse">
+                        <path d="M0 10 8 3 16 8 24 1 32 10Z" fill="currentColor" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="10" fill="url(#about-cordel-edge)" />
+            </svg>
+        </div>
 
     </section>
 

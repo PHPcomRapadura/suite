@@ -84,6 +84,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.1 });
     animatedEls.forEach(el => entranceObserver.observe(el));
 
+    // Movimento curto apenas na foto, respeitando telas pequenas e movimento reduzido.
+    const communityPhoto = document.querySelector('.about-parallax');
+    const parallaxMedia = window.matchMedia('(min-width: 768px) and (prefers-reduced-motion: no-preference)');
+    if (communityPhoto) {
+        let framePending = false;
+        let photoVisible = false;
+
+        function updateCommunityParallax() {
+            framePending = false;
+            if (!parallaxMedia.matches) {
+                communityPhoto.style.removeProperty('--parallax-offset');
+                return;
+            }
+            if (!photoVisible) return;
+
+            const bounds = communityPhoto.getBoundingClientRect();
+            const progress = (window.innerHeight / 2 - bounds.top - bounds.height / 2) / (window.innerHeight + bounds.height);
+            const offset = Math.max(-14, Math.min(14, progress * 28));
+            communityPhoto.style.setProperty('--parallax-offset', `${offset.toFixed(2)}px`);
+        }
+
+        function scheduleCommunityParallax() {
+            if (framePending) return;
+            framePending = true;
+            requestAnimationFrame(updateCommunityParallax);
+        }
+
+        const photoObserver = new IntersectionObserver(([entry]) => {
+            photoVisible = entry.isIntersecting;
+            if (photoVisible) scheduleCommunityParallax();
+        });
+        photoObserver.observe(communityPhoto);
+        window.addEventListener('scroll', () => {
+            if (photoVisible && parallaxMedia.matches) scheduleCommunityParallax();
+        }, { passive: true });
+        window.addEventListener('resize', scheduleCommunityParallax, { passive: true });
+        parallaxMedia.addEventListener('change', scheduleCommunityParallax);
+    }
+
     // Scroll spy com aria-current
     const sections = document.querySelectorAll('section[id]');
     const navLinks  = document.querySelectorAll('.nav-link, .mobile-nav-link');
