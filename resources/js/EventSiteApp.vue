@@ -1,5 +1,6 @@
 <script setup>
 import { defineAsyncComponent } from 'vue'
+import EventDirections from './components/EventDirections.vue'
 
 const props = defineProps({
     data: { type: Object, required: true },
@@ -32,4 +33,5 @@ function onLayoutReady() {
             :speakers="data.speakers ?? []"
         />
     </Suspense>
+    <EventDirections :event="data.event" :color="data.site?.primary_color ?? '#025c98'" />
 </template>
