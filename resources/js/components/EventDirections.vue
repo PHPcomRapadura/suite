@@ -11,10 +11,16 @@ const container = ref(null)
 const trigger = ref(null)
 const panel = ref(null)
 const panelId = useId()
+const fallbackApp = ref(null)
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+const isAndroid = /Android/i.test(navigator.userAgent)
+const isMobile = isIOS || isAndroid
 const address = computed(() => (props.event.location ?? '').trim())
 const available = computed(() => !props.event.is_online && address.value !== '')
 
 const apps = computed(() => {
+    const query = encodeURIComponent(address.value)
     const uber = new URL('https://m.uber.com/ul/')
     uber.search = new URLSearchParams({
         action: 'setPickup',
@@ -29,11 +35,22 @@ const apps = computed(() => {
     const waze = new URL('https://waze.com/ul')
     waze.search = new URLSearchParams({ q: address.value, utm_source: 'phpcomrapadura' }).toString()
 
-    return [
-        { id: 'uber', name: 'Uber', href: uber.href },
-        { id: 'maps', name: 'Google Maps', href: maps.href },
-        { id: 'waze', name: 'Waze', href: waze.href },
+    const nativeUber = `uber://riderequest?pickup=my_location&dropoff[formatted_address]=${query}&dropoff[nickname]=${query}`
+    const destinations = [
+        { id: 'uber', name: 'Uber', webHref: uber.href, nativeHref: nativeUber, androidHref: nativeUber, package: 'com.ubercab' },
+        { id: 'maps', name: 'Google Maps', webHref: maps.href, nativeHref: `comgooglemaps://?q=${query}`, androidHref: `geo:0,0?q=${query}`, package: 'com.google.android.apps.maps' },
+        { id: 'waze', name: 'Waze', webHref: waze.href, nativeHref: `waze://?q=${query}&utm_source=phpcomrapadura`, androidHref: `waze://?q=${query}&utm_source=phpcomrapadura`, package: 'com.waze' },
     ]
+
+    return destinations.map(app => {
+        let href = app.webHref
+        if (isIOS) href = app.nativeHref
+        if (isAndroid) {
+            const [scheme, ...path] = app.androidHref.split(':')
+            href = `intent:${path.join(':')}#Intent;scheme=${scheme};package=${app.package};S.browser_fallback_url=${encodeURIComponent(app.webHref)};end`
+        }
+        return { ...app, href }
+    })
 })
 
 function close(restoreFocus = false) {
@@ -44,6 +61,7 @@ function close(restoreFocus = false) {
 async function toggle() {
     open.value = !open.value
     if (open.value) {
+        fallbackApp.value = null
         await nextTick()
         panel.value?.querySelector('a')?.focus()
     }
@@ -54,6 +72,8 @@ function onPointerDown(event) {
 }
 
 function onFocusOut(event) {
+    // Ao alternar para outro app, o iOS pode retirar o foco sem indicar outro elemento.
+    if (!event.relatedTarget) return
     if (!container.value?.contains(event.relatedTarget)) close()
 }
 
@@ -79,9 +99,10 @@ onUnmounted(() => document.removeEventListener('pointerdown', onPointerDown))
                     :key="app.id"
                     :href="app.href"
                     :aria-label="`Abrir ${app.name} com o endereço do evento`"
-                    target="_blank"
+                    :target="isMobile ? '_self' : '_blank'"
                     rel="noopener noreferrer"
                     class="event-directions__app"
+                    @click="fallbackApp = isMobile ? app : null"
                 >
                     <span class="event-directions__icon" aria-hidden="true">
                         <svg v-if="app.id === 'uber'" viewBox="0 0 40 40" fill="none">
@@ -112,6 +133,9 @@ onUnmounted(() => document.removeEventListener('pointerdown', onPointerDown))
                     </svg>
                 </a>
             </nav>
+            <a v-if="fallbackApp" :href="fallbackApp.webHref" class="event-directions__fallback">
+                Não abriu? Usar {{ fallbackApp.name }} no navegador
+            </a>
         </div>
         <button
             ref="trigger"
@@ -223,8 +247,20 @@ onUnmounted(() => document.removeEventListener('pointerdown', onPointerDown))
     color: var(--color-text-muted);
 }
 
+.event-directions__fallback {
+    display: block;
+    margin-top: 12px;
+    padding-block: 10px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.6;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .event-directions__trigger:focus-visible,
-.event-directions__app:focus-visible {
+.event-directions__app:focus-visible,
+.event-directions__fallback:focus-visible {
     outline: 3px solid var(--directions-color);
     outline-offset: 4px;
 }
