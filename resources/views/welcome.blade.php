@@ -202,13 +202,15 @@
     <main id="main-content">
 
     {{-- ===================== HERO ===================== --}}
-    <section id="hero" class="relative min-h-screen flex flex-col bg-(--color-bg)">
+    <section id="hero" class="relative isolate overflow-hidden min-h-screen flex flex-col bg-(--color-bg)">
+
+        @include('partials.hero-ceara')
 
         {{-- Espaço para o header fixo --}}
         <div class="h-16 shrink-0"></div>
 
         {{-- Container com altura total restante --}}
-        <div class="flex-1 flex flex-col items-center justify-center px-6 pb-16 gap-6">
+        <div class="flex-1 flex flex-col items-center justify-center px-6 pb-48 sm:pb-64 gap-6">
             {{-- h1 visível apenas para leitores de tela --}}
             <h1 class="sr-only">PHP com Rapadura — Comunidade PHP do Ceará</h1>
             <img

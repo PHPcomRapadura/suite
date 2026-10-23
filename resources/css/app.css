@@ -90,6 +90,50 @@ html {
     }
 }
 
+/* Xilogravuras do Ceará: a marca e o texto permanecem no primeiro plano. */
+.hero-ceara {
+    position: absolute;
+    right: 24px;
+    bottom: 88px;
+    left: 24px;
+    z-index: -1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(16px, 4vw, 48px);
+    max-width: 1000px;
+    margin-inline: auto;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.075;
+}
+
+.hero-ceara__motif {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 132px;
+    overflow: hidden;
+}
+
+html.dark .hero-ceara {
+    filter: invert(1);
+    opacity: 0.09;
+}
+
+@media (max-width: 639px) {
+    .hero-ceara {
+        right: 12px;
+        bottom: 80px;
+        left: 12px;
+        gap: 8px;
+        opacity: 0.06;
+    }
+
+    .hero-ceara__motif {
+        height: 72px;
+    }
+}
+
 /* Hero animations */
 @keyframes fade-slide-up {
     from { opacity: 0; transform: translateY(20px); }
