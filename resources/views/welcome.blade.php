@@ -1,6 +1,7 @@
 @php
     $contactEmail  = 'contato@phpcomrapadura.org';
     $twitterHandle = '@phpcomrapadura';
+    $communityDescription = 'Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.';
 @endphp
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -10,7 +11,7 @@
 
     {{-- SEO básico --}}
     <title>PHP com Rapadura — Comunidade PHP do Ceará</title>
-    <meta name="description" content="Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.">
+    <meta name="description" content="{{ $communityDescription }}">
     <meta name="keywords" content="PHP, comunidade, Ceará, Nordeste, desenvolvedores, programação, eventos, tecnologia">
     <meta name="author" content="PHP com Rapadura">
     <meta name="robots" content="index, follow">
@@ -23,7 +24,7 @@
     <meta property="og:type"        content="website">
     <meta property="og:url"         content="{{ url('/') }}">
     <meta property="og:title"       content="PHP com Rapadura — Comunidade PHP do Ceará">
-    <meta property="og:description" content="Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.">
+    <meta property="og:description" content="{{ $communityDescription }}">
     <meta property="og:image"       content="{{ asset('images/sobre-php-com-rapadura.jpg') }}">
     <meta property="og:image:width"  content="2048">
     <meta property="og:image:height" content="1019">
@@ -35,7 +36,7 @@
     <meta name="twitter:card"        content="summary_large_image">
     <meta name="twitter:site"        content="{{ $twitterHandle }}">
     <meta name="twitter:title"       content="PHP com Rapadura — Comunidade PHP do Ceará">
-    <meta name="twitter:description" content="Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.">
+    <meta name="twitter:description" content="{{ $communityDescription }}">
     <meta name="twitter:image"       content="{{ asset('images/sobre-php-com-rapadura.jpg') }}">
     <meta name="twitter:image:alt"   content="Comunidade PHP com Rapadura reunida em evento">
 
@@ -59,7 +60,7 @@
                 "height": 60
             },
             "image": "{{ asset('images/sobre-php-com-rapadura.jpg') }}",
-            "description": "Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.",
+            "description": @json($communityDescription, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             "foundingDate": "2014",
             "founder": {
                 "@@type": "Person",
@@ -220,7 +221,7 @@
                 class="hero-logo w-full max-w-[340px] sm:max-w-[560px] lg:max-w-[720px]"
             >
             <p class="hero-subtitle shrink-0 text-(--color-text-muted) text-lg sm:text-xl lg:text-2xl font-normal leading-relaxed max-w-[600px] text-center">
-                Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café.
+                {{ $communityDescription }}
             </p>
         </div>
 
@@ -412,7 +413,8 @@
     </section>
 
     {{-- ===================== CÓDIGO DE CONDUTA ===================== --}}
-    <section id="codigo-de-conduta" class="min-h-screen bg-white flex flex-col justify-center px-6 py-16 md:py-24">
+    {{-- O código permanece visível, mas não deve compor o resumo da página na busca. --}}
+    <section id="codigo-de-conduta" data-nosnippet class="min-h-screen bg-white flex flex-col justify-center px-6 py-16 md:py-24">
         <div class="max-w-[1024px] mx-auto w-full section-hidden">
 
             <h2 class="text-[26px] md:text-[32px] font-bold text-(--color-text) text-center mb-2">
