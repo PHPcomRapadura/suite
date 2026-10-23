@@ -177,7 +177,7 @@ onUnmounted(() => {
             class="relative flex flex-col items-center justify-center min-h-screen text-center px-4 py-20"
             :style="`background-color: var(--site-primary)`"
         >
-            <img v-if="event.logo" :src="event.logo" :alt="event.name + ' — logo'" class="w-24 h-24 object-contain mb-8 rounded-2xl bg-white/10 p-3">
+            <img v-if="event.logo" :src="event.logo" :alt="event.name + ' — logo'" class="w-64 h-40 md:w-80 md:h-48 max-w-full object-contain mb-8 rounded-2xl bg-white/10 p-3">
             <h1 class="text-5xl md:text-7xl font-bold text-white leading-none mb-4">{{ event.name }}</h1>
             <p v-if="site.hero_tagline" class="text-xl text-white/70 mb-10 max-w-2xl">{{ site.hero_tagline }}</p>
             <a

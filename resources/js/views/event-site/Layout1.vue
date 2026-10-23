@@ -182,7 +182,7 @@ onUnmounted(() => {
             <div v-else class="absolute inset-0" :style="`background-color: var(--site-primary)`" />
 
             <div class="relative z-10 flex flex-col items-center justify-center text-center px-4 py-20" style="min-height: 480px;">
-                <img v-if="event.logo" :src="event.logo" :alt="event.name + ' — logo'" class="w-20 h-20 object-contain mb-6 rounded-xl bg-white/10 p-2">
+                <img v-if="event.logo" :src="event.logo" :alt="event.name + ' — logo'" class="w-56 h-32 sm:w-72 sm:h-40 max-w-full object-contain mb-6 rounded-xl bg-white/10 p-3">
                 <h1 class="text-4xl md:text-5xl font-bold text-white leading-tight mb-3">{{ event.name }}</h1>
                 <p v-if="site.hero_tagline" class="text-lg text-white/80 mb-6 max-w-xl">{{ site.hero_tagline }}</p>
                 <div class="flex flex-wrap gap-4 justify-center text-white/70 text-sm mb-8">
