@@ -25,10 +25,11 @@
     <meta property="og:url"         content="{{ url('/') }}">
     <meta property="og:title"       content="PHP com Rapadura — Comunidade PHP do Ceará">
     <meta property="og:description" content="{{ $communityDescription }}">
-    <meta property="og:image"       content="{{ asset('images/sobre-php-com-rapadura.jpg') }}">
-    <meta property="og:image:width"  content="2048">
-    <meta property="og:image:height" content="1019">
-    <meta property="og:image:alt"   content="Comunidade PHP com Rapadura reunida em evento">
+    <meta property="og:image"       content="{{ asset('images/phpcomrapadura-social.png') }}">
+    <meta property="og:image:type"  content="image/png">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"   content="Logo da comunidade PHP com Rapadura">
     <meta property="og:locale"      content="pt_BR">
     <meta property="og:site_name"   content="PHP com Rapadura">
 
@@ -37,8 +38,8 @@
     <meta name="twitter:site"        content="{{ $twitterHandle }}">
     <meta name="twitter:title"       content="PHP com Rapadura — Comunidade PHP do Ceará">
     <meta name="twitter:description" content="{{ $communityDescription }}">
-    <meta name="twitter:image"       content="{{ asset('images/sobre-php-com-rapadura.jpg') }}">
-    <meta name="twitter:image:alt"   content="Comunidade PHP com Rapadura reunida em evento">
+    <meta name="twitter:image"       content="{{ asset('images/phpcomrapadura-social.png') }}">
+    <meta name="twitter:image:alt"   content="Logo da comunidade PHP com Rapadura">
 
     {{-- Favicon --}}
     <link rel="icon"             type="image/png" href="{{ asset('images/favicon.png') }}">
@@ -59,7 +60,7 @@
                 "width": 200,
                 "height": 60
             },
-            "image": "{{ asset('images/sobre-php-com-rapadura.jpg') }}",
+            "image": "{{ asset('images/phpcomrapadura-social.png') }}",
             "description": @json($communityDescription, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             "foundingDate": "2014",
             "founder": {
