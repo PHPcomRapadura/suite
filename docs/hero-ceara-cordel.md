@@ -4,6 +4,8 @@ Arte criada com a ferramenta integrada `image_gen`, com fundo transparente.
 Arquivo: `public/images/hero-ceara-cordel.png` (1536 × 1024).
 Os cinco recortes são apresentados por SVG em `resources/views/partials/hero-ceara.blade.php`, em uma fileira na base do hero. Tamanhos e opacidade são controlados em `resources/css/app.css`.
 
+A fileira final tem largura máxima de 1000px, com recortes de 132px de altura no desktop e 72px abaixo de 640px. Mantém baixa opacidade e espaço reservado acima da seta de rolagem. Para a manutenção do restante da página, consulte [o guia do site público](site-publico.md).
+
 A revisão `public/images/hero-ceara-cordel-v2.png` corrige a Pedra da Galinha Choca e Iracema usando as fotos fornecidas pelo usuário. Apenas os dois recortes corrigidos usam a revisão; Belchior, Ponte Metálica e Castelão usam a arte original.
 
 ## Prompt da revisão com referências

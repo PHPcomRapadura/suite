@@ -79,28 +79,32 @@ A página inicial é composta por um **header fixo com menu de navegação** seg
 
 ### 4.1 Dimensão
 
-- Altura: `100vh` (tela cheia)
-- O conteúdo é vertically e horizontally centralizado
+- Altura mínima: `100vh`; cresce quando necessário em telas baixas
+- Conteúdo centralizado na área útil, com espaço inferior reservado à fileira de ilustrações e à seta
 
 ### 4.2 Fundo
 
 - Cor de fundo: `--color-bg` (`#F5F6F8` no light mode)
-- Sem imagem ou gradiente — fundo limpo e neutro
+- Cinco xilogravuras decorativas na base, lado a lado: Pedra da Galinha Choca, Iracema, Belchior, Ponte Metálica e Arena Castelão
+- Partial `resources/views/partials/hero-ceara.blade.php`, com recortes SVG e `clipPath` das artes `hero-ceara-cordel.png` e `hero-ceara-cordel-v2.png`
+- Fileira com largura máxima de 1000px; recortes com altura de 132px, ou 72px abaixo de 640px
+- Opacidade de 7,5% no desktop, 6% no celular e 9% no modo escuro; estáticas, `aria-hidden` e sem interceptar cliques
+- Referências e prompts em `docs/hero-ceara-cordel.md`
 
 ### 4.3 Logo
 
 - Arquivo: `public/images/PHPcomRapadura_color.svg`
 - `alt`: "PHP com Rapadura"
-- Largura máxima: 320px (desktop) / 240px (mobile)
+- Largura máxima: 340px no mobile, 560px a partir de 640px e 720px a partir de 1024px
 - Centralizada horizontalmente
 
 ### 4.4 Subtitle
 
 - Texto: *"Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café."*
 - Posição: abaixo da logo, espaçamento top de 24px
-- Fonte: Lexend, 18px (desktop) / 15px (mobile), peso 400
+- Fonte: Lexend, 18px no mobile, 20px a partir de 640px e 24px a partir de 1024px, peso 400
 - Cor: `--color-text-muted`
-- Largura máxima: 480px, centralizado
+- Largura máxima: 600px, centralizado
 - `text-align: center`
 
 ### 4.5 Scroll indicator
@@ -123,6 +127,10 @@ A página inicial é composta por um **header fixo com menu de navegação** seg
 
 - `<title>`: `PHP com Rapadura — Comunidade PHP do Ceará`
 - `<meta name="description">`: `"Grupo de desenvolvedores PHP do Ceará, formados através de uma ligação doce, como a rapadura e o café."`
+- `$communityDescription` é a fonte única para o hero, meta description, OG/Twitter e descrição da organização no JSON-LD
+- `#codigo-de-conduta` usa `data-nosnippet` para não compor resumos da busca; a escolha do snippet continua sendo do Google
+- Imagem de compartilhamento: `public/images/phpcomrapadura-social.png`, logo do hero renderizada em PNG 1200 × 630 sobre fundo claro; usada por OG, Twitter e `Organization.image`
+- Guia de manutenção: `docs/site-publico.md`
 
 ---
 
@@ -139,9 +147,9 @@ A página inicial é composta por um **header fixo com menu de navegação** seg
 
 | Breakpoint | Comportamento |
 |------------|--------------|
-| Mobile (< 768px) | Menu hambúrguer, logo 240px, subtitle 15px |
-| Tablet (768px–1024px) | Menu completo visível, logo 280px |
-| Desktop (> 1024px) | Layout completo, logo 320px, subtitle 18px |
+| Mobile (< 640px) | Logo até 340px, subtitle 18px, xilogravuras com altura de 72px |
+| Tablet (640px–1023px) | Logo até 560px, subtitle 20px, xilogravuras com altura de 132px |
+| Desktop (≥ 1024px) | Logo até 720px, subtitle 24px, xilogravuras com altura de 132px |
 
 Testar obrigatoriamente em **360px de largura** sem overflow horizontal.
 
@@ -154,8 +162,9 @@ Testar obrigatoriamente em **360px de largura** sem overflow horizontal.
 - [ ] Todos os 5 links de navegação presentes e funcionando (scroll suave até a âncora)
 - [ ] Link ativo destacado conforme a seção visível
 - [ ] Menu hambúrguer funcional no mobile, abre e fecha corretamente
-- [ ] Hero ocupa 100vh com logo e subtitle centralizados
-- [ ] Logo limitada a 320px no desktop e 240px no mobile
+- [x] Hero tem altura mínima de 100vh, com logo e subtitle centralizados e espaço para a decoração
+- [x] Logo com limites responsivos de 340px / 560px / 720px
+- [x] Cinco xilogravuras suaves em fileira na base, sem cobrir o texto
 - [ ] Animação de entrada ao carregar a página
 - [ ] Scroll indicator com bounce e scroll suave ao clicar
 - [ ] Página sem overflow horizontal em 360px

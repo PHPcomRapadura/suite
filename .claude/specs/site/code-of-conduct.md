@@ -5,6 +5,8 @@
 **Rota:** `GET /` (âncora `#codigo-de-conduta`)
 **Arquivo de referência de padrões:** `.claude/patterns/front-patterns.md`
 
+**Busca (23/10/2026):** a seção `#codigo-de-conduta` usa `data-nosnippet` para impedir que o seu texto componha o resumo da página no Google. A seção continua visível e acessível. A meta description usa o texto do hero; isso não garante que o Google reproduza exatamente a descrição. Ver `docs/site-publico.md`.
+
 ---
 
 ## 1. Estrutura geral da seção

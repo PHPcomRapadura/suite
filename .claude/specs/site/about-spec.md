@@ -35,7 +35,7 @@ A seção é composta por duas partes em sequência vertical:
 - Fundo: `--color-bg`
 - Padding vertical: `96px` (desktop) / `64px` (mobile)
 - Padding horizontal: `24px`
-- Centralizado horizontalmente com `max-width: 760px`
+- Centralizado horizontalmente com `max-width: 1024px`
 
 ### 2.2 Título
 
@@ -74,31 +74,35 @@ Os 5 parágrafos abaixo devem ser renderizados em sequência, separados por `mar
 
 ### 3.1 Imagem
 
-- Arquivo: `public/images/sobre-php-com-rapadura.jpg`
-- `alt`: "Comunidade PHP com Rapadura reunida"
+- Arquivo: `public/images/comunidade-php-com-rapadura.jpg` (4110 × 2044)
+- `<img>` com dimensões intrínsecas, `loading="lazy"` e `decoding="async"`
+- `alt`: "Participantes da PHP com Rapadura reunidos em um auditório"
 
 ### 3.2 Dimensões
 
 - Largura: 100% da viewport
-- Altura: `480px` (desktop) / `300px` (mobile)
+- Altura mínima da faixa: `460px` no desktop
+- No mobile, foto inteira na proporção 4110 × 2044, com texto abaixo e altura total conforme o conteúdo
 
 ### 3.3 Efeito parallax
 
-- Implementar com `background-attachment: fixed` e `background-position: center`
-- A imagem move-se mais lentamente que o scroll, criando profundidade
-- `background-size: cover`
+- `transform: translateY(var(--parallax-offset))`, limitado a ±14px
+- Atualização via `requestAnimationFrame` enquanto a faixa está visível (`IntersectionObserver`)
+- Imagem com `object-fit: cover` no desktop; sem `background-attachment: fixed`
+- Desativado abaixo de 768px e com `prefers-reduced-motion: reduce`
 
 ### 3.4 Overlay
 
-- Overlay escuro semitransparente sobre a imagem: `rgba(0, 0, 0, 0.35)`
-- Garante contraste caso haja texto sobre a imagem no futuro
+- Degradê concentrado na parte inferior, até o azul `#092c45`, para preservar os rostos e dar contraste ao convite
 
 ### 3.5 Transição
 
-- A imagem serve como separador visual entre a seção Sobre e a próxima seção
-- Sem texto sobre a imagem nesta versão
+- Título centralizado: **O próximo encontro também pode ter você.**
+- Link centralizado: **Veja os próximos eventos**, apontando para `#eventos`
+- Sem subtítulo de apoio
+- Borda inferior SVG decorativa inspirada em cordel, com `aria-hidden`
 
-> **Nota mobile:** `background-attachment: fixed` não funciona corretamente em iOS. No mobile, usar `background-attachment: scroll` com `background-size: cover`.
+Implementação em `welcome.blade.php`, `app.css` e `app.js`; detalhes em `docs/site-publico.md`.
 
 ---
 
@@ -106,8 +110,8 @@ Os 5 parágrafos abaixo devem ser renderizados em sequência, separados por `mar
 
 | Breakpoint | Texto | Imagem parallax |
 |------------|-------|-----------------|
-| Mobile (< 768px) | 15px, padding 64px vertical | 300px altura, sem parallax |
-| Desktop (≥ 768px) | 17px, padding 96px vertical | 480px altura, com parallax |
+| Mobile (< 768px) | 15px | Foto inteira acima do convite, sem parallax |
+| Desktop (≥ 768px) | 17px, padding 96px vertical | Faixa com altura mínima de 460px e parallax suave |
 
 ---
 
@@ -125,9 +129,9 @@ Os 5 parágrafos abaixo devem ser renderizados em sequência, separados por `mar
 - [ ] Título `<h2>` visível, centralizado, Lexend 700
 - [ ] 5 parágrafos renderizados em ordem com espaçamento correto
 - [ ] Último parágrafo em itálico e cor muted
-- [ ] Bloco de texto com max-width 760px centralizado na tela
-- [ ] Imagem ocupa 100% da largura com altura 480px no desktop
+- [x] Bloco de texto com max-width 1024px centralizado na tela
+- [x] Faixa ocupa 100% da largura com altura mínima de 460px no desktop
 - [ ] Efeito parallax funcional no desktop (imagem move mais devagar que o scroll)
-- [ ] No mobile, parallax desativado (`background-attachment: scroll`)
-- [ ] Overlay escuro visível sobre a imagem
+- [x] No mobile e com movimento reduzido, parallax desativado
+- [x] Degradê azul, convite centralizado, link para eventos e borda de cordel
 - [ ] Nenhum overflow horizontal em 360px de largura

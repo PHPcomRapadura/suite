@@ -4,8 +4,8 @@ Suite de aplicações de uso da comunidade PHP com Rapadura
 
 ### ✅ Site institucional (implementado — `resources/views/welcome.blade.php`)
 Single-page Blade + Tailwind CSS v4 com as seções:
-- **Hero** — logo centralizada, subtitle, scroll indicator, animação de entrada
-- **Sobre** — texto da comunidade + parallax com foto da comunidade
+- **Hero** — logo centralizada, subtitle, scroll indicator, animação de entrada e cinco xilogravuras do Ceará alinhadas na base
+- **Sobre** — texto da comunidade + foto 4110 × 2044, degradê azul, convite centralizado para eventos e parallax suave apenas no desktop sem preferência por movimento reduzido
 - **Eventos** — grid responsivo (1/2/3 cols) de cards com eventos `status = publicado`, ordenados por `starts_at DESC`; badge "CFP Aberto" condicional, data formatada pt-BR, local truncado, botão "Ver evento →" para `/{slug}`; estado vazio quando não há eventos publicados; animação escalonada por card
 - **Código de Conduta** — compromisso + regras comportamentais
 - **Contato** — email com botão copiar + 6 redes sociais
@@ -17,6 +17,7 @@ Recursos transversais do site:
 - Back-to-top button contextual
 - Transições de entrada (fade+slide `translateY(40px)`) via IntersectionObserver (`.section-hidden` + `.section-visible`)
 - SEO completo (OG, Twitter Card, JSON-LD, sitemap, robots.txt)
+- Descrição compartilhada com o hero; Código de Conduta com `data-nosnippet`; prévias sociais com a logo em PNG 1200 × 630
 - Acessibilidade: skip link, aria-live, prefers-reduced-motion, aria-current
 
 ### ✅ Admin — Autenticação (implementado)
@@ -46,6 +47,7 @@ Gerenciamento de eventos da comunidade, acessível por `admin` e `colaborador`:
 
 Testes em `tests/e2e/`:
 - `home.spec.js` — cobre `GET /`: status 200, `<main>` visível, nav principal presente
+- `event-directions.spec.js` — dez cenários com os três layouts, endereço codificado, teclado, tela pequena, visibilidade e links por plataforma; usa bundles de `npm run build` e dados interceptados sem depender de evento no banco. iPhone é simulado no Chromium, sem abertura real dos apps.
 
 ### ✅ Call for Papers (CFP) — implementado
 
@@ -91,6 +93,8 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - **Layout 3 — Minimalista**: header compacto, tipografia centrada, sem imagem hero
 
 **Recursos comuns aos três layouts:**
+- Botão **Como chegar** (`EventDirections.vue`, montado em `EventSiteApp.vue`): apenas eventos presenciais com `location` preenchido; Uber, Google Maps e Waze com ícones, links HTTPS no desktop, links nativos no iOS, intents no Android e alternativa web. No iPhone, a abertura foi confirmada pelo usuário; no Uber, o destino permanece manual por decisão do usuário, sem latitude/longitude ou geocodificação.
+- Logos do Clássico ampliadas para 224 × 128px / 288 × 160px; Imersivo para 256 × 160px / 320 × 192px (caixas mobile / desktop). Minimalista mantém o cabeçalho compacto.
 - Loader "Perainda!" via `Suspense @resolve` em `EventSiteApp.vue` (esconde quando o layout carrega)
 - Animações de entrada entre seções via `IntersectionObserver` (`.section-hidden` + `.section-visible`)
 - `prefers-reduced-motion` respeitado (remove classes sem animar)

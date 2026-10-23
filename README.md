@@ -7,6 +7,7 @@ Suite de aplicações de uso da comunidade PHP com Rapadura.
 ### ✅ Site Institucional
 Single-page com as seções: Hero, Sobre, Eventos, Código de Conduta, Contato e Footer.
 Inclui loader "Perainda!", scroll spy, animações de entrada via IntersectionObserver e SEO completo.
+O hero exibe referências do Ceará em xilogravura; a faixa com foto da comunidade conecta Sobre aos Eventos com um convite centralizado e parallax suave. As prévias nas redes sociais usam a logo da comunidade em PNG.
 
 ### ✅ Admin — Autenticação
 Área restrita em `/admin` com login, logout, controle de roles (`admin`, `colaborador`) e proteção de rotas.
@@ -22,6 +23,9 @@ Sistema completo de submissão de propostas por palestrantes — Vue SPA públic
 
 ### ✅ Site Público do Evento
 Cada evento publicado ganha uma página em `/{slug}` com três layouts (Clássico, Imersivo, Minimalista), patrocinadores por nível de cota, grade de programação multi-dia, FAQ, código de conduta e link de ingressos. Inclui loader "Perainda!" e animações de entrada entre seções.
+Eventos presenciais com local informado exibem o botão **Como chegar**, com Uber, Google Maps e Waze. No Uber, o destino continua sendo preenchido pelo usuário no aplicativo; essa limitação foi aceita sem adicionar coordenadas ao cadastro. Logos ampliadas nos layouts Clássico e Imersivo.
+
+Consulte [o guia do site público](docs/site-publico.md) para manutenção das imagens, SEO, compartilhamento, links dos aplicativos e validação.
 
 ### ✅ Despesas por Evento
 Registro e acompanhamento de gastos com 9 categorias, comprovante de pagamento (PDF/imagem via R2), painel de totais com barra de progresso pago/pendente, toggle cards/lista e filtros reativos por categoria, status e data.
@@ -67,6 +71,8 @@ Geração de imagens PNG prontas para Instagram (Story 1080×1920 e Post 1080×1
 ---
 
 ## Qualidade de código
+
+O teste `tests/e2e/event-directions.spec.js` requer `npm run build` antes da execução, pois usa o manifest e os bundles reais. São dez cenários; os testes de iPhone simulam user agent e toque no Chromium, sem abrir aplicativos instalados.
 
 | Ferramenta | Função |
 |-----------|--------|

@@ -293,6 +293,10 @@ git commit --no-verify -m "mensagem"
 
 Testes de ponta a ponta ficam em `tests/e2e/` e rodam contra o servidor real (`http://localhost:8000`).
 
+`event-directions.spec.js` usa `page.route` para fornecer dados de evento sem depender de registros no banco. O servidor ainda entrega os bundles reais: executar `npm run build` antes dos testes, incluir no HTML de teste o CSS principal e o CSS do entry point obtidos do manifest, além de `<meta charset="utf-8">` e viewport mobile.
+
+Os dez cenários cobrem layouts, endereços, teclado, visibilidade, responsividade e links por plataforma. Os cenários de iPhone simulam user agent e toque no Chromium; não executam Safari/WebKit nem apps instalados. Os cliques nativos têm apenas a navegação externa bloqueada no teste. A abertura real dos apps e o preenchimento de destino devem ser registrados separadamente como validação manual. O Uber abre, mas o destino manual é uma limitação aceita pelo usuário.
+
 ### Requisitos
 
 ```bash
@@ -307,7 +311,11 @@ npx playwright install chromium
 
 ```bash
 # Todos os testes e2e
+npm run build
 npx playwright test tests/e2e/
+
+# Como chegar, sem gravar relatórios no diretório versionado test-results
+npx playwright test tests/e2e/event-directions.spec.js --reporter=line --output=/tmp/phpcomrapadura-e2e
 
 # Arquivo específico com output detalhado
 npx playwright test tests/e2e/home.spec.js --reporter=list

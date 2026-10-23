@@ -404,6 +404,24 @@ return view('event-site', [
 
 ## 6. Três layouts
 
+### Atualização de 23/10/2026 — logos e Como chegar
+
+**Status:** ✅ Implementado. Guia detalhado em `docs/site-publico.md`.
+
+- Logo do Clássico: caixa de 224 × 128px no mobile e 288 × 160px a partir de 640px.
+- Logo do Imersivo: caixa de 256 × 160px no mobile e 320 × 192px a partir de 768px.
+- Ambas usam `object-contain`, largura máxima de 100% e preservam as proporções. Minimalista sem alteração.
+- `EventDirections.vue` é montado em `EventSiteApp.vue`, fora do layout, para atender aos três modelos.
+- Visível apenas quando `!event.is_online` e `event.location.trim()` não está vazio.
+- Botão flutuante à direita, acima do voltar ao topo; painel com endereço e ícones de Uber, Google Maps e Waze.
+- O endereço vem integralmente do campo Local do evento e recebe codificação de URL.
+- Desktop: links HTTPS em nova aba. iOS: links nativos `uber://riderequest`, `comgooglemaps://`, `waze://` na mesma aba. Android: intents com pacote do app e fallback HTTPS.
+- Ao selecionar um app no celular, oferece link para abrir a versão web; sem redirecionamento por temporizador.
+- Escape fecha o painel e restaura o foco. Clique fora ou foco em outro elemento externo também fecha; `relatedTarget = null` não fecha para preservar a troca de apps no iOS.
+- Dez testes em `tests/e2e/event-directions.spec.js`, com bundles reais e fixtures interceptadas; requer `npm run build`. User agents e toques simulados não comprovam abertura de apps instalados.
+
+**Limitação aceita:** o usuário confirmou a abertura no Safari e no Chrome do iPhone, mas o Uber não preenche o campo “Para onde?”. O destino é digitado pelo usuário. Não incluir latitude/longitude, geocodificação ou novos campos no cadastro sem nova solicitação; foi decidido manter a implementação atual.
+
 O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compartilham as mesmas seções de conteúdo, mas diferem na estrutura visual e uso das cores configuradas.
 
 ### Recursos comuns de UX/Acessibilidade (todos os layouts)

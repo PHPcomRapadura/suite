@@ -281,10 +281,14 @@ Todo CRUD segue o padrão do módulo de Usuários.
 
 ## SEO (site institucional)
 
+Guia de manutenção atualizado: [docs/site-publico.md](docs/site-publico.md). **Limitação aceita do Uber:** o aplicativo abre, mas o destino é digitado pelo usuário; não adicionar coordenadas ou geocodificação sem nova solicitação.
+
 O `welcome.blade.php` já inclui:
 
 - `<title>`, `<meta description>`, `<meta keywords>`, `<meta robots>`
-- Open Graph completo (7 tags) + Twitter Card `summary_large_image`
+- Open Graph + Twitter Card `summary_large_image`, com a logo em `public/images/phpcomrapadura-social.png` (1200 × 630)
+- `$communityDescription` compartilhada pelo hero, meta description, OG/Twitter e `Organization.description`
+- `data-nosnippet` em `#codigo-de-conduta` evita o uso dessa seção no resumo da busca; o Google ainda escolhe o snippet conforme a pesquisa
 - JSON-LD: `Organization` (com fundador, endereço, sameAs) + `WebSite`
 - `<link rel="canonical">` e `<link rel="sitemap">`
 - `<meta name="theme-color">` e `<link rel="apple-touch-icon">`
@@ -436,13 +440,13 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Seção | Status |
 |-------|--------|
 | Loader ("Perainda!") | ✅ Implementado |
-| Hero | ✅ Implementado |
-| Sobre + Parallax | ✅ Implementado |
+| Hero | ✅ Implementado — cinco xilogravuras do Ceará em fileira na base |
+| Sobre + Parallax | ✅ Implementado — foto 4110 × 2044, convite centralizado, link para eventos e movimento reduzido respeitado |
 | Eventos | ✅ Implementado — grid de cards com eventos publicados |
 | Código de Conduta | ✅ Implementado |
 | Contato | ✅ Implementado |
 | Footer | ✅ Implementado |
-| SEO | ✅ 9.5/10 |
+| SEO | ✅ Implementado — descrição sincronizada com o hero, controle de snippet e logo nas prévias sociais |
 | Acessibilidade | ✅ 8.5/10 |
 | Mobile Friendly | ✅ 8.5/10 |
 
@@ -512,6 +516,9 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Site do evento — nav sticky + scroll spy + `aria-current` (3 layouts) | ✅ Implementado |
 | Site do evento — skip-to-content link acessível via Tab (3 layouts) | ✅ Implementado |
 | Site do evento — back-to-top button com transição (3 layouts) | ✅ Implementado |
+| Site do evento — logos ampliadas nos layouts Clássico e Imersivo | ✅ Implementado |
+| Site do evento — botão Como chegar com Uber, Maps e Waze (3 layouts) | ✅ Implementado — links nativos iOS, intents Android e alternativa web |
+| Site do evento — testes E2E do Como chegar (10 cenários) | ✅ Implementado — simulação de dispositivos, sem abertura real dos apps |
 | Site do evento — patrocinadores por tier com tamanhos diferenciados (3 layouts) | ✅ Implementado |
 | Site do evento — ARIA: `aria-hidden` em SVGs, accordion FAQ com `aria-controls` + `id` | ✅ Implementado |
 | Site do evento — seção "Palestrantes" com palestras aprovadas (foto, nome, cidade, estado, redes sociais) nos 3 layouts | ✅ Implementado |
