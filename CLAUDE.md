@@ -55,6 +55,7 @@ GET /              → view('welcome', compact('events'))  — events = publicad
 GET /sitemap.xml   → resources/views/sitemap.blade.php
 GET /robots.txt    → public/robots.txt (arquivo estático)
 GET /{slug}        → EventSitePublicController@show (última rota — 404 se não publicado)
+GET /{slug}/calendario.ics → EventCalendarController (apenas site publicado, evento não cancelado)
 ```
 
 > **`@` em Blade (armadilha):** o compilador Blade interpreta `@php`, `@if`, etc. como diretivas. Strings como `@phpcomrapadura` ou `contato@phpcomrapadura.org` podem ser compiladas erroneamente. A solução correta é definir variáveis PHP no topo do template (`@php $contactEmail = '...' @endphp`) e usar `{{ $var }}` — dentro de expressões `{{ }}` o `@` nunca é processado como diretiva. Evitar `@@` como escape genérico: ele só funciona quando o segundo `@` inicia um diretivo reconhecido pelo Blade.
@@ -519,6 +520,8 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Site do evento — logos ampliadas nos layouts Clássico e Imersivo | ✅ Implementado |
 | Site do evento — botão Como chegar com Uber, Maps e Waze (3 layouts) | ✅ Implementado — links nativos iOS, intents Android e alternativa web |
 | Site do evento — testes E2E do Como chegar (10 cenários) | ✅ Implementado — simulação de dispositivos, sem abertura real dos apps |
+| Site do evento — Adicionar ao calendário (Google, Apple ICS e Outlook) | ✅ Implementado — `EventCalendar.vue` nos 3 layouts, `EventCalendarService` e exportação pública ICS |
+| Calendários — fuso do Ceará, validação ICS e acesso público | ✅ Implementado — 9 cenários PHP e 5 E2E; usa 1h se término ausente/inválido |
 | Site do evento — patrocinadores por tier com tamanhos diferenciados (3 layouts) | ✅ Implementado |
 | Site do evento — ARIA: `aria-hidden` em SVGs, accordion FAQ com `aria-controls` + `id` | ✅ Implementado |
 | Site do evento — seção "Palestrantes" com palestras aprovadas (foto, nome, cidade, estado, redes sociais) nos 3 layouts | ✅ Implementado |

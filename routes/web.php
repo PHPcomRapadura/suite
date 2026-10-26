@@ -24,6 +24,7 @@ use App\Http\Controllers\Cfp\CfpAuthController;
 use App\Http\Controllers\Cfp\CfpPasswordResetController;
 use App\Http\Controllers\Cfp\SpeakerProfileController;
 use App\Http\Controllers\Cfp\TalkSubmissionController;
+use App\Http\Controllers\EventCalendarController;
 use App\Http\Controllers\EventSitePublicController;
 use App\Http\Middleware\EnsureAdminRole;
 use App\Models\Event;
@@ -210,4 +211,5 @@ Route::get('/robots.txt', function () {
 });
 
 // Página pública do evento — deve ser a última rota para não interceptar /admin, /cfp, etc.
+Route::get('/{slug}/calendario.ics', EventCalendarController::class)->name('event.calendar');
 Route::get('/{slug}', [EventSitePublicController::class, 'show'])->name('event.site');

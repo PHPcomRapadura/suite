@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import RapaduraBadge from '@/components/RapaduraBadge.vue'
+import EventCalendar from '@/components/EventCalendar.vue'
 
 const props = defineProps({
     event:    { type: Object, required: true },
@@ -13,6 +14,12 @@ const props = defineProps({
 const openFaq       = ref(null)
 const showBackTop   = ref(false)
 const activeSection = ref(null)
+
+const showAbout = computed(() => {
+    const description = (props.event.description ?? '').trim().replace(/\s+/g, ' ')
+    const tagline = (props.site.hero_tagline ?? '').trim().replace(/\s+/g, ' ')
+    return description !== '' && description !== tagline
+})
 
 function formatDate(date) {
     if (!date) return null
@@ -132,7 +139,7 @@ onUnmounted(() => {
 
                 <!-- Links de navegação — visíveis a partir de md -->
                 <nav class="hidden md:flex items-center gap-0.5 ml-2" aria-label="Seções do evento">
-                    <a v-if="event.description"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Sobre</a>
+                    <a v-if="showAbout"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Sobre</a>
                     <a v-if="event.is_accepting_talks" href="#cfp"            :aria-current="activeSection === 'cfp'            ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'cfp'            ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">CFP</a>
                     <a v-if="speakers.length"          href="#palestrantes"   :aria-current="activeSection === 'palestrantes'   ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'palestrantes'   ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Palestrantes</a>
                     <a v-if="orderedLevels().length"   href="#patrocinadores" :aria-current="activeSection === 'patrocinadores'  ? 'true' : undefined" :class="['px-2.5 py-1 text-xs font-medium transition rounded', activeSection === 'patrocinadores'  ? 'text-white bg-white/15' : 'text-white/60 hover:text-white']">Patrocinadores</a>
@@ -161,7 +168,7 @@ onUnmounted(() => {
         <main id="conteudo" class="max-w-2xl mx-auto px-4 py-16 space-y-16">
 
             <!-- Chamada principal -->
-            <section class="text-center space-y-4 section-hidden">
+            <section class="relative z-10 text-center space-y-4 section-hidden">
                 <h1 class="text-4xl font-bold text-(--color-text)">{{ event.name }}</h1>
                 <p v-if="site.hero_tagline" class="text-lg text-(--color-text-muted)">{{ site.hero_tagline }}</p>
                 <div class="flex flex-wrap gap-3 justify-center text-sm text-(--color-text-muted)">
@@ -178,6 +185,9 @@ onUnmounted(() => {
                         {{ event.is_online ? 'Online' : event.location }}
                     </span>
                 </div>
+                <div v-if="event.calendar">
+                    <EventCalendar :event="event" />
+                </div>
                 <a
                     v-if="site.ticket_url"
                     :href="site.ticket_url"
@@ -191,7 +201,7 @@ onUnmounted(() => {
             </section>
 
             <!-- Sobre -->
-            <section v-if="event.description" id="sobre" class="section-hidden scroll-mt-14">
+            <section v-if="showAbout" id="sobre" class="section-hidden scroll-mt-14">
                 <h2 class="text-xl font-bold text-(--color-text) mb-3">Sobre o evento</h2>
                 <p class="text-sm text-(--color-text-muted) leading-relaxed whitespace-pre-line">{{ event.description }}</p>
             </section>

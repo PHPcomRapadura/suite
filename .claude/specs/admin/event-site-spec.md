@@ -404,6 +404,20 @@ return view('event-site', [
 
 ## 6. Três layouts
 
+**Chamada sem repetição:** `site.hero_tagline` aparece na chamada inicial. A seção Sobre e seu link no menu usam `showAbout`, que exige descrição preenchida e diferente da tagline após normalizar espaços e quebras de linha. Descrição distinta ou sem tagline continua no conteúdo. Os valores cadastrados não são modificados.
+
+### Atualização de 26/10/2026 — Adicionar ao calendário
+
+**Status:** ✅ Implementado. Componente `EventCalendar.vue`, serviço `EventCalendarService` e rota `GET /{slug}/calendario.ics` (`event.calendar`).
+
+O botão secundário fica junto da data/local: no hero Clássico, na faixa após o hero Imersivo e na chamada inicial do Minimalista. O menu oferece Google Agenda, Apple Calendário e Microsoft Outlook. A inscrição mantém seu destaque. Escape fecha e devolve o foco; clique fora fecha. Os links permanecem acima do conteúdo seguinte, inclusive com as animações de entrada do Minimalista.
+
+Google e Outlook recebem título, início/fim, local e descrição com URL. Apple usa ICS com `text/calendar`, escape de texto, CRLF e dobra de linhas UTF-8 em até 75 bytes. Não há API, login no site, sincronização ou gravação automática nas contas. A rota exige site publicado e rejeita evento cancelado ou inexistente. Sem início, os links não são oferecidos. Sem término posterior ao início, usa 1h; eventos de vários dias preservam o período.
+
+O cadastro guarda horário local em campos tratados como UTC: `period()` reinterpreta os números no fuso `America/Fortaleza` antes de converter para UTC. Ex.: 14h no cadastro vira 17hZ. Se a convenção de armazenamento mudar, ajustar o serviço. A exportação não altera os dados armazenados.
+
+Testes: 9 cenários PHP em `EventCalendarTest.php` (horários, ICS, texto, acesso) e 5 E2E em `event-calendar.spec.js` (layouts, teclado, links clicáveis, mobile). Detalhes em `docs/site-publico.md`.
+
 ### Atualização de 23/10/2026 — logos e Como chegar
 
 **Status:** ✅ Implementado. Guia detalhado em `docs/site-publico.md`.

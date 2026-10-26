@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import RapaduraBadge from '@/components/RapaduraBadge.vue'
+import EventCalendar from '@/components/EventCalendar.vue'
 
 const props = defineProps({
     event:    { type: Object, required: true },
@@ -14,6 +15,12 @@ const openFaq       = ref(null)
 const navVisible    = ref(false)
 const showBackTop   = ref(false)
 const activeSection = ref(null)
+
+const showAbout = computed(() => {
+    const description = (props.event.description ?? '').trim().replace(/\s+/g, ' ')
+    const tagline = (props.site.hero_tagline ?? '').trim().replace(/\s+/g, ' ')
+    return description !== '' && description !== tagline
+})
 
 function formatDate(date) {
     if (!date) return null
@@ -152,7 +159,7 @@ onUnmounted(() => {
             >
                 <div class="max-w-5xl mx-auto flex items-center gap-1 overflow-x-auto">
                     <span class="font-bold text-white text-sm shrink-0 mr-3">{{ event.name }}</span>
-                    <a v-if="event.description"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Sobre</a>
+                    <a v-if="showAbout"        href="#sobre"          :aria-current="activeSection === 'sobre'          ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'sobre'          ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Sobre</a>
                     <a v-if="event.is_accepting_talks" href="#cfp"            :aria-current="activeSection === 'cfp'            ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'cfp'            ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">CFP</a>
                     <a v-if="speakers.length"          href="#palestrantes"   :aria-current="activeSection === 'palestrantes'   ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'palestrantes'   ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Palestrantes</a>
                     <a v-if="orderedLevels().length"   href="#patrocinadores" :aria-current="activeSection === 'patrocinadores'  ? 'true' : undefined" :class="['px-3 py-1 text-sm shrink-0 transition rounded', activeSection === 'patrocinadores'  ? 'text-white bg-white/15' : 'text-white/70 hover:text-white']">Patrocinadores</a>
@@ -220,10 +227,14 @@ onUnmounted(() => {
             </div>
         </div>
 
+        <div v-if="event.calendar" class="py-4 px-4 text-center" :style="`background-color: color-mix(in srgb, var(--site-primary) 85%, black)`">
+            <EventCalendar :event="event" light />
+        </div>
+
         <main id="conteudo" class="max-w-5xl mx-auto px-4 py-16 space-y-20">
 
             <!-- Sobre -->
-            <section v-if="event.description" id="sobre" class="section-hidden scroll-mt-16">
+            <section v-if="showAbout" id="sobre" class="section-hidden scroll-mt-16">
                 <h2 class="text-3xl font-bold mb-6" :style="`color: var(--site-primary)`">Sobre o evento</h2>
                 <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-line max-w-3xl">{{ event.description }}</p>
             </section>

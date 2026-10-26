@@ -27,6 +27,8 @@ Eventos presenciais com local informado exibem o botão **Como chegar**, com Ube
 
 Consulte [o guia do site público](docs/site-publico.md) para manutenção das imagens, SEO, compartilhamento, links dos aplicativos e validação.
 
+O botão **Adicionar ao calendário**, junto da data nos três layouts, oferece Google Agenda, Apple Calendário (arquivo `.ics`) e Microsoft Outlook. Inclui horários no fuso do Ceará, título, endereço e link do evento; não exige login no site, credenciais de API ou alterações no banco.
+
 ### ✅ Despesas por Evento
 Registro e acompanhamento de gastos com 9 categorias, comprovante de pagamento (PDF/imagem via R2), painel de totais com barra de progresso pago/pendente, toggle cards/lista e filtros reativos por categoria, status e data.
 

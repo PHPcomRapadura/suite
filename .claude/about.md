@@ -48,6 +48,7 @@ Gerenciamento de eventos da comunidade, acessível por `admin` e `colaborador`:
 Testes em `tests/e2e/`:
 - `home.spec.js` — cobre `GET /`: status 200, `<main>` visível, nav principal presente
 - `event-directions.spec.js` — dez cenários com os três layouts, endereço codificado, teclado, tela pequena, visibilidade e links por plataforma; usa bundles de `npm run build` e dados interceptados sem depender de evento no banco. iPhone é simulado no Chromium, sem abertura real dos apps.
+- `event-calendar.spec.js` — cinco cenários com os três layouts, menu acessível, inscrição preservada, ausência do botão e largura mobile. Links e dados de calendário também são cobertos por nove cenários PHP em `EventCalendarTest.php`.
 
 ### ✅ Call for Papers (CFP) — implementado
 
@@ -93,6 +94,7 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - **Layout 3 — Minimalista**: header compacto, tipografia centrada, sem imagem hero
 
 **Recursos comuns aos três layouts:**
+- **Adicionar ao calendário** (`EventCalendar.vue`): junto da data/local, Google Agenda e Outlook com formulário preenchido, Apple via `/{slug}/calendario.ics`. Exporta título, início/fim, local e descrição com URL; respeita horário local do Ceará apesar da convenção atual de armazenamento UTC. Usa 1h se término ausente/inválido. Sites não publicados e eventos cancelados não permitem exportação. Sem gravação automática nas contas ou sincronização. Ver `docs/site-publico.md`.
 - Botão **Como chegar** (`EventDirections.vue`, montado em `EventSiteApp.vue`): apenas eventos presenciais com `location` preenchido; Uber, Google Maps e Waze com ícones, links HTTPS no desktop, links nativos no iOS, intents no Android e alternativa web. No iPhone, a abertura foi confirmada pelo usuário; no Uber, o destino permanece manual por decisão do usuário, sem latitude/longitude ou geocodificação.
 - Logos do Clássico ampliadas para 224 × 128px / 288 × 160px; Imersivo para 256 × 160px / 320 × 192px (caixas mobile / desktop). Minimalista mantém o cabeçalho compacto.
 - Loader "Perainda!" via `Suspense @resolve` em `EventSiteApp.vue` (esconde quando o layout carrega)
@@ -101,7 +103,7 @@ Cada evento publicado tem página pública `GET /{slug}`:
 - Dark mode suportado (loader, seções, código de conduta)
 - Ícones SVG inline substituindo emojis (📅 → calendário, 📍 → pin)
 - Fuso horário: `formatTime` usa `timeZone: 'UTC'` — horários armazenados como horário local (app timezone = UTC)
-- **Seção "Sobre o evento"**: exibe `events.description`; aparece apenas quando preenchido
+- **Seção "Sobre o evento"**: exibe `events.description`; aparece quando preenchido e diferente de `site.hero_tagline`, ignorando espaços e quebras de linha. Se forem iguais, preserva a chamada no hero e omite a seção e seu link na navegação, sem alterar o cadastro.
 - **Seção CFP**: banner com botão `/cfp`; aparece apenas quando `is_accepting_talks = true`
 - **Seção "Palestrantes"**: grid de palestrantes com palestras aprovadas no evento — avatar (ou iniciais), nome, cidade/estado, ícones de redes sociais (Twitter/X, GitHub, LinkedIn, website); aparece apenas quando há pelo menos um palestrante aprovado; deduplicação por `speaker.id` caso o mesmo palestrante tenha várias palestras aprovadas
 - **Nav sticky**: L1/L2 — nav oculta por padrão, aparece via `IntersectionObserver` no `#hero` quando ele sai da viewport; L3 — header sempre sticky no topo
