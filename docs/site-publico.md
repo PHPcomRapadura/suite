@@ -54,6 +54,8 @@ Os valores descrevem a caixa da imagem, incluindo o preenchimento interno. O Min
 
 `EventCalendar.vue` exibe um botão discreto junto da data e do local. No Clássico, fica no hero; no Imersivo, junto da faixa de data/local após o hero; no Minimalista, na chamada inicial. O menu oferece Google Agenda, Apple Calendário e Microsoft Outlook, sem substituir a inscrição.
 
+As opções usam logos em SVG inline (Google Agenda, Apple e Outlook), com 36 × 36px e fundo arredondado, seguindo o padrão visual do Como chegar. Os ícones são decorativos (`aria-hidden`); os nomes dos aplicativos permanecem como texto acessível. Não há dependência de imagens externas ou bibliotecas de ícones.
+
 - Google e Outlook abrem a criação de um compromisso com título, início, término, local e descrição com link para o evento.
 - Apple abre o arquivo `/{slug}/calendario.ics`, gerado por `EventCalendarController` e `EventCalendarService`, com MIME `text/calendar`. Não é assinatura de calendário nem sincronização automática.
 - Só há exportação para sites de eventos publicados. Eventos cancelados não oferecem o botão e retornam 404 na rota ICS; eventos sem início também não oferecem o botão.
