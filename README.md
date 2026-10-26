@@ -23,7 +23,7 @@ Sistema completo de submissão de propostas por palestrantes — Vue SPA públic
 
 ### ✅ Site Público do Evento
 Cada evento publicado ganha uma página em `/{slug}` com três layouts (Clássico, Imersivo, Minimalista), patrocinadores por nível de cota, grade de programação multi-dia, FAQ, código de conduta e link de ingressos. Inclui loader "Perainda!" e animações de entrada entre seções.
-Eventos presenciais com local informado exibem o botão **Como chegar**, com Uber, Google Maps e Waze. No Uber, o destino continua sendo preenchido pelo usuário no aplicativo; essa limitação foi aceita sem adicionar coordenadas ao cadastro. Logos ampliadas nos layouts Clássico e Imersivo.
+Eventos presenciais com local informado exibem o botão **Como chegar**, com Uber, Google Maps e Waze. O cadastro aceita latitude e longitude opcionais, enviadas como coordenadas do destino ao Uber. Sem elas, o preenchimento pode continuar manual. Logos ampliadas nos layouts Clássico e Imersivo.
 
 Consulte [o guia do site público](docs/site-publico.md) para manutenção das imagens, SEO, compartilhamento, links dos aplicativos e validação.
 
@@ -74,7 +74,7 @@ Geração de imagens PNG prontas para Instagram (Story 1080×1920 e Post 1080×1
 
 ## Qualidade de código
 
-O teste `tests/e2e/event-directions.spec.js` requer `npm run build` antes da execução, pois usa o manifest e os bundles reais. São dez cenários; os testes de iPhone simulam user agent e toque no Chromium, sem abrir aplicativos instalados.
+Os testes `tests/e2e/event-directions.spec.js` e `event-coordinates.spec.js` requerem `npm run build` antes da execução, pois usam o manifest e os bundles reais. São 16 cenários de navegação e dois do formulário; os testes de iPhone simulam user agent e toque no Chromium, sem abrir aplicativos instalados.
 
 | Ferramenta | Função |
 |-----------|--------|

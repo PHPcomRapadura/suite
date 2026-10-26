@@ -282,7 +282,7 @@ Todo CRUD segue o padrão do módulo de Usuários.
 
 ## SEO (site institucional)
 
-Guia de manutenção atualizado: [docs/site-publico.md](docs/site-publico.md). **Limitação aceita do Uber:** o aplicativo abre, mas o destino é digitado pelo usuário; não adicionar coordenadas ou geocodificação sem nova solicitação.
+Guia de manutenção atualizado: [docs/site-publico.md](docs/site-publico.md). **Uber (26/10/2026):** latitude e longitude opcionais foram solicitadas e implementadas para preencher o destino; sem coordenadas, pode exigir digitação manual. Sem geocodificação automática. O preenchimento no app instalado ainda requer validação manual.
 
 O `welcome.blade.php` já inclui:
 
@@ -519,7 +519,8 @@ Para perguntas sobre arquitetura, consulte o grafo primeiro (`graphify query "<p
 | Site do evento — back-to-top button com transição (3 layouts) | ✅ Implementado |
 | Site do evento — logos ampliadas nos layouts Clássico e Imersivo | ✅ Implementado |
 | Site do evento — botão Como chegar com Uber, Maps e Waze (3 layouts) | ✅ Implementado — links nativos iOS, intents Android e alternativa web |
-| Site do evento — testes E2E do Como chegar (10 cenários) | ✅ Implementado — simulação de dispositivos, sem abertura real dos apps |
+| Site do evento — testes E2E do Como chegar (16 cenários) | ✅ Implementado — simulação de dispositivos, coordenadas Uber inclusive zero, sem abertura real dos apps |
+| Eventos — latitude/longitude opcionais para destino Uber | ✅ Implementado — migration, validação do par e limites, cadastro e remoção; 18 cenários PHP e 2 E2E do formulário |
 | Site do evento — Adicionar ao calendário (Google, Apple ICS e Outlook) | ✅ Implementado — `EventCalendar.vue` nos 3 layouts, `EventCalendarService` e exportação pública ICS |
 | Calendários — fuso do Ceará, validação ICS e acesso público | ✅ Implementado — 9 cenários PHP e 5 E2E; usa 1h se término ausente/inválido |
 | Site do evento — patrocinadores por tier com tamanhos diferenciados (3 layouts) | ✅ Implementado |

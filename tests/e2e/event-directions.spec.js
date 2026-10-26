@@ -4,12 +4,12 @@ import { readFileSync } from 'node:fs';
 const address = 'Café & Rapadura — Rua São João, 42 #2, Fortaleza - CE';
 
 // Usa os bundles reais sem depender de um evento previamente cadastrado no banco.
-async function openEvent(page, { layout = 1, location = address, is_online = false } = {}) {
+async function openEvent(page, { layout = 1, location = address, is_online = false, latitude = null, longitude = null } = {}) {
   const manifest = JSON.parse(readFileSync('public/build/manifest.json', 'utf8'));
   const stylesheets = [manifest['resources/css/app.css'].file, ...(manifest['resources/js/event-site.js'].css ?? [])]
     .map(file => `<link rel="stylesheet" href="/build/${file}">`).join('');
   const data = {
-    event: { name: 'Encontro PHP', slug: 'encontro-php', location, is_online },
+    event: { name: 'Encontro PHP', slug: 'encontro-php', location, is_online, latitude, longitude },
     site: { layout, primary_color: '#025c98', secondary_color: '#f59e0b', font: 'lexend' },
     sponsors: {}, schedule: {}, speakers: [],
   };
@@ -44,6 +44,44 @@ for (const layout of [1, 2, 3]) {
     }
     const maps = new URL(await navigation.getByRole('link', { name: /Abrir Google Maps/ }).getAttribute('href'));
     expect(maps.searchParams.get('api')).toBe('1');
+    const uber = new URL(await navigation.getByRole('link', { name: /Abrir Uber/ }).getAttribute('href'));
+    expect(uber.searchParams.has('dropoff[latitude]')).toBe(false);
+    expect(uber.searchParams.has('dropoff[longitude]')).toBe(false);
+  });
+}
+
+for (const [device, userAgent] of [
+  ['desktop', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'],
+  ['iPhone', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'],
+  ['Android', 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36'],
+]) {
+  test.describe(`Destino Uber — ${device}`, () => {
+    test.use({ userAgent });
+    for (const [latitude, longitude] of [[-3.7654321, -38.5432109], [0, 0]]) {
+      test(`envia o destino ${latitude}, ${longitude} no link e na alternativa web`, async ({ page }) => {
+        await openEvent(page, { latitude, longitude });
+        await page.getByRole('button', { name: 'Como chegar' }).click();
+        const href = await page.getByRole('link', { name: /Abrir Uber/ }).getAttribute('href');
+        const url = new URL(href);
+        expect(url.searchParams.get('dropoff[latitude]')).toBe(String(latitude));
+        expect(url.searchParams.get('dropoff[longitude]')).toBe(String(longitude));
+        expect(url.searchParams.get('dropoff[formatted_address]')).toBe(address);
+        expect(url.searchParams.get('pickup')).toBe('my_location');
+        if (device === 'Android') {
+          const fallback = new URL(decodeURIComponent(href.match(/S\.browser_fallback_url=([^;]+)/)[1]));
+          expect(fallback.searchParams.get('dropoff[latitude]')).toBe(String(latitude));
+          expect(fallback.searchParams.get('dropoff[longitude]')).toBe(String(longitude));
+        }
+        if (device === 'iPhone') {
+          const link = page.getByRole('link', { name: /Abrir Uber/ });
+          await link.evaluate(el => el.addEventListener('click', event => event.preventDefault(), { once: true }));
+          await link.click();
+          const fallback = new URL(await page.getByRole('link', { name: /Não abriu\? Usar Uber/ }).getAttribute('href'));
+          expect(fallback.searchParams.get('dropoff[latitude]')).toBe(String(latitude));
+          expect(fallback.searchParams.get('dropoff[longitude]')).toBe(String(longitude));
+        }
+      });
+    }
   });
 }
 

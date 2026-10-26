@@ -15,6 +15,7 @@ class Event extends Model
     protected $fillable = [
         'name', 'slug', 'edition', 'description',
         'starts_at', 'ends_at', 'location', 'is_online',
+        'latitude', 'longitude',
         'status', 'is_accepting_talks', 'max_attendees',
         'cover_image', 'social_base_image', 'logo', 'created_by',
     ];
@@ -25,6 +26,8 @@ class Event extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'is_online' => 'boolean',
+            'latitude' => 'float',
+            'longitude' => 'float',
             'is_accepting_talks' => 'boolean',
         ];
     }

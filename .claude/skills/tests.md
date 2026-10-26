@@ -295,7 +295,7 @@ Testes de ponta a ponta ficam em `tests/e2e/` e rodam contra o servidor real (`h
 
 `event-directions.spec.js` usa `page.route` para fornecer dados de evento sem depender de registros no banco. O servidor ainda entrega os bundles reais: executar `npm run build` antes dos testes, incluir no HTML de teste o CSS principal e o CSS do entry point obtidos do manifest, além de `<meta charset="utf-8">` e viewport mobile.
 
-Os dez cenários cobrem layouts, endereços, teclado, visibilidade, responsividade e links por plataforma. Os cenários de iPhone simulam user agent e toque no Chromium; não executam Safari/WebKit nem apps instalados. Os cliques nativos têm apenas a navegação externa bloqueada no teste. A abertura real dos apps e o preenchimento de destino devem ser registrados separadamente como validação manual. O Uber abre, mas o destino manual é uma limitação aceita pelo usuário.
+Os 16 cenários de `event-directions.spec.js` cobrem layouts, endereços, teclado, visibilidade, responsividade, links por plataforma e parâmetros de coordenadas do destino Uber (inclusive zero). `event-coordinates.spec.js` acrescenta dois testes de envio do formulário, com APIs interceptadas, incluindo remoção por multipart e criação com zero. Os cenários de iPhone simulam user agent e toque no Chromium; não executam Safari/WebKit nem apps instalados. Os cliques nativos têm apenas a navegação externa bloqueada no teste. A abertura real dos apps e o preenchimento de destino devem ser registrados separadamente como validação manual; enviar parâmetros corretos não prova o comportamento dentro do Uber.
 
 ### Requisitos
 

@@ -20,6 +20,8 @@ const defaultForm = () => ({
     ends_at:        '',
     is_online:      false,
     location:       '',
+    latitude:       '',
+    longitude:      '',
     max_attendees:  '',
 })
 
@@ -74,6 +76,8 @@ watch(() => props.show, (val) => {
             ends_at:       toLocalDatetime(props.event.ends_at),
             is_online:     !!props.event.is_online,
             location:      props.event.location ?? '',
+            latitude:      props.event.latitude ?? '',
+            longitude:     props.event.longitude ?? '',
             max_attendees: props.event.max_attendees ?? '',
         }
     } else {
@@ -155,6 +159,9 @@ async function submit() {
             })
             if (form.value.is_online === false) fd.set('is_online', '0')
             if (form.value.is_online === true)  fd.set('is_online', '1')
+            // Campos vazios precisam ser enviados para permitir remover coordenadas salvas.
+            fd.set('latitude', form.value.latitude ?? '')
+            fd.set('longitude', form.value.longitude ?? '')
             if (coverFile.value)   fd.append('cover_image', coverFile.value)
             if (socialBaseFile.value) fd.append('social_base_image', socialBaseFile.value)
             if (removeSocialBase.value) fd.append('remove_social_base', '1')
@@ -349,6 +356,23 @@ const inputClass = (field) => [
                                 <p v-if="errors.location" class="mt-1 text-xs text-(--color-danger)">{{ errors.location[0] }}</p>
                             </div>
                         </div>
+
+                        <fieldset v-if="!form.is_online" class="space-y-3">
+                            <legend class="text-sm font-medium text-(--color-text)">Coordenadas do local <span class="font-normal text-(--color-text-muted)">(opcional)</span></legend>
+                            <p id="event-coordinates-help" class="text-xs text-(--color-text-muted) leading-relaxed">Informe latitude e longitude para enviar o destino ao Uber. Você pode copiar as coordenadas do ponto do local no Google Maps. Confira se correspondem ao endereço acima.</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="event-latitude" class="block text-sm font-medium text-(--color-text) mb-1.5">Latitude</label>
+                                    <input id="event-latitude" v-model="form.latitude" type="number" step="any" min="-90" max="90" inputmode="decimal" :disabled="loading" :class="inputClass('latitude')" aria-describedby="event-coordinates-help" :aria-invalid="!!errors.latitude">
+                                    <p v-if="errors.latitude" class="mt-1 text-xs text-(--color-danger)">{{ errors.latitude[0] }}</p>
+                                </div>
+                                <div>
+                                    <label for="event-longitude" class="block text-sm font-medium text-(--color-text) mb-1.5">Longitude</label>
+                                    <input id="event-longitude" v-model="form.longitude" type="number" step="any" min="-180" max="180" inputmode="decimal" :disabled="loading" :class="inputClass('longitude')" aria-describedby="event-coordinates-help" :aria-invalid="!!errors.longitude">
+                                    <p v-if="errors.longitude" class="mt-1 text-xs text-(--color-danger)">{{ errors.longitude[0] }}</p>
+                                </div>
+                            </div>
+                        </fieldset>
 
                         <!-- Imagem de capa -->
                         <div>

@@ -432,9 +432,9 @@ Testes: 9 cenários PHP em `EventCalendarTest.php` (horários, ICS, texto, acess
 - Desktop: links HTTPS em nova aba. iOS: links nativos `uber://riderequest`, `comgooglemaps://`, `waze://` na mesma aba. Android: intents com pacote do app e fallback HTTPS.
 - Ao selecionar um app no celular, oferece link para abrir a versão web; sem redirecionamento por temporizador.
 - Escape fecha o painel e restaura o foco. Clique fora ou foco em outro elemento externo também fecha; `relatedTarget = null` não fecha para preservar a troca de apps no iOS.
-- Dez testes em `tests/e2e/event-directions.spec.js`, com bundles reais e fixtures interceptadas; requer `npm run build`. User agents e toques simulados não comprovam abertura de apps instalados.
+- Dezesseis testes em `tests/e2e/event-directions.spec.js`, incluindo coordenadas do destino Uber, com bundles reais e fixtures interceptadas; requer `npm run build`. Outros dois E2E validam o formulário de coordenadas. User agents e toques simulados não comprovam abertura de apps instalados.
 
-**Limitação aceita:** o usuário confirmou a abertura no Safari e no Chrome do iPhone, mas o Uber não preenche o campo “Para onde?”. O destino é digitado pelo usuário. Não incluir latitude/longitude, geocodificação ou novos campos no cadastro sem nova solicitação; foi decidido manter a implementação atual.
+**Atualização em 26/10/2026:** foi solicitado suporte a latitude/longitude opcionais no cadastro. Os dados públicos incluem o par numérico e o Uber recebe `dropoff[latitude]`/`dropoff[longitude]` nos links web, iOS, Android e alternativas web, além do nome/endereço. Sem coordenadas, mantém o fluxo anterior e o destino pode exigir digitação. Sem geocodificação automática; aplicar a migration `2026_10_26_000000_add_coordinates_to_events_table.php`. Ver `events-spec.md` e `docs/site-publico.md`.
 
 O layout é selecionado em `event_site_configs.layout` (1, 2 ou 3). Todos compartilham as mesmas seções de conteúdo, mas diferem na estrutura visual e uso das cores configuradas.
 

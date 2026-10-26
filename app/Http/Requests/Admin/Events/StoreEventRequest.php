@@ -21,6 +21,8 @@ class StoreEventRequest extends FormRequest
             'starts_at' => ['required', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'location' => ['nullable', 'string', 'max:255'],
+            'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
             'is_online' => ['boolean'],
             'max_attendees' => ['nullable', 'integer', 'min:1'],
             'cover_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
@@ -33,6 +35,12 @@ class StoreEventRequest extends FormRequest
     {
         return [
             'name.required' => 'O nome do evento é obrigatório.',
+            'latitude.required_with' => 'Informe a latitude e a longitude juntas.',
+            'longitude.required_with' => 'Informe a latitude e a longitude juntas.',
+            'latitude.numeric' => 'Informe uma latitude numérica.',
+            'longitude.numeric' => 'Informe uma longitude numérica.',
+            'latitude.between' => 'A latitude deve estar entre -90 e 90.',
+            'longitude.between' => 'A longitude deve estar entre -180 e 180.',
             'slug.unique' => 'Este slug já está em uso.',
             'slug.regex' => 'O slug deve conter apenas letras minúsculas, números e hífens.',
             'starts_at.required' => 'A data de início é obrigatória.',

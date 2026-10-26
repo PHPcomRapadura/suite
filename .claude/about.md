@@ -47,7 +47,8 @@ Gerenciamento de eventos da comunidade, acessível por `admin` e `colaborador`:
 
 Testes em `tests/e2e/`:
 - `home.spec.js` — cobre `GET /`: status 200, `<main>` visível, nav principal presente
-- `event-directions.spec.js` — dez cenários com os três layouts, endereço codificado, teclado, tela pequena, visibilidade e links por plataforma; usa bundles de `npm run build` e dados interceptados sem depender de evento no banco. iPhone é simulado no Chromium, sem abertura real dos apps.
+- `event-directions.spec.js` — 16 cenários com layouts, endereço, teclado, tela pequena, visibilidade, links por plataforma e destino Uber com coordenadas (inclusive zero); usa bundles reais e fixtures. iPhone simulado no Chromium, sem abertura real dos apps.
+- `event-coordinates.spec.js` — dois cenários do formulário: carregamento/remoção em multipart, criação com zero e ocultação dos campos para eventos online; 18 cenários PHP em `EventCoordinatesTest.php` validam o backend.
 - `event-calendar.spec.js` — cinco cenários com os três layouts, menu acessível, inscrição preservada, ausência do botão e largura mobile. Links e dados de calendário também são cobertos por nove cenários PHP em `EventCalendarTest.php`.
 
 ### ✅ Call for Papers (CFP) — implementado
@@ -95,7 +96,7 @@ Cada evento publicado tem página pública `GET /{slug}`:
 
 **Recursos comuns aos três layouts:**
 - **Adicionar ao calendário** (`EventCalendar.vue`): junto da data/local, Google Agenda e Outlook com formulário preenchido, Apple via `/{slug}/calendario.ics`. Exporta título, início/fim, local e descrição com URL; respeita horário local do Ceará apesar da convenção atual de armazenamento UTC. Usa 1h se término ausente/inválido. Sites não publicados e eventos cancelados não permitem exportação. Sem gravação automática nas contas ou sincronização. Ver `docs/site-publico.md`.
-- Botão **Como chegar** (`EventDirections.vue`, montado em `EventSiteApp.vue`): apenas eventos presenciais com `location` preenchido; Uber, Google Maps e Waze com ícones, links HTTPS no desktop, links nativos no iOS, intents no Android e alternativa web. No iPhone, a abertura foi confirmada pelo usuário; no Uber, o destino permanece manual por decisão do usuário, sem latitude/longitude ou geocodificação.
+- Botão **Como chegar** (`EventDirections.vue`, montado em `EventSiteApp.vue`): apenas eventos presenciais com `location` preenchido; Uber, Google Maps e Waze, HTTPS no desktop, links nativos iOS, intents Android e alternativa web. Latitude/longitude opcionais no cadastro, validadas em par e enviadas ao Uber como destino. Sem coordenadas, pode exigir digitação manual. Sem geocodificação. A abertura no iPhone foi confirmada; o preenchimento do destino com coordenadas ainda requer teste no app instalado.
 - Logos do Clássico ampliadas para 224 × 128px / 288 × 160px; Imersivo para 256 × 160px / 320 × 192px (caixas mobile / desktop). Minimalista mantém o cabeçalho compacto.
 - Loader "Perainda!" via `Suspense @resolve` em `EventSiteApp.vue` (esconde quando o layout carrega)
 - Animações de entrada entre seções via `IntersectionObserver` (`.section-hidden` + `.section-visible`)

@@ -19,14 +19,30 @@ const isMobile = isIOS || isAndroid
 const address = computed(() => (props.event.location ?? '').trim())
 const available = computed(() => !props.event.is_online && address.value !== '')
 
+const coordinates = computed(() => {
+    const { latitude, longitude } = props.event
+    if (latitude == null || longitude == null || String(latitude).trim() === '' || String(longitude).trim() === '') return null
+    const lat = Number(latitude)
+    const lng = Number(longitude)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null
+    return { latitude: lat, longitude: lng }
+})
+
 const apps = computed(() => {
     const query = encodeURIComponent(address.value)
+    const dropoff = {
+        'dropoff[formatted_address]': address.value,
+        'dropoff[nickname]': address.value,
+    }
+    if (coordinates.value) {
+        dropoff['dropoff[latitude]'] = String(coordinates.value.latitude)
+        dropoff['dropoff[longitude]'] = String(coordinates.value.longitude)
+    }
     const uber = new URL('https://m.uber.com/ul/')
     uber.search = new URLSearchParams({
         action: 'setPickup',
         pickup: 'my_location',
-        'dropoff[formatted_address]': address.value,
-        'dropoff[nickname]': address.value,
+        ...dropoff,
     }).toString()
 
     const maps = new URL('https://www.google.com/maps/search/')
@@ -35,7 +51,7 @@ const apps = computed(() => {
     const waze = new URL('https://waze.com/ul')
     waze.search = new URLSearchParams({ q: address.value, utm_source: 'phpcomrapadura' }).toString()
 
-    const nativeUber = `uber://riderequest?pickup=my_location&dropoff[formatted_address]=${query}&dropoff[nickname]=${query}`
+    const nativeUber = `uber://riderequest?${new URLSearchParams({ pickup: 'my_location', ...dropoff }).toString()}`
     const destinations = [
         { id: 'uber', name: 'Uber', webHref: uber.href, nativeHref: nativeUber, androidHref: nativeUber, package: 'com.ubercab' },
         { id: 'maps', name: 'Google Maps', webHref: maps.href, nativeHref: `comgooglemaps://?q=${query}`, androidHref: `geo:0,0?q=${query}`, package: 'com.google.android.apps.maps' },

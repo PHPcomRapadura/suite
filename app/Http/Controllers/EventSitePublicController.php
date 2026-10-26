@@ -87,6 +87,8 @@ class EventSitePublicController extends Controller
                     'starts_at' => $event->starts_at,
                     'ends_at' => $event->ends_at,
                     'location' => $event->location,
+                    'latitude' => $event->latitude,
+                    'longitude' => $event->longitude,
                     'is_online' => $event->is_online,
                     'cover_image' => $event->cover_image,
                     'logo' => $event->logo,

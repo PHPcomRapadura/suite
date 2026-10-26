@@ -86,11 +86,26 @@ Após selecionar um aplicativo no celular, o painel oferece **“Não abriu? Usa
 
 O botão fica à direita, acima do botão de voltar ao topo, respeitando a área segura do dispositivo. O painel fecha pelo botão, por clique fora, por foco movido para fora ou por Escape; Escape devolve o foco ao botão. O painel suporta telas estreitas e endereços longos.
 
-### Limitação aceita do Uber
+### Coordenadas para o destino no Uber
 
-O usuário confirmou a abertura dos três aplicativos no Safari e no Chrome do iPhone. No Uber, **o campo “Para onde?” não é preenchido**, apesar do envio de `dropoff[formatted_address]` e `dropoff[nickname]`. O usuário preenche o destino no aplicativo.
+Sem coordenadas, o usuário confirmou que o Uber abria no Safari e no Chrome do iPhone, mas não preenchia “Para onde?” apenas com o nome e o endereço. Em 26/10/2026, foi solicitado adicionar suporte a coordenadas, substituindo a decisão inicial de manter somente o endereço.
 
-Em 23/10/2026, foi decidido manter esse comportamento: **não adicionar latitude, longitude, geocodificação ou novos campos ao cadastro**. A implementação não deve ser descrita como preenchimento garantido do destino no Uber. Não houve alteração de código após essa decisão.
+O cadastro de eventos tem **Latitude** e **Longitude**, opcionais e exibidas abaixo do Local para eventos presenciais. Copiar as coordenadas do ponto correto no Google Maps; ao alterar o endereço, conferir também essas coordenadas. Não há geocodificação automática, novas chaves ou chamadas a APIs externas.
+
+- `latitude`: número entre -90 e 90; `longitude`: entre -180 e 180. Preencher ambas ou deixar ambas vazias. Zero é válido.
+- Colunas nullable `decimal(10,7)`; o modelo e os dados públicos retornam números. Eventos existentes começam sem coordenadas.
+- Edição permite remover as coordenadas apagando os dois campos; o formulário envia vazios explicitamente em multipart. Requisições que não enviam nenhum dos campos preservam o par salvo.
+- Quando há um par válido, o Uber recebe `dropoff[latitude]` e `dropoff[longitude]`, além de nome/endereço e `pickup=my_location`, nos links web, iOS e Android e nas alternativas web.
+- Sem coordenadas, mantém o fluxo anterior; o destino pode precisar ser digitado no Uber. Google Maps e Waze continuam pesquisando pelo endereço.
+- A abertura dos apps foi confirmada anteriormente pelo usuário; **o preenchimento do destino com coordenadas ainda precisa ser confirmado no Uber instalado**, pois os testes automatizados verificam os parâmetros, não executam o aplicativo.
+
+Antes de usar os campos em outro ambiente, aplicar a migration:
+
+```bash
+docker compose exec -T app php artisan migrate --force
+```
+
+Migration: `2026_10_26_000000_add_coordinates_to_events_table.php`. Aplicada no banco local; não houve preenchimento automático de coordenadas nos eventos.
 
 Referências: [Uber](https://developer.uber.com/docs/riders/ride-requests/tutorials/deep-links/introduction), [Google Maps no iOS](https://developers.google.com/maps/documentation/urls/ios-urlscheme), [Waze](https://developers.google.com/waze/deeplinks) e [Android Intents no Chrome](https://developer.chrome.com/docs/android/intents).
 
@@ -101,12 +116,13 @@ Com os containers disponíveis em `http://localhost:8000`, executar:
 ```bash
 npm run build
 npx playwright test tests/e2e/event-directions.spec.js --reporter=line --output=/tmp/phpcomrapadura-e2e
+npx playwright test tests/e2e/event-coordinates.spec.js --reporter=line --output=/tmp/phpcomrapadura-coordinates-e2e
 npx playwright test tests/e2e/event-calendar.spec.js --reporter=line --output=/tmp/phpcomrapadura-calendar-e2e
 docker compose exec -T app php vendor/bin/pest tests/Feature/EventCalendarTest.php
 git diff --check
 ```
 
-Os dez testes cobrem os três layouts, codificação de endereço com acentos e caracteres especiais, abertura/fechamento, teclado, eventos online ou sem local, tela pequena, links nativos no iPhone e intents no Android.
+Os 16 testes de `event-directions.spec.js` cobrem os três layouts, codificação de endereço com acentos e caracteres especiais, abertura/fechamento, teclado, eventos online ou sem local, tela pequena, links nativos no iPhone, intents no Android e coordenadas no destino Uber, inclusive zero. Outros dois E2E em `event-coordinates.spec.js` conferem o cadastro, preenchimento, remoção, ocultação online e envio de coordenadas zero; 18 cenários PHP em `EventCoordinatesTest.php` validam persistência, limites, pares e exposição pública.
 
 Os cenários chamados Safari/Chrome no iPhone usam user agents e eventos de toque simulados no Chromium. **Não são testes em Safari/WebKit ou de abertura real de apps instalados.** A abertura real no iPhone foi confirmada manualmente pelo usuário; a abertura real no Android não foi confirmada nesta sessão.
 

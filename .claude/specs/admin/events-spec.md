@@ -34,6 +34,8 @@ As imagens `cover_image` e `logo` são armazenadas no **Cloudflare R2** via disc
 | `starts_at` | `datetime` | Data/hora de início |
 | `ends_at` | `datetime` | Nullable — data/hora de encerramento |
 | `location` | `string(255)` | Nullable — endereço físico ou nome do local |
+| `latitude` | `decimal(10,7)` | Nullable — entre -90 e 90, retorna float no modelo/API |
+| `longitude` | `decimal(10,7)` | Nullable — entre -180 e 180, retorna float no modelo/API |
 | `is_online` | `boolean` | Default `false` — se true, exibe "Online" |
 | `status` | `enum` | `rascunho`, `publicado`, `encerrado`, `cancelado` — default `rascunho` |
 | `is_accepting_talks` | `boolean` | Default `false` — ativa o CFP para este evento |
@@ -44,6 +46,8 @@ As imagens `cover_image` e `logo` são armazenadas no **Cloudflare R2** via disc
 | `timestamps` | — | `created_at`, `updated_at` |
 
 ### 2.2 Migration
+
+Em 26/10/2026, a migration aditiva `2026_10_26_000000_add_coordinates_to_events_table.php` adiciona latitude/longitude nullable a eventos existentes. Campos incluídos em `$fillable` e casts `float`. `StoreEventRequest` e `UpdateEventRequest` exigem números dentro dos limites e o par completo (`required_with`); zero é válido. Ambos vazios são aceitos. O formulário mostra as coordenadas abaixo do Local apenas em eventos presenciais e envia vazios explicitamente na edição multipart para remover valores salvos. Requisições sem os dois campos preservam coordenadas existentes. Sem geocodificação ou preenchimento automático. Testes: `EventCoordinatesTest.php` (18 cenários), `event-coordinates.spec.js` (2 E2E).
 
 ```php
 Schema::create('events', function (Blueprint $table) {
