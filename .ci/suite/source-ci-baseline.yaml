@@ -1,0 +1,269 @@
+name: CI/CD
+
+# Every push to main is checked, packaged, and shipped:
+#   quality ─┬─ build ── deploy-production   (our VM, phpcomrapadura.org)
+#            └────────── deploy-staging      (Tevun, phpcomrapadura.devi.tools)
+# Pull requests only run the quality job. They never see a secret.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      # Production runs MariaDB 11.4, so check every migration against it.
+      # Pest itself keeps using in-memory SQLite (phpunit.xml).
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_DATABASE: suite
+          MARIADB_ROOT_PASSWORD: ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: gd, mbstring, intl, zip, bcmath, exif, pdo_mysql, pdo_sqlite, redis
+          coverage: none
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci
+
+      # View tests need the Vite manifest.
+      - name: Build assets
+        run: npm run build
+
+      # storage/framework/{views,cache,sessions} have no placeholder files in
+      # git, so a fresh clone lacks them and every view test fails.
+      - name: Prepare Laravel
+        run: |
+          mkdir -p storage/framework/{views,cache/data,sessions} storage/logs bootstrap/cache
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Pint
+        run: vendor/bin/pint --test
+
+      - name: Larastan
+        run: vendor/bin/phpstan analyse --memory-limit=512M --no-progress
+
+      - name: Pest
+        run: vendor/bin/pest --parallel
+
+      # route:cache fails on duplicate route names and `optimize` hides it. Build
+      # every cache the deploy script builds, then clear them again so the
+      # migration step below still reads its DB settings from the environment.
+      - name: Laravel caches
+        run: |
+          php artisan config:cache
+          php artisan event:cache
+          php artisan view:cache
+          php artisan route:cache
+          php artisan config:clear
+          php artisan event:clear
+          php artisan view:clear
+          php artisan route:clear
+
+      - name: Migrations on MariaDB 11.4
+        env:
+          DB_CONNECTION: mariadb
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: suite
+          DB_USERNAME: root
+          DB_PASSWORD: ci
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          ADMIN_PASSWORD: ci-only-password
+        run: |
+          php artisan migrate --force
+          php artisan migrate:rollback --force
+          php artisan migrate --force
+          php artisan db:seed --force
+
+  build:
+    name: Build release
+    needs: quality
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: gd, mbstring, intl, zip, bcmath, exif, pdo_mysql, redis
+          coverage: none
+          tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install production dependencies and build assets
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+          npm ci
+          npm run build
+
+      # storage/ and .env are not shipped. Each release on the server links
+      # them to its shared copies.
+      - name: Package release
+        run: |
+          echo "$GITHUB_SHA" > REVISION
+          tar --zstd -cf "$RUNNER_TEMP/suite-$GITHUB_SHA.tar.zst" \
+            --exclude=./.git --exclude=./.github --exclude=./node_modules \
+            --exclude=./tests --exclude=./storage --exclude='./.env' \
+            --exclude=./docker --exclude=./.tevun --exclude=./.environment \
+            --exclude=./graphify-out --exclude=./test-results --exclude=./.claude \
+            .
+          sha256sum "$RUNNER_TEMP/suite-$GITHUB_SHA.tar.zst"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: suite-${{ github.sha }}
+          path: ${{ runner.temp }}/suite-${{ github.sha }}.tar.zst
+          retention-days: 30
+          compression-level: 0
+
+  deploy-production:
+    name: Deploy production (VM)
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://phpcomrapadura.org
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    env:
+      DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+      DEPLOY_SECRET: ${{ secrets.DEPLOY_HOOK_SECRET }}
+      RELEASE_PATH: /v1/apps/suite/releases/${{ github.sha }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: suite-${{ github.sha }}
+
+      # The receiver checks: HMAC over method, path, timestamp and body
+      # hash; a timestamp within 5 minutes; the body checksum; and that the
+      # commit is on main.
+      - name: Upload release
+        run: |
+          set -euo pipefail
+          file="suite-$GITHUB_SHA.tar.zst"
+          sum=$(sha256sum "$file" | cut -d' ' -f1)
+          ts=$(date +%s)
+          sig=$(printf 'PUT\n%s\n%s\n%s' "$RELEASE_PATH" "$ts" "$sum" \
+            | openssl dgst -sha256 -hmac "$DEPLOY_SECRET" -r | cut -d' ' -f1)
+          curl --fail-with-body -sS --retry 3 --retry-all-errors --max-time 300 \
+            -X PUT "$DEPLOY_URL$RELEASE_PATH" \
+            -H "X-Deploy-Timestamp: $ts" \
+            -H "X-Deploy-Checksum: sha256=$sum" \
+            -H "X-Deploy-Signature: sha256=$sig" \
+            -H 'Content-Type: application/zstd' \
+            --data-binary @"$file"
+
+      - name: Wait for the release to go live
+        run: |
+          set -euo pipefail
+          empty=$(printf '' | sha256sum | cut -d' ' -f1)
+          for _ in $(seq 1 90); do
+            ts=$(date +%s)
+            sig=$(printf 'GET\n%s\n%s\n%s' "$RELEASE_PATH" "$ts" "$empty" \
+              | openssl dgst -sha256 -hmac "$DEPLOY_SECRET" -r | cut -d' ' -f1)
+            # A transient edge or VM error must not fail the job: keep polling.
+            status=$(curl -sS --max-time 30 "$DEPLOY_URL$RELEASE_PATH" \
+              -H "X-Deploy-Timestamp: $ts" \
+              -H "X-Deploy-Signature: sha256=$sig" || true)
+            state=$(jq -r '.state // empty' <<<"$status" 2>/dev/null || true)
+            case "$state" in
+              live)
+                jq -r .log <<<"$status"; exit 0 ;;
+              superseded)
+                echo "::notice::A newer commit was deployed first."; exit 0 ;;
+              failed)
+                jq -r .log <<<"$status"; echo "::error::Deploy failed on the VM; the previous release is still serving."; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::Timed out waiting for the VM."; exit 1
+
+  # William's Tevun deploy, unchanged except that it now waits for the
+  # quality gate and runs in the "staging" environment.
+  deploy-staging:
+    name: Deploy staging (Tevun)
+    needs: quality
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build production assets
+        run: |
+          npm ci
+          npm run build
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SERVER_PRIVATE_KEY }}
+      - name: Configure trusted SSH host
+        env:
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$DEPLOY_KNOWN_HOSTS"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Push deployment to Tevun
+        env:
+          DEPLOY_REMOTE: ${{ vars.DEPLOY_REMOTE }}
+        run: |
+          cp .environment/phpcomrapadura.org/docker-compose.override.yml docker-compose.override.yml
+          rm -rf .git
+          git init --initial-branch=main
+          git config user.name "GitHub Actions"
+          git config user.email "ci@phpcomrapadura.org"
+          git add .
+          git add -f public/build
+          if [ -f public/fonts-manifest.json ]; then git add -f public/fonts-manifest.json; fi
+          git commit -m "build: Deploy $GITHUB_SHA"
+          git remote add production "$DEPLOY_REMOTE"
+          git push production main --force
