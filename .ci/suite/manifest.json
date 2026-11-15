@@ -4,8 +4,8 @@
     "app_ci_test.py": "8ad7c08664aef9503325ae721850195442f0458d5f822f318c2c17ce5046be52",
     "app_image.py": "0f83290e04a9f3cf88aa71d804cd9bcf470faf03978b9ee955fe34c65dd24703",
     "app_image_test.py": "f303e715620952b37b1a5f35d15ef3a02fe579405e909ba336a1631aa61d946f",
-    "app_vendor.py": "809963d8be2aeafef73f428cec8bd816b715d5d3ab4a8514ea8025bc0094b835",
-    "app_vendor_test.py": "c130b7542f18ac60de82aad435c5d469c1540cb4bd2f84ced3fd40e4b7381f51",
+    "app_vendor.py": "089bc1c622cc24a5a12eb89ab38019edfc68bfc29ca004e1d60ab0edfd29f982",
+    "app_vendor_test.py": "c74a7427dce8f289b4928567d1b3092b0df7365d5dc75b4f1e7b21e75becef1f",
     "runtime_build.py": "505f3e8dbabfe2bd94b7d6b1c49007aad168c4c9c95d4a80ed15a5ee4a3426f5",
     "runtime_publish.py": "bbb3d654ef8799c0d984c5910025c1dc1aeaf0d8f0243ee9018447e7f1ca6656",
     "source-ci-baseline.yaml": "00e39eccb8b392dc8900b01dfc050764dee4615ce303058cbf1745349d325f96"

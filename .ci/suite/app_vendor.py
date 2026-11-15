@@ -46,6 +46,9 @@ def workflow():
     return '''name: Build Suite image
 on:
   workflow_call:
+    secrets:
+      IMAGE_PUBLISH_TOKEN:
+        required: true
     inputs:
       revision: {type: string, required: true}
       source_run: {type: string, required: true}
@@ -83,6 +86,12 @@ jobs:
       SUITE_PARENT_METADATA: ${{ inputs.parent_metadata || vars.SUITE_PARENT_METADATA }}
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare bounded archive tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zstd
+          command -v docker
+          command -v gh
       - name: Verify reviewed builder copy
         run: python3 -B .ci/suite/app_vendor.py verify --directory .ci/suite
       - name: Check application publication boundaries
@@ -139,6 +148,8 @@ def source_workflow(text):
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     uses: ./.github/workflows/container-image.yml
+    secrets:
+      IMAGE_PUBLISH_TOKEN: ${{ secrets.IMAGE_PUBLISH_TOKEN }}
     with:
       revision: ${{ github.sha }}
       source_run: ${{ github.run_id }}
