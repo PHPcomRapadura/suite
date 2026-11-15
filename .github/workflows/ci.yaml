@@ -108,6 +108,10 @@ jobs:
 
   build:
     name: Build release
+    outputs:
+      artifact_id: ${{ steps.release.outputs.artifact-id }}
+      artifact_sha256: ${{ steps.archive.outputs.sha256 }}
+      source_attempt: ${{ steps.archive.outputs.attempt }}
     needs: quality
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -136,26 +140,45 @@ jobs:
       # storage/ and .env are not shipped. Each release on the server links
       # them to its shared copies.
       - name: Package release
+        id: archive
         run: |
           echo "$GITHUB_SHA" > REVISION
           tar --zstd -cf "$RUNNER_TEMP/suite-$GITHUB_SHA.tar.zst" \
-            --exclude=./.git --exclude=./.github --exclude=./node_modules \
+            --exclude=./.git --exclude=./.github --exclude=./.ci --exclude=./node_modules \
             --exclude=./tests --exclude=./storage --exclude='./.env' \
             --exclude=./docker --exclude=./.tevun --exclude=./.environment \
             --exclude=./graphify-out --exclude=./test-results --exclude=./.claude \
             .
           sha256sum "$RUNNER_TEMP/suite-$GITHUB_SHA.tar.zst"
+          echo "sha256=$(sha256sum "$RUNNER_TEMP/suite-$GITHUB_SHA.tar.zst" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "attempt=$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
+        id: release
         with:
-          name: suite-${{ github.sha }}
+          name: suite-${{ github.sha }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/suite-${{ github.sha }}.tar.zst
           retention-days: 30
           compression-level: 0
 
+  build-image:
+    name: Build CI image
+    permissions:
+      contents: read
+      actions: read
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    uses: ./.github/workflows/container-image.yml
+    with:
+      revision: ${{ github.sha }}
+      source_run: ${{ github.run_id }}
+      source_attempt: ${{ needs.build.outputs.source_attempt }}
+      artifact_id: ${{ needs.build.outputs.artifact_id }}
+      artifact_sha256: ${{ needs.build.outputs.artifact_sha256 }}
+
   deploy-production:
     name: Deploy production (VM)
-    needs: build
+    needs: [build, build-image]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -172,7 +195,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: suite-${{ github.sha }}
+          name: suite-${{ github.sha }}-${{ needs.build.outputs.source_attempt }}
 
       # The receiver checks: HMAC over method, path, timestamp and body
       # hash; a timestamp within 5 minutes; the body checksum; and that the

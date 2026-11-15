@@ -1,0 +1,63 @@
+name: Build Suite image
+on:
+  workflow_call:
+    inputs:
+      revision: {type: string, required: true}
+      source_run: {type: string, required: true}
+      source_attempt: {type: string, required: true}
+      artifact_id: {type: string, required: true}
+      artifact_sha256: {type: string, required: true}
+      parent_metadata: {type: string, required: false, default: ''}
+  workflow_dispatch:
+    inputs:
+      revision: {type: string, required: true}
+      source_run: {type: string, required: true}
+      source_attempt: {type: string, required: true}
+      artifact_id: {type: string, required: true}
+      artifact_sha256: {type: string, required: true}
+      parent_metadata: {type: string, required: false, default: ''}
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: suite-image-${{ github.run_id }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: image-publication
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SUITE_REVISION: ${{ inputs.revision }}
+      SUITE_SOURCE_RUN: ${{ inputs.source_run }}
+      SUITE_SOURCE_ATTEMPT: ${{ inputs.source_attempt }}
+      SUITE_ARTIFACT_ID: ${{ inputs.artifact_id }}
+      SUITE_ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+      SUITE_PARENT_METADATA: ${{ inputs.parent_metadata || vars.SUITE_PARENT_METADATA }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify reviewed builder copy
+        run: python3 -B .ci/suite/app_vendor.py verify --directory .ci/suite
+      - name: Check application publication boundaries
+        run: |
+          python3 -B .ci/suite/app_ci_test.py
+          python3 -B .ci/suite/app_image_test.py
+          python3 -B .ci/suite/app_vendor_test.py
+      - name: Build and publish exact tested release
+        env:
+          SUITE_IMAGE_TOKEN: ${{ secrets.IMAGE_PUBLISH_TOKEN }}
+        run: python3 -B .ci/suite/app_image.py --directory "$RUNNER_TEMP/suite-image"
+      - name: Preserve bounded private failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-image-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/suite-image/*-diagnostic.json
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: suite-image-${{ inputs.revision }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/suite-image/image-release.json
+          if-no-files-found: error
