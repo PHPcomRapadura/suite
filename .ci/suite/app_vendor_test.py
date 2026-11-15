@@ -50,7 +50,7 @@ class Vendor(unittest.TestCase):
         workflow=v.workflow()
         for required in ['workflow_call:','workflow_dispatch:',"github.ref == 'refs/heads/main'",
                 'timeout-minutes: 20','environment: image-publication','actions: read','secrets.IMAGE_PUBLISH_TOKEN',
-                'vars.SUITE_PARENT_METADATA','app_vendor.py verify','app_image.py --directory']:
+                'vars.SUITE_PARENT_METADATA','sudo apt-get install -y zstd','app_vendor.py verify','app_image.py --directory']:
             self.assertIn(required,workflow)
         for forbidden in ['contents: write','packages: write','secrets: inherit','DEPLOY_HOOK_SECRET',
                 'DEPLOY_SERVER_PRIVATE_KEY','kubectl','rapadura-secrets','docker.sock','self-hosted']:
@@ -74,6 +74,13 @@ class Vendor(unittest.TestCase):
             self.assertEqual(result[result.index(marker):result.index(end)],baseline[baseline.index(marker):baseline.index(end)])
         with self.assertRaises(ValueError):v.source_workflow(result)
         with self.assertRaises(ValueError):v.source_workflow(baseline+'# foreign change\n')
+
+    def test_environment_publisher_is_required_and_forwarded_by_name_only(self):
+        baseline=Path(__file__).with_name('source-ci-baseline.yaml').read_text()
+        result=v.source_workflow(baseline);mark=chr(36)
+        self.assertIn('    secrets:\n      IMAGE_PUBLISH_TOKEN: '+mark+'{{ secrets.IMAGE_PUBLISH_TOKEN }}',result)
+        self.assertIn('    secrets:\n      IMAGE_PUBLISH_TOKEN:\n        required: true',v.workflow())
+        self.assertNotIn('secrets: inherit',result+v.workflow())
 
     def test_generated_package_script_reports_actual_checksum_and_excludes_builder(self):
         baseline=Path(__file__).with_name('source-ci-baseline.yaml').read_text();result=v.source_workflow(baseline)

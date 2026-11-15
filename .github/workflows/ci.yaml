@@ -169,6 +169,8 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     uses: ./.github/workflows/container-image.yml
+    secrets:
+      IMAGE_PUBLISH_TOKEN: ${{ secrets.IMAGE_PUBLISH_TOKEN }}
     with:
       revision: ${{ github.sha }}
       source_run: ${{ github.run_id }}
