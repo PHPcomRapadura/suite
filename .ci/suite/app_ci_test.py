@@ -17,12 +17,17 @@ import app_ci as c
 REV='b'*40
 
 
+# The reviewed Dockerfile.runtime of the PHP 8.4.28 parent (run 44559462223).
+RECIPE_8_4_28='e59fd057da086d0b629c8bfffe956e5e2007d25c40e307bc061238ea95141ade'
+RECIPE_8_4_27='454405a931ba8c4d60ee0d24d44fe3302e3b2b36e443485d6f311d697e66aa77'
+
+
 def request():
     return {'format':'suite-application-ci-request/1','revision':REV,'source_run':20,'source_attempt':1,
         'artifact_id':30,'artifact_sha256':c.sha(b'zstd-fixture'),'parent':{
             'format':'suite-runtime-ci-publication/1','commit':'a'*40,'run':10,'attempt':1,
             'image':c.PARENT+'@sha256:'+'c'*64,'image_id':'sha256:'+'d'*64,
-            'context_files':{name:'e'*64 for name in c.PARENT_FILES},'runtime_verified':True,
+            'context_files':{name:'e'*64 if name!='Dockerfile'else RECIPE_8_4_28 for name in c.PARENT_FILES},'runtime_verified':True,
             'private_package_verified':True,'application_code_included':False,'configuration_included':False,
             'deployed':False,'profile':'measured-2-64'}}
 
@@ -66,6 +71,15 @@ class CI(unittest.TestCase):
             bad=request();bad['parent'][key]=value
             with self.assertRaises(ValueError):c.checked(bad)
         with self.assertRaises(ValueError):c.decoded(b'{"x":1,"x":2}')
+
+    def test_each_reviewed_runtime_recipe_names_its_php_and_others_have_none(self):
+        value=request()['parent']
+        self.assertEqual(c.php(value),'8.4.28')
+        value['context_files']['Dockerfile']=RECIPE_8_4_27;self.assertEqual(c.php(value),'8.4.27')
+        value['context_files']['Dockerfile']='e'*64
+        with self.assertRaisesRegex(ValueError,'no qualified PHP'):c.php(value)
+        value['context_files'].pop('Dockerfile')
+        with self.assertRaises(ValueError):c.php(value)
 
     def test_exact_source_checks_and_attempt_bound_artifact(self):
         rows=source_api()

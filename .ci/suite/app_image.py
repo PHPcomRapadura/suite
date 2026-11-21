@@ -16,7 +16,7 @@ import runtime_publish as runtime
 
 VERIFY=r'''
 $e=json_decode(stream_get_contents(STDIN),true,512,JSON_THROW_ON_ERROR);
-if(PHP_VERSION!=="8.4.27")exit(65);
+if(!is_string($e["php"]??null)||PHP_VERSION!==$e["php"])exit(65);
 foreach(["pdo_mysql","mbstring","bcmath","gd","intl","zip","redis","Zend OPcache"]as$x)if(!extension_loaded($x))exit(66);
 foreach(["suite-operations","rapadura","deployd"]as$n)if(hash_file("sha256","/usr/local/bin/".$n)!==$e["runtime"][$n])exit(67);
 foreach(["php-fpm.conf"=>"/usr/local/etc/php-fpm.d/app.conf","nginx.conf"=>"/etc/nginx/nginx.conf","artisan-apps.conf"=>"/etc/rapadura/artisan-apps.conf","suite-deploy"=>"/usr/local/bin/suite-deploy","worker.sh"=>"/usr/local/bin/suite-worker","service.sh"=>"/usr/local/bin/suite-service"]as$n=>$path)if(hash_file("sha256",$path)!==$e["runtime"][$n])exit(68);
@@ -124,7 +124,8 @@ def produce(request,directory,values=None,api=None):
     if runtime.package(token)is None:raise ValueError('qualified private runtime package required')
     directory.mkdir(mode=0o700)
     context=ci.prepare(request,tar,directory/'context');identity=ci.sha(json.dumps(context,sort_keys=True).encode())
-    parent=request['parent'];tag=f'{ci.IMAGE}:ci-{run}-{attempt}-{identity[:16]}'
+    # An unlisted runtime recipe is refused before anything is pulled or built.
+    parent=request['parent'];php=ci.php(parent);tag=f'{ci.IMAGE}:ci-{run}-{attempt}-{identity[:16]}'
     with tempfile.TemporaryDirectory(prefix='suite-application-registry-')as registry:
         env={k:v for k,v in values.items()if k not in ['GH_TOKEN','GITHUB_TOKEN']and not k.startswith('SUITE_')}
         env['DOCKER_CONFIG']=registry
@@ -143,7 +144,7 @@ def produce(request,directory,values=None,api=None):
         runtime.command(command+[str(directory/'context')],env=env,timeout=600,output_limit=32*1024**2,
             diagnostic=directory/'build-diagnostic.json',secrets=(token,'rtio:'+token,values['GH_TOKEN']))
         candidate=inspect(tag,labels,env)
-        expected={'runtime':parent['context_files'],'manifest':context['code_manifest_sha256'],
+        expected={'runtime':parent['context_files'],'php':php,'manifest':context['code_manifest_sha256'],
             'seed':context['context_files']['seed.sh'],'sums':context['context_files']['code.sha256']}
         if smoke(candidate['Id'],VERIFY,expected,env)!=b'suite-application-verified':raise ValueError('application image bytes differ')
         if inspect(tag,labels,env)['Id']!=candidate['Id']:raise ValueError('built tag changed')
