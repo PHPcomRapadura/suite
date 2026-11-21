@@ -20,7 +20,7 @@ SOURCE='https://github.com/rtio/rapadura'
 PACKAGE_URL='https://api.github.com/users/rtio/packages/container/community-suite-runtime'
 VERIFY=r'''
 $e=json_decode(stream_get_contents(STDIN),true,512,JSON_THROW_ON_ERROR);
-if(PHP_VERSION!=="8.4.27")exit(65);
+if(PHP_VERSION!=="8.4.28")exit(65);
 foreach(["pdo_mysql","mbstring","bcmath","gd","intl","zip","redis","Zend OPcache"]as$x)if(!extension_loaded($x))exit(66);
 foreach(["suite-operations","rapadura","deployd"]as$n)if(hash_file("sha256","/usr/local/bin/".$n)!==$e[$n])exit(67);
 if(hash_file("sha256","/usr/local/etc/php-fpm.d/app.conf")!==$e["php-fpm.conf"]||hash_file("sha256","/etc/nginx/nginx.conf")!==$e["nginx.conf"])exit(68);

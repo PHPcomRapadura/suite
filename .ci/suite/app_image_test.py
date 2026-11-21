@@ -91,6 +91,33 @@ class Publication(unittest.TestCase):
         docker=(self.root/'out/context/Dockerfile').read_text();self.assertNotIn('artisan',docker);self.assertNotIn('composer',docker)
         self.assertNotIn(TOKEN,path.read_text());self.assertNotIn(GH_TOKEN,path.read_text())
 
+    def checked_php(self):
+        rows=[json.loads(payload)for argv,payload,_ in self.calls if argv[:2]==['docker','run']and argv[-1]==image.VERIFY]
+        self.assertEqual(len(rows),1);return rows[0]['php']
+
+    def test_the_application_check_wants_the_php_of_the_parents_recipe(self):
+        self.produce();self.assertEqual(self.checked_php(),'8.4.28')
+        self.request['parent']['context_files']['Dockerfile']=fixture.RECIPE_8_4_27;self.calls=[]
+        with tempfile.TemporaryDirectory()as d:image.produce(self.request,Path(d)/'out',self.env,self.api)
+        self.assertEqual(self.checked_php(),'8.4.27')
+
+    def test_a_parent_without_a_qualified_php_is_refused_before_docker(self):
+        self.request['parent']['context_files']['Dockerfile']='e'*64
+        with self.assertRaisesRegex(ValueError,'no qualified PHP'):self.produce()
+        self.assertFalse(self.calls)
+
+    def test_the_verifier_compares_the_running_php_with_the_one_it_is_given(self):
+        # The real php: a hardcoded version in the verifier fails this.
+        if subprocess.run(['sh','-c','command -v php'],capture_output=True).returncode:self.skipTest('no php binary')
+        actual=subprocess.run(['php','-r','echo PHP_VERSION;'],capture_output=True,check=True).stdout.decode()
+        def verify(payload):
+            return subprocess.run(['php','-n','-r',image.VERIFY],input=json.dumps(payload).encode(),capture_output=True).returncode
+        for other in ['8.4.27','8.4.28']:
+            if other!=actual:self.assertEqual(verify({'php':other,'runtime':{}}),65)
+        self.assertEqual(verify({'runtime':{}}),65)
+        # Past the version, the next refusal is a missing extension (-n loads none).
+        self.assertEqual(verify({'php':actual,'runtime':{}}),66)
+
     def test_local_pr_fork_and_unprotected_branch_refuse_before_any_api_or_registry(self):
         for key,value in [('GITHUB_ACTIONS','false'),('RUNNER_ENVIRONMENT','self-hosted'),('GITHUB_REF','refs/pull/1/merge'),
                 ('GITHUB_REPOSITORY','foreign/suite'),('GITHUB_REPOSITORY_ID','7'),('GITHUB_EVENT_NAME','pull_request'),

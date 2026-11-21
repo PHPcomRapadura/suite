@@ -23,6 +23,10 @@ ROOTS={'app','bootstrap','config','database','lang','public','resources','routes
 TOP={'artisan','composer.json','composer.lock','package.json','package-lock.json','REVISION'}
 PARENT_FILES={'Dockerfile','nginx.conf','php-fpm.conf','artisan-apps.conf','worker.sh','service.sh','suite-deploy','suite-operations','rapadura','deployd'}
 PARENT_FIELDS={'format','commit','run','attempt','image','image_id','context_files','runtime_verified','private_package_verified','application_code_included','configuration_included','deployed','profile'}
+# The PHP each reviewed runtime recipe installs, by the recipe's hash. A parent
+# whose Dockerfile is not listed has no qualified PHP and cannot be verified.
+PARENT_PHP={'454405a931ba8c4d60ee0d24d44fe3302e3b2b36e443485d6f311d697e66aa77':'8.4.27',
+    'e59fd057da086d0b629c8bfffe956e5e2007d25c40e307bc061238ea95141ade':'8.4.28'}
 FIELDS={'format','revision','source_run','source_attempt','artifact_id','artifact_sha256','parent'}
 
 
@@ -59,6 +63,12 @@ def parent(value):
             or any(not digest(v)for v in value['context_files'].values())):
         raise ValueError('complete qualified data-free runtime receipt required')
     return copy.deepcopy(value)
+
+
+def php(value):
+    version=PARENT_PHP.get(parent(value)['context_files']['Dockerfile'])
+    if version is None:raise ValueError('runtime recipe has no qualified PHP version')
+    return version
 
 
 def checked(value):
