@@ -160,6 +160,12 @@ def publish(directory,binaries,env=None):
         result=command(['docker','run','--rm','--network=none','--read-only','--user=999:999','--cap-drop=ALL',
             '--security-opt=no-new-privileges','--memory=128m','--pids-limit=32','--entrypoint','/bin/sh',tag,
             '-c','/usr/local/bin/suite-operations >/dev/null 2>&1; test "$?" = 65'],env=docker_env)
+        # service.sh starts agentd as `rapadura agentd serve`. Since #413 only the operator's binary
+        # (cmd/rapadurad, dist/server/rapadurad_*) has that command; the member's CLI
+        # (dist/rapadura_*) exits 1 and the agentd container crash-looped on 2026-11-23.
+        command(['docker','run','--rm','--network=none','--read-only','--user=999:999','--cap-drop=ALL',
+            '--security-opt=no-new-privileges','--memory=128m','--pids-limit=32','--entrypoint','/usr/local/bin/rapadura',tag,
+            'agentd','serve','--help'],env=docker_env)
         info=json.loads(command(['docker','image','inspect',tag],env=docker_env))[0]
         config=info.get('Config')or{}
         if (config.get('User')!='999:999'or not re.fullmatch('sha256:[a-f0-9]{64}',info.get('Id',''))
