@@ -7,7 +7,7 @@
     "app_vendor.py": "089bc1c622cc24a5a12eb89ab38019edfc68bfc29ca004e1d60ab0edfd29f982",
     "app_vendor_test.py": "c74a7427dce8f289b4928567d1b3092b0df7365d5dc75b4f1e7b21e75becef1f",
     "runtime_build.py": "505f3e8dbabfe2bd94b7d6b1c49007aad168c4c9c95d4a80ed15a5ee4a3426f5",
-    "runtime_publish.py": "e729a14afeaca755cf755c0383a4e33769d71b67212b97b14db14cfd9d0e3e21",
+    "runtime_publish.py": "0f34b20094b04558fe938eb40b7f178020e3624953484d0d38057b87732501a8",
     "source-ci-baseline.yaml": "00e39eccb8b392dc8900b01dfc050764dee4615ce303058cbf1745349d325f96"
   },
   "format": "suite-application-ci-vendor/1"
